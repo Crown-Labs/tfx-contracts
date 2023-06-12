@@ -1,0 +1,35 @@
+# These are some examples of commonly ignored file patterns.
+# You should customize this list as applicable to your project.
+# Learn more about .gitignore:
+#     https://www.atlassian.com/git/tutorials/saving-changes/gitignore
+
+# Node artifact files
+node_modules/
+dist/
+
+# Compiled Java class files
+*.class
+
+# Compiled Python bytecode
+*.py[cod]
+
+node_modules/
+.vscode
+typechain/
+data/gmxMigration
+data/esGmxDistribution
+data/bonds
+data/batchSend
+data/nft
+data/snapshotBalance
+data/holders
+data/contractList
+flattened
+distribution-data*.json
+**/.DS_Store
+.env
+solidity-files-cache.json
+
+#Hardhat files
+cache
+artifacts
