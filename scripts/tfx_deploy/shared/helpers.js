@@ -17,10 +17,11 @@ const tokenIndexs = {
   BTC: 0,
   ETH: 1,
   BNB: 2,
-  USDT: 3,
   BUSD: 4,
   USDC: 5,
-  DOGE: 6,
+  MATIC: 21,
+  OP: 28,
+  ARB: 29,
 };
 
 const contactAddress = {
@@ -41,23 +42,27 @@ const contactAddress = {
   // token address
   btc: deployedAddress["BTC"],
   eth: deployedAddress["ETH"],
-  wbnb: "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd",
+  wbnb: "0x617d91847b74b70a3d3e3745445cb0d1b3c8560e",
   busd: deployedAddress["BUSD"],
   usdc: deployedAddress["USDC"],
-  usdt: deployedAddress["USDT"],
-  doge: deployedAddress["DOGE"],
+  // usdt: deployedAddress["USDT"],
+  matic: deployedAddress["MATIC"],
+  op: deployedAddress["OP"],
+  arb: deployedAddress["ARB"],
 
   // xOracle price feed
   btcPriceFeed: "0x9712698c1c91E3e5C39e3C63FdB94e39684183fd",
   ethPriceFeed: "0xd10AA8815a99040B77534e87fDd114d76EF470e8",
   bnbPriceFeed: "0x653600728020805eaa1d25ed04De4555A3665E77",
-  usdtPriceFeed: "0xEe39a2A8A95F8af0a7Ee9ED5fD990426bfe70EEA",
+  // usdtPriceFeed: "0xEe39a2A8A95F8af0a7Ee9ED5fD990426bfe70EEA",
   busdPriceFeed: "0x253d485946F8c62Cb74eA80BA51E2AaBda800810",
   usdcPriceFeed: "0x0B466b02dCbEbd5090D397C57A7764B06aFC9E53",
-  dogePriceFeed: "0x8103d8F75bcA7115d65E5A095417Fd4Efd99dE12",
+  maticPriceFeed: "0xccCd5c5D4e3d2F85d07f041759B96f8b8A622056",
+  opPriceFeed: "0x8008ef7228C13e14CB66F7cd08076728bd7538Bd",
+  arbPriceFeed: "0x7943EBf07bBf8b0068d708c1997FFB22b15eEB57",
 
   // deployed contract
-  xOracle: "0x9057A36856116a7100a3cB9C7f676d1477b71c43", // update 2023-03-22
+  xOracle: "0x246619D5534aaDea2C5F928C073a7fdEbF7EDCe8", // update 2023-06-21 (2)
   fulfillController: deployedAddress["FulfillController"],
   tokenManager: deployedAddress["TokenManager"],
   vault: deployedAddress["Vault"],
@@ -105,20 +110,8 @@ const readCsv = async (file) => {
 };
 
 function getChainId(network) {
-  // if (network === "arbitrum") {
-  //   return 42161;
-  // }
-
-  // if (network === "avax") {
-  //   return 43114;
-  // }
-
-  // if (network === "testnet") {
-  //   return 97
-  // }
-
-  if (network === "xorTestnet") {
-    return 1123581322;
+  if (network === "opbnbTestnet") {
+    return 5611;
   }
 
   if (network === "bscTestnet") {
