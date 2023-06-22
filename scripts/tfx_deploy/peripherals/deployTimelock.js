@@ -4,7 +4,7 @@ const { expandDecimals } = require("../../../test/shared/utilities")
 const network = (process.env.HARDHAT_NETWORK || 'mainnet');
 let signer; 
 
-async function getTestnetValues() {
+async function getValues() {
   const vault = await contractAt("Vault", getContractAddress("vault"), signer)
   const vaultPriceFeed = await contractAt("VaultPriceFeed", await vault.priceFeed(), signer)
   // const fastPriceFeed = await contractAt("FastPriceFeed", await vaultPriceFeed.secondaryPriceFeed(), signer)
@@ -17,46 +17,6 @@ async function getTestnetValues() {
   const positionManager = await contractAt("PositionManager", await getContractAddress("positionManager"), signer)
 
   return { vault, vaultPriceFeed, router, tokenManager, mintReceiver, positionRouter, positionManager }
-}
-
-/*async function getArbValues() {
-  const vault = await contractAt("Vault", "0x489ee077994B6658eAfA855C308275EAd8097C4A")
-  const tokenManager = { address: "0x7b78CeEa0a89040873277e279C40a08dE59062f5" }
-  const mintReceiver = { address: "0x50F22389C10FcC3bA9B1AB9BCDafE40448a357FB" }
-
-  const positionRouter = { address: "0x3D6bA331e3D9702C5e8A8d254e5d8a285F223aba" }
-  const positionManager = { address: "0x87a4088Bd721F83b6c2E5102e2FA47022Cb1c831" }
-
-  return { vault, tokenManager, mintReceiver, positionRouter, positionManager }
-}
-
-async function getAvaxValues() {
-  const vault = await contractAt("Vault", "0x9ab2De34A33fB459b538c43f251eB825645e8595")
-  const tokenManager = { address: "0x26137dfA81f9Ac8BACd748f6A298262f11504Da9" }
-  const mintReceiver = { address: "0x7F98d265Ba2609c1534D12cF6b0976505Ad7F653" }
-
-  const positionRouter = { address: "0x195256074192170d1530527abC9943759c7167d8" }
-  const positionManager = { address: "0xF2ec2e52c3b5F8b8bd5A3f93945d05628A233216" }
-
-  return { vault, tokenManager, mintReceiver, positionRouter, positionManager }
-}*/
-
-async function getValues() {
-  if (network === "xorTestnet") {
-    return getTestnetValues()
-  }
-  
-  if (network === "bscTestnet") {
-    return getTestnetValues()
-  }
-
-  // if (network === "arbitrum") {
-  //   return getArbValues()
-  // }
-
-  // if (network === "avax") {
-  //   return getAvaxValues()
-  // }
 }
 
 async function main() {

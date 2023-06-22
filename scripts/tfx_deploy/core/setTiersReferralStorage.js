@@ -3,42 +3,12 @@ const { contractAt, sendTxn, getFrameSigner, getContractAddress } = require("../
 const network = (process.env.HARDHAT_NETWORK || 'mainnet');
 const tokens = require('./tokens')[network];
 
-async function getTestnetValues() {
+async function getValues() {
   const signer = await getFrameSigner()
   const referralStorage = await contractAt("ReferralStorage", getContractAddress("referralStorage"), signer)
   const timelock = { address: getContractAddress("timelock") }
 
   return { referralStorage, timelock }
-}
-
-/*async function getArbValues() {
-  const referralStorage = await contractAt("ReferralStorage", "0xe6fab3F0c7199b0d34d7FbE83394fc0e0D06e99d")
-
-  return { referralStorage }
-}
-
-async function getAvaxValues() {
-  const referralStorage = await contractAt("ReferralStorage", "0x827ED045002eCdAbEb6e2b0d1604cf5fC3d322F8")
-
-  return { referralStorage }
-}*/
-
-async function getValues() {
-  if (network === "xorTestnet") {
-    return getTestnetValues()
-  }
-
-  if (network === "bscTestnet") {
-    return getTestnetValues()
-  }
-
-  if (network === "arbitrum") {
-    return getArbValues()
-  }
-
-  if (network === "avax") {
-    return getAvaxValues()
-  }
 }
 
 async function main() {

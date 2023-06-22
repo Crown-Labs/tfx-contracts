@@ -6,20 +6,7 @@ async function main() {
   const signer = await getFrameSigner()
   const reader = await deployContract("Reader", [], "Reader", signer)
 
-  if (network === "xorTestnet") {
-    await sendTxn(reader.setConfig(true), "Reader.setConfig")
-  }
-  if (network === "bscTestnet") {
-    await sendTxn(reader.setConfig(true), "Reader.setConfig")
-  }
-
-  // if (network === "avax") {
-  //   await sendTxn(reader.setConfig(true), "Reader.setConfig")
-  // }
-
-  // writeTmpAddresses({
-  //   reader: reader.address
-  // })
+  await sendTxn(reader.setConfig(true), "Reader.setConfig")
 }
 
 main()

@@ -3,10 +3,6 @@ const { deployContract, contractAt, writeTmpAddresses, getFrameSigner } = requir
 async function main() {
   const signer = await getFrameSigner()
   const orderBookReader = await deployContract("OrderBookReader", [], "", signer)
-
-  // writeTmpAddresses({
-  //   orderBookReader: orderBookReader.address
-  // })
 }
 
 main()

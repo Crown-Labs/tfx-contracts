@@ -5,7 +5,7 @@ const network = (process.env.HARDHAT_NETWORK || 'mainnet');
 const tokens = require('./tokens')[network];
 let signer; (async () => { signer = await getFrameSigner() })();
 
-async function getTestnetValues() {
+async function getValues() {
   const vault = await contractAt("Vault", getContractAddress("vault"), signer)
   const vaultPositionController = await contractAt("VaultPositionController", getContractAddress("vaultPositionController"))
   // const timelock = await contractAt("Timelock", await vault.gov(), signer)
@@ -23,23 +23,6 @@ async function getTestnetValues() {
   const partnerContracts = []
 
   return { vault, vaultPositionController, router, weth, depositFee, orderKeeper, liquidator, executionFeeReceiver, usdg, partnerContracts }
-}
-
-async function getValues() {
-  if (network === "xorTestnet") {
-    return getTestnetValues()
-  }
-  if (network === "bscTestnet") {
-    return getTestnetValues()
-  }
-
-  /*if (network === "arbitrum") {
-    return getArbValues()
-  }
-
-  if (network === "avax") {
-    return getAvaxValues()
-  }*/
 }
 
 async function main() {
