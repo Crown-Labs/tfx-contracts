@@ -9,7 +9,6 @@ async function main() {
 
   const signer = await getFrameSigner()
 
-  const vault = await contractAt("Vault", getContractAddress("vault"), signer)
   const vaultPriceFeed = await contractAt("VaultPriceFeed", getContractAddress("vaultPriceFeed"), signer)
   let timelock;
 
@@ -34,16 +33,6 @@ async function main() {
       token.priceDecimals, // _priceDecimals
       token.isStrictStable // _isStrictStable
     ), `vaultPriceFeed.setTokenConfig(${token.name}) ${token.address} ${token.priceFeed}`)
-
-    await sendTxn(vault.setTokenConfig(
-      token.address, // _token
-      token.decimals, // _tokenDecimals
-      token.tokenWeight, // _tokenWeight
-      token.minProfitBps, // _minProfitBps
-      expandDecimals(token.maxUsdgAmount, 18), // _maxUsdgAmount
-      token.isStable, // _isStable
-      token.isShortable // _isShortable
-    ), `vault.setTokenConfig(${token.name}) ${token.address}`)
   }
 
   // Set timelock
