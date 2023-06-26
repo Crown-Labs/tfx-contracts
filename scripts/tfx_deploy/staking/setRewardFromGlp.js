@@ -63,7 +63,7 @@ async function main() {
     {
       name: "FeeGlpDistributor",
       address: getContractAddress("feeGlpDistributor"),
-      transferAmount: "3", // 20
+      transferAmount: "1", // 20
       rewardCName: "MintableBaseToken",  // WXORD
       isRewardsPerInterval: true,
       isRewardNativeToken: true,
@@ -88,7 +88,7 @@ async function main() {
 
   const wbnb = await contractAt(
     "Token",
-    "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd", //wBNB bsctestnet
+    "0x617d91847b74b70a3d3e3745445cb0d1b3c8560e", //wBNB opbnbTestnet
     signer
   );
 
@@ -133,7 +133,8 @@ if (!Number(wbnbBalance.toString() / 10 ** 18)) {
       tokenDecimals
     );
 
-    const timeInSeconds = 1 * 24 * 60 * 60; // 90 days
+    // const timeInSeconds = 90 * 24 * 60 * 60; // 90 days
+    const timeInSeconds = 1 * 24 * 60 * 60; // 1 days
 
     const rewardsPerInterval = convertedTransferAmount.div(timeInSeconds);
     //  token per second (66 days)
