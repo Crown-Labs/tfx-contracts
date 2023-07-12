@@ -14,10 +14,10 @@ async function main() {
   const orderKeeper = { address: getContractAddress("keeper") }
   const liquidator = { address: getContractAddress("liquidator") }
   const usdg = { address: getContractAddress("usdg") }
-  const prevPositionRouter = await contractAt("PositionRouter", getContractAddress("positionRouter"))
+  const positionRouter = await contractAt("PositionRouter", getContractAddress("positionRouter"))
   const prevOrderBook = await contractAt("OrderBook", getContractAddress("orderBook"))
   const prevPositionManager = await contractAt("PositionManager", getContractAddress("positionManager"))
-  const fulfillController = await contractAt("FulfillController", getContractAddress("fulfillController"))
+  const fulfillController = await contractAt("FulfillController", getContractAddress("fulfillController"), signer)
 
   console.log(`🪄 Upgrade OrderBook, PositionManager`);
 
@@ -66,22 +66,34 @@ async function main() {
   await sendTxn(positionManager.setLiquidator(liquidator.address, true), "positionManager.setLiquidator(liquidator)");
   await sendTxn(positionManager.setIncreasePositionBufferBps(100), "positionManager.setIncreasePositionBufferBps(100)");
   await sendTxn(positionManager.setShouldValidateIncreaseOrder(false), "positionManager.setShouldValidateIncreaseOrder(false)");
+  await sendTxn(positionManager.setMaxExecuteOrder(1), `positionManager.setMaxExecuteOrder(1)`);
+  await sendTxn(positionManager.setFulfillController(fulfillController.address), `positionManager.setFulfillController`);
 
-  await sendTxn(router.removePlugin(prevPositionRouter.address), "router.removePlugin(prevPositionRouter)");
+  await sendTxn(router.removePlugin(prevPositionManager.address), "router.removePlugin(prevPositionManager)");
   await sendTxn(router.removePlugin(prevOrderBook.address), "router.removePlugin(prevOrderBook)");
 
   await sendTxn(router.addPlugin(positionManager.address), "router.addPlugin(positionManager)");
   await sendTxn(router.addPlugin(orderBook.address), "router.addPlugin(orderBook)");
 
   await sendTxn(orderBook.setOrderExecutor(positionManager.address), "orderBook.setOrderExecutor(positionManager)");
+  await sendTxn(orderBook.setFulfillController(fulfillController.address), `orderBook.setFulfillController`);
 
   await sendTxn(fulfillController.setHandler(prevPositionManager.address, false), "fulfillController.setHandler(prevPositionManager)");
   await sendTxn(fulfillController.setHandler(positionManager.address, true), "fulfillController.setHandler(positionManager)");
+
+  await sendTxn(fulfillController.setHandler(prevOrderBook.address, false), "fulfillController.setHandler(prevOrderBook)");
+  await sendTxn(fulfillController.setHandler(orderBook.address, true), `fulfillController.setHandler(orderBook)`);
   
   // ------------------------------
   // Set timelock
   // ------------------------------
   await sendTxn(router.setGov(timelock.address), `router.setGov(timelock)`);
+  
+  await sendTxn(timelock.setContractHandler(prevPositionManager.address, false), "timelock.setContractHandler(prevPositionManager)")
+  await sendTxn(timelock.setContractHandler(positionManager.address, true), "timelock.setContractHandler(positionManager)")
+
+  await sendTxn(timelock.setLiquidator(vault.address, prevPositionManager.address, false), "timelock.setLiquidator(vault, positionManager, false)")
+  await sendTxn(timelock.setLiquidator(vault.address, positionManager.address, true), "timelock.setLiquidator(vault, positionManager, true)")
 }
 
 main()
