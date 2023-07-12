@@ -273,7 +273,7 @@ contract PositionManagerReader {
         ) = IOrderBook(orderBook).getIncreaseOrder(order.account, order.orderIndex);
 
         address vault = IOrderBook(orderBook).vault(); // avoid stack too deep
-        (, shouldExecute ) = validatePositionOrderPrice(triggerAboveThreshold, triggerPrice, indexToken, /* isLong, false, */ vault, lastPrice);
+        (, shouldExecute) = validatePositionOrderPrice(triggerAboveThreshold, triggerPrice, indexToken, /* isLong, false, */ vault, lastPrice);
     }
 
     function validateDecreaseOrder(Orders memory order, address orderBook, LastPrice[] memory lastPrice) private view returns(bool shouldExecute) {
@@ -281,7 +281,7 @@ contract PositionManagerReader {
             address collateralToken,
             /* uint256 collateralDelta */,
             address indexToken,
-            uint256 sizeDelta,
+            /* uint256 sizeDelta */,
             bool isLong,
             uint256 triggerPrice,
             bool triggerAboveThreshold,
@@ -289,10 +289,36 @@ contract PositionManagerReader {
         ) = IOrderBook(orderBook).getDecreaseOrder(order.account, order.orderIndex);
         address vaultPositionController = IOrderBook(orderBook).vaultPositionController();
         (uint256 size, , , , , , , ) = IVaultPositionController(vaultPositionController).getPosition(order.account, collateralToken, indexToken, isLong);
-        if (size > 0 && sizeDelta <= size) {
+        if (size > 0) {
             address vault = IOrderBook(orderBook).vault(); // avoid stack too deep
-            (, shouldExecute ) = validatePositionOrderPrice(triggerAboveThreshold, triggerPrice, indexToken, /* isLong, false, */ vault, lastPrice);
+            (, shouldExecute) = validatePositionOrderPrice(triggerAboveThreshold, triggerPrice, indexToken, /* isLong, false, */ vault, lastPrice);
+            if (shouldExecute) {
+                // avoid stack too deep
+                shouldExecute = validateDecreaseOrderSize(order, orderBook);
+            }
         }  
+    }
+
+    function validateDecreaseOrderSize(Orders memory order, address orderBook) private view returns(bool) {
+        (
+            address collateralToken,
+            uint256 collateralDelta,
+            address indexToken,
+            uint256 sizeDelta,
+            bool isLong,
+            /* uint256 triggerPrice */,
+            /* bool triggerAboveThreshold */,
+            /* uint256 executionFee */
+        ) = IOrderBook(orderBook).getDecreaseOrder(order.account, order.orderIndex);
+
+        address vaultPositionController = IOrderBook(orderBook).vaultPositionController();
+        (uint256 size, uint256 collateral, , , , , , ) = IVaultPositionController(vaultPositionController).getPosition(order.account, collateralToken, indexToken, isLong);
+
+        if (size > 0 && sizeDelta <= size && collateralDelta <= collateral) { 
+            // Order cannot be executed as it would reduce the position's leverage below 1
+            return (size.sub((sizeDelta)) >= collateral.sub(collateralDelta));
+        }
+        return false;
     }
 
     function validateSwapOrderPriceWithTriggerAboveThreshold(address[] memory _path, uint256 _triggerRatio, address vault, LastPrice[] memory lastPrice) private view returns (bool) {
