@@ -101,7 +101,7 @@ describe("PositionManager", function () {
     await orderBook.setFulfillController(fulfillController.address)
     await router.setFulfillController(fulfillController.address)
     await positionManager.setFulfillController(fulfillController.address)
-    await positionManager.setMaxExecuteOrder(3);
+    await positionManager.setMaxExecuteOrder(1);
     await orderBook.setOrderExecutor(positionManager.address);
 
     // set vault

@@ -7,8 +7,10 @@ import "../libraries/utils/IterableMapping.sol";
 import "./interfaces/IVaultPositionController.sol";
 import "./interfaces/IOrderBook.sol";
 import "./interfaces/IOrderBookOpenOrder.sol";
+import "../libraries/math/SafeMath.sol";
 
 contract OrderBookOpenOrder is IOrderBookOpenOrder {
+    using SafeMath for uint256;
     // Apply library functions to the data type.
     using IterableMapping for itmap;
 
@@ -116,21 +118,25 @@ contract OrderBookOpenOrder is IOrderBookOpenOrder {
                         bool triggerAboveThreshold,
                         /* uint256 executionFee */
                     ) = IOrderBook(orderBook).getIncreaseOrder(order.account, order.orderIndex);
-                    (, shouldExecute ) = IOrderBook(orderBook).validatePositionOrderPrice(triggerAboveThreshold, triggerPrice, indexToken, isLong, false);
+                    (, shouldExecute) = IOrderBook(orderBook).validatePositionOrderPrice(triggerAboveThreshold, triggerPrice, indexToken, isLong, false);
                 } else if (order.orderType == 2) { // DECREASE
                     (
                         address collateralToken,
-                        /* uint256 collateralDelta */,
+                        uint256 collateralDelta,
                         address indexToken,
-                        /* uint256 sizeDelta */,
+                        uint256 sizeDelta,
                         bool isLong,
                         uint256 triggerPrice,
                         bool triggerAboveThreshold,
                         /* uint256 executionFee */
                     ) = IOrderBook(orderBook).getDecreaseOrder(order.account, order.orderIndex);
-                    (uint256 size, , , , , , , ) = IVaultPositionController(vaultPositionController).getPosition(order.account, collateralToken, indexToken, isLong);
-                    if (size > 0) {
-                        (, shouldExecute ) = IOrderBook(orderBook).validatePositionOrderPrice(triggerAboveThreshold, triggerPrice, indexToken, !isLong, false);
+                    (uint256 size, uint256 collateral , , , , , , ) = IVaultPositionController(vaultPositionController).getPosition(order.account, collateralToken, indexToken, isLong);
+                    if (size > 0 && sizeDelta <= size && collateralDelta <= collateral) { 
+                        (, shouldExecute) = IOrderBook(orderBook).validatePositionOrderPrice(triggerAboveThreshold, triggerPrice, indexToken, !isLong, false);
+                        if (shouldExecute) {
+                            // Order cannot be executed as it would reduce the position's leverage below 1
+                            shouldExecute = (size.sub((sizeDelta)) >= collateral.sub(collateralDelta));
+                        }
                     }    
                 }
                 if (shouldExecute) {

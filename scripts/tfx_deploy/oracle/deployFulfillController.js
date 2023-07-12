@@ -53,7 +53,7 @@ async function main() {
   await sendTxn(fulfillController.setHandler(positionRouter.address, true), `fulfillController.setHandler(${positionRouter.address})`);
   await sendTxn(fulfillController.setHandler(orderBook.address, true), `fulfillController.setHandler(${orderBook.address})`);
 
-  await sendTxn(positionManager.setMaxExecuteOrder(3), `positionManager.setMaxExecuteOrder(3)`);
+  await sendTxn(positionManager.setMaxExecuteOrder(1), `positionManager.setMaxExecuteOrder(1)`);
   await sendTxn(positionManager.setOrderKeeper(getContractAddress("keeper"), true), `positionManager.setOrderKeeper(${getContractAddress("keeper")})`);
   await sendTxn(positionManager.setLiquidator(getContractAddress("liquidator"), true), `positionManager.setLiquidator(${getContractAddress("liquidator")})`);
 
