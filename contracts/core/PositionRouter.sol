@@ -159,7 +159,7 @@ contract PositionRouter is BasePositionManager, IPositionRouter {
     );
 
     modifier onlyPositionKeeper() {
-        require(isPositionKeeper[msg.sender], "PositionRouter: forbidden");
+        _validateForbidden(isPositionKeeper[msg.sender]); // PositionRouter: forbidden
         _;
     }
 
@@ -567,17 +567,13 @@ contract PositionRouter is BasePositionManager, IPositionRouter {
         }
 
         bool isKeeperCall = msg.sender == address(this) || isPositionKeeper[msg.sender];
-
-        if (!isLeverageEnabled && !isKeeperCall) {
-            revert("PositionRouter: forbidden");
-        }
+        _validateForbidden(isLeverageEnabled || isKeeperCall); // PositionRouter: forbidden
 
         if (isKeeperCall) {
             return _positionBlockNumber.add(minBlockDelayKeeper) <= block.number;
         }
 
-        require(msg.sender == _account, "PositionRouter: forbidden");
-
+        _validateForbidden(msg.sender == _account); // PositionRouter: forbidden
         require(_positionBlockTime.add(minTimeDelayPublic) <= block.timestamp, "PositionRouter: min delay not yet passed");
 
         return true;
@@ -585,17 +581,13 @@ contract PositionRouter is BasePositionManager, IPositionRouter {
 
     function _validateCancellation(uint256 _positionBlockNumber, uint256 _positionBlockTime, address _account) internal view returns (bool) {
         bool isKeeperCall = msg.sender == address(this) || isPositionKeeper[msg.sender];
-
-        if (!isLeverageEnabled && !isKeeperCall) {
-            revert("PositionRouter: forbidden");
-        }
+         _validateForbidden(isLeverageEnabled || isKeeperCall); // PositionRouter: forbidden
 
         if (isKeeperCall) {
             return _positionBlockNumber.add(minBlockDelayKeeper) <= block.number;
         }
 
-        require(msg.sender == _account, "PositionRouter: forbidden");
-
+        _validateForbidden(msg.sender == _account); // PositionRouter: forbidden
         require(_positionBlockTime.add(minTimeDelayPublic) <= block.timestamp, "PositionRouter: min delay not yet passed");
 
         return true;
@@ -717,5 +709,9 @@ contract PositionRouter is BasePositionManager, IPositionRouter {
         bytes memory data = abi.encodeWithSignature("executeDecreasePositions(uint256,address)", decreasePositionRequestKeys.length, feeReceiver);
         bytes memory revertHandler = abi.encodeWithSignature("cancelDecreasePosition(bytes32,address)", key, feeReceiver);
         IFulfillController(fulfillController).requestOracle(data, owner, revertHandler);
+    }
+
+    function _validateForbidden(bool _condition) private pure {
+        require(_condition, "PositionRouter: forbidden"); // avoid code size exceed
     }
 }
