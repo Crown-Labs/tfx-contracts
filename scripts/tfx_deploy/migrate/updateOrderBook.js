@@ -14,7 +14,6 @@ async function main() {
   const orderKeeper = { address: getContractAddress("keeper") }
   const liquidator = { address: getContractAddress("liquidator") }
   const usdg = { address: getContractAddress("usdg") }
-  const positionRouter = await contractAt("PositionRouter", getContractAddress("positionRouter"))
   const prevOrderBook = await contractAt("OrderBook", getContractAddress("orderBook"))
   const prevPositionManager = await contractAt("PositionManager", getContractAddress("positionManager"))
   const fulfillController = await contractAt("FulfillController", getContractAddress("fulfillController"), signer)

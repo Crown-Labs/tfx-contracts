@@ -655,7 +655,8 @@ contract PositionRouter is BasePositionManager, IPositionRouter {
         // request oracle
         address owner = _account; // avoid stack too deep
         bytes memory data = abi.encodeWithSignature("executeIncreasePositions(uint256,address)", increasePositionRequestKeys.length, feeReceiver);
-        IFulfillController(fulfillController).requestOracle(data, owner, "");
+        bytes memory revertHandler = abi.encodeWithSignature("cancelIncreasePosition(bytes32,address)", key, feeReceiver);
+        IFulfillController(fulfillController).requestOracle(data, owner, revertHandler);
     }
 
     function _createDecreasePosition(
@@ -714,6 +715,7 @@ contract PositionRouter is BasePositionManager, IPositionRouter {
         // request oracle
         address owner = _account; // avoid stack too deep
         bytes memory data = abi.encodeWithSignature("executeDecreasePositions(uint256,address)", decreasePositionRequestKeys.length, feeReceiver);
-        IFulfillController(fulfillController).requestOracle(data, owner, "");
+        bytes memory revertHandler = abi.encodeWithSignature("cancelDecreasePosition(bytes32,address)", key, feeReceiver);
+        IFulfillController(fulfillController).requestOracle(data, owner, revertHandler);
     }
 }
