@@ -135,7 +135,7 @@ contract OrderBookOpenOrder is IOrderBookOpenOrder {
                         (, shouldExecute) = IOrderBook(orderBook).validatePositionOrderPrice(triggerAboveThreshold, triggerPrice, indexToken, !isLong, false);
                         if (shouldExecute) {
                             // Order cannot be executed as it would reduce the position's leverage below 1
-                            shouldExecute = (size.sub((sizeDelta)) >= collateral.sub(collateralDelta));
+                            shouldExecute = (size == sizeDelta) || (size.sub((sizeDelta)) >= collateral.sub(collateralDelta));
                         }
                     }    
                 }
