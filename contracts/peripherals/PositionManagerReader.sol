@@ -316,7 +316,7 @@ contract PositionManagerReader {
 
         if (size > 0 && sizeDelta <= size && collateralDelta <= collateral) { 
             // Order cannot be executed as it would reduce the position's leverage below 1
-            return (size.sub((sizeDelta)) >= collateral.sub(collateralDelta));
+            return (size == sizeDelta) || (size.sub((sizeDelta)) >= collateral.sub(collateralDelta));
         }
         return false;
     }
