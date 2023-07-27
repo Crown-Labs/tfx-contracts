@@ -45,6 +45,12 @@ module.exports = {
       chainId: 5611,
       gasPrice: 1000000000,
       accounts: [`0x${process.env.PRIVATE_KEY}`],
+    },
+    lineaTestnet: {
+      url: "https://rpc.goerli.linea.build",
+      chainId: 59140,
+      gasPrice: 103 * 10**9,
+      accounts: [`0x${process.env.PRIVATE_KEY}`],
     }
   },
   etherscan: {
