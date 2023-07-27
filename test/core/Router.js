@@ -61,6 +61,9 @@ describe("Router", function () {
     // deploy fulfillController
     fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address])
 
+    // send fund to fulfillController
+    await wallet.sendTransaction({ to: fulfillController.address, value: ethers.utils.parseEther("1.0") })
+
     // set fulfillController
     await fulfillController.setController(wallet.address, true)
     await fulfillController.setHandler(router.address, true)

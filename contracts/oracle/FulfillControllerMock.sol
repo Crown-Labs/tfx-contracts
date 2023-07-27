@@ -11,7 +11,7 @@ interface IVaultPriceFeed {
 // This contract is mockup for testing
 // [DO NOT USE ON PRODUCTION]
 //
-contract FulfillControllerMock {
+contract FulfillControllerMock_Unused {
     address public vaultPricefeed;
     address public xOracle;
 

@@ -55,6 +55,9 @@ describe("\n📌 ### Test fulfillRequest ###\n", function () {
         fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address])
         testSwap = await deployContract("TestSwapMock", [fulfillController.address, xOracle.address])
 
+        // send fund to fulfillController
+        await deployer.sendTransaction({ to: fulfillController.address, value: ethers.utils.parseEther("1.0") })
+
         // set vault TokenConfig
 		await vault.setTokenConfig(...getDaiConfig(busd))
         await vault.setTokenConfig(...getBtcConfig(btc))
@@ -68,8 +71,8 @@ describe("\n📌 ### Test fulfillRequest ###\n", function () {
         orderBook = await deployContract("OrderBook", [])
         orderBookOpenOrder = await deployContract("OrderBookOpenOrder", [orderBook.address, vaultPositionController.address])
 
-            const minExecutionFee = 500000;
-            await orderBook.initialize(
+        const minExecutionFee = 500000;
+        await orderBook.initialize(
             router.address,
             vault.address,
             vaultPositionController.address,
@@ -78,7 +81,7 @@ describe("\n📌 ### Test fulfillRequest ###\n", function () {
             usdg.address,
             minExecutionFee,
             expandDecimals(5, 30) // minPurchseTokenAmountUsd
-            );
+        );
         await router.addPlugin(orderBook.address)
         await router.connect(user0).approvePlugin(orderBook.address)
 
@@ -102,7 +105,6 @@ describe("\n📌 ### Test fulfillRequest ###\n", function () {
     });
 
     it("Test setFulfillController", async function () {
-
         const account = [ user0, user1, user2 ].at(random(3));
 
         // Account = user0, user1, user2
@@ -124,7 +126,6 @@ describe("\n📌 ### Test fulfillRequest ###\n", function () {
 
 
     it("Test fulfill Orderbook", async function () {
-
         // function fulfillCreateIncreaseOrderWithSwap(address _account,
         // address[] memory _path,
         // uint256 _amountIn,
@@ -147,7 +148,6 @@ describe("\n📌 ### Test fulfillRequest ###\n", function () {
     });
 
     it("Test fulfill PositionManger", async function () {
-        
         await expect(positionManager.connect(user0).fulfillExecuteOrders(feeReceiver.address)).to.be.revertedWith("FulfillController: forbidden");
 
         // function fulfillLiquidatePosition(
@@ -165,7 +165,6 @@ describe("\n📌 ### Test fulfillRequest ###\n", function () {
     });
 
     it("Test fulfill Router", async function () {
-        
         await expect(router.connect(user0).fulfillSwap(user0.address,[busd.address, usdg.address], expandDecimals(200, 18), expandDecimals(201, 18), user0.address)).to.be.revertedWith("FulfillController: forbidden"); 
     
         // fulfillSwapTokensToETH(address,address[],uint256,uint256,address)", owner, _path, _amountIn, _minOut, _receiver
@@ -178,7 +177,6 @@ describe("\n📌 ### Test fulfillRequest ###\n", function () {
     });
 
     it("Test RewardRouterV2", async function () {
-    
         // function fulfillMintAndStakeGlp(address _account, address _token, uint256 _amount, uint256 _minUsdg, uint256 _minGlp) external onlyFulfillController
         await expect(rewardRouter.connect(user0).fulfillMintAndStakeGlp(user0.address, bnb.address,expandDecimals(1, 18),expandDecimals(299, 18),expandDecimals(299, 18))).to.be.revertedWith("FulfillController: forbidden");
         // await expect(rewardRouter.connect(user0).fulfillMintAndStakeGlp(user0.address,[busd.address, usdg.address], expandDecimals(200, 18), expandDecimals(201, 18), user0.address)).to.be.revertedWith("FulfillController: forbidden"); 

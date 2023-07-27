@@ -52,6 +52,9 @@ describe("BuyGLP", function () {
         fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address])
         await fulfillController.setController(deployer.address, true)
 
+        // send fund to fulfillController
+        await deployer.sendTransaction({ to: fulfillController.address, value: ethers.utils.parseEther("1.0") })
+
         // set fulfillController
         await fulfillController.setController(deployer.address, true)
         await fulfillController.setHandler(glpManager.address, true)

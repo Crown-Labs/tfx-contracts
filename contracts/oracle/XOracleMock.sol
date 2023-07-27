@@ -28,6 +28,11 @@ contract XOracleMock {
     mapping(uint256 => Request) public requests;
     uint256 public reqId;
 
+    // request fee
+    uint256 public reqFee;
+    uint256 public gasPrice;
+    uint256 public gasLimit;
+
     struct Data {
         uint256 price;
         uint256 lastUpdate;
@@ -36,7 +41,10 @@ contract XOracleMock {
 
     mapping(uint256 => address) public priceFeedStores;
 
-    function requestPrices(bytes memory _payload, uint256 _expiration) external returns (uint256) {
+    function requestPrices(bytes memory _payload, uint256 _expiration) external payable returns (uint256) {
+        // check fee for oracle service
+        require(msg.value >= reqFee, "insufficient request fee");
+        
         reqId++;
 
         // add request
@@ -96,6 +104,12 @@ contract XOracleMock {
                 priceFeed.setPrice(price, newTimestamp);
             }
         }
+    }
+
+    function setRequestFee(uint256 _reqFee, uint256 _gasPrice, uint256 _gasLimit) external {
+        reqFee = _reqFee;
+        gasPrice = _gasPrice;
+        gasLimit = _gasLimit;
     }
 
     // ------------------------------

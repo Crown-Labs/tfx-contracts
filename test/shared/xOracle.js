@@ -8,6 +8,9 @@ let bnbPriceFeed;
 let usdtPriceFeed;
 let busdPriceFeed;
 let usdcPriceFeed;
+const reqFee = 3900000000000000; // 0.003900 ETH
+const gasPrice = 1*10**9;
+const gasLimit = 3000000;
 
 async function deployXOracle() {
     xOracle = await deployContract("XOracleMock", [])
@@ -24,6 +27,8 @@ async function deployXOracle() {
     await xOracle.setPriceFeedStore(usdtPriceFeed.address, tokenIndexs.USDT)
     await xOracle.setPriceFeedStore(busdPriceFeed.address, tokenIndexs.BUSD)
     await xOracle.setPriceFeedStore(usdcPriceFeed.address, tokenIndexs.USDC)
+    
+    await xOracle.setRequestFee(reqFee, gasPrice, gasLimit)
 
     return xOracle;
 }

@@ -56,6 +56,9 @@ describe("Vault.sellUSDG", function () {
     // deploy fulfillController
     fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address])
 
+    // send fund to fulfillController
+    await wallet.sendTransaction({ to: fulfillController.address, value: ethers.utils.parseEther("1.0") })
+
     // set vaultPriceFeed
     await vaultPriceFeed.setTokenConfig(btc.address, btcPriceFeed.address, 8, false)
     await vaultPriceFeed.setTokenConfig(bnb.address, bnbPriceFeed.address, 8, false)
