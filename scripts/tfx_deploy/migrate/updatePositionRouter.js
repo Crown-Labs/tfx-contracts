@@ -25,17 +25,19 @@ async function main() {
   // setGov to deployer
   const timelock = await contractAt("Timelock", getContractAddress("timelock"), signer);
   await sendTxn(timelock.signalSetGov(router.address, signer.address), `timelock.signalSetGov(router)`);
+  await sendTxn(timelock.signalSetGov(referralStorage.address, signer.address), `timelock.signalSetGov(referralStorage)`);
   
   console.log(`wait for timelock...`);
   await sleep(1000 * 60 * 5.1); // wait 5.1 mins
 
   await sendTxn(timelock.setGov(router.address, signer.address), `timelock.setGov(router)`);
+  await sendTxn(timelock.setGov(referralStorage.address, signer.address), `timelock.setGov(referralStorage)`);
   
   // ------------------------------
   // deploy
   // ------------------------------
   // deploy positionRouter
-  const positionRouter = await deployContract("PositionRouter", [vault.address, vaultPositionController.address, router.address, weth.address, depositFee, minExecutionFee], "PositionRouter", signer /*, { gasLimit: 125000000 }*/)
+  const positionRouter = await deployContract("PositionRouter", [vault.address, vaultPositionController.address, router.address, weth.address, depositFee, minExecutionFee], "PositionRouter", signer, { gasLimit: 5000000 })
 
   // ------------------------------
   // migrate
@@ -43,6 +45,7 @@ async function main() {
   await sendTxn(positionRouter.setReferralStorage(referralStorage.address), "positionRouter.setReferralStorage")
   await sendTxn(positionRouter.setDelayValues(1, 180, 30 * 60), "positionRouter.setDelayValues")
   await sendTxn(positionRouter.setPositionKeeper(orderKeeper.address, true), "positionRouter.setPositionKeeper")
+  
   await sendTxn(positionRouter.setFulfillController(fulfillController.address, getContractAddress("feeReceiver")), `positionRouter.setFulfillController`);
 
   await sendTxn(referralStorage.setHandler(prevPositionRouter.address, false), "referralStorage.setHandler(prevPositionRouter,false)")
@@ -58,6 +61,7 @@ async function main() {
   // Set timelock
   // ------------------------------
   await sendTxn(router.setGov(timelock.address), `router.setGov(timelock)`);
+  await sendTxn(referralStorage.setGov(timelock.address), `referralStorage.setGov(timelock)`);
 
   await sendTxn(timelock.setContractHandler(prevPositionRouter.address, false), "timelock.setContractHandler(prevPositionRouter,false)")
   await sendTxn(timelock.setContractHandler(positionRouter.address, true), "timelock.setContractHandler(positionRouter,true)")
