@@ -111,11 +111,12 @@ contract FulfillController is Ownable {
 
     }
 
-    constructor(address _xOracle, address _WETH) {
+    constructor(address _xOracle, address _WETH, uint256 _lastTaskId) {
         require(_xOracle != address(0), "address invalid");
         require(_WETH != address(0), "address invalid");
         xOracle = _xOracle;
         WETH = _WETH;
+        lastTaskId = _lastTaskId;
     }
 
     // ------------------------------
@@ -415,5 +416,10 @@ contract FulfillController is Ownable {
         require(_controller != address(0), "address invalid");
         controllers[_controller] = _flag;
         emit SetController(_controller, _flag);
+    }
+
+    function adminWithdraw(uint256 _amount) external onlyOwner {
+        (bool success, ) = payable(msg.sender).call{ value: _amount }("");
+        success; // avoid unused var
     }
 }

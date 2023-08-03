@@ -54,7 +54,7 @@ describe("Vault.sellUSDG", function () {
     const [btcPriceFeed, ethPriceFeed, bnbPriceFeed, usdtPriceFeed, busdPriceFeed, usdcPriceFeed] = await getPriceFeed();
 
     // deploy fulfillController
-    fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address])
+    fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address, 0])
 
     // send fund to fulfillController
     await wallet.sendTransaction({ to: fulfillController.address, value: ethers.utils.parseEther("1.0") })

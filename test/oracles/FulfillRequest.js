@@ -52,7 +52,7 @@ describe("\n📌 ### Test fulfillRequest ###\n", function () {
         const [btcPriceFeed, ethPriceFeed, bnbPriceFeed, usdtPriceFeed, busdPriceFeed, usdcPriceFeed] = await getPriceFeed();
 
         // deploy fulfillController
-        fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address])
+        fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address, 0])
         testSwap = await deployContract("TestSwapMock", [fulfillController.address, xOracle.address])
 
         // send fund to fulfillController

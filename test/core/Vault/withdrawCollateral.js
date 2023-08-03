@@ -53,7 +53,7 @@ describe("Vault.withdrawCollateral", function () {
      const [btcPriceFeed, ethPriceFeed, bnbPriceFeed, usdtPriceFeed, busdPriceFeed, usdcPriceFeed] = await getPriceFeed();
  
      // deploy fulfillController
-     fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address])
+     fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address, 0])
      await fulfillController.setController(wallet.address, true)
 
      // send fund to fulfillController

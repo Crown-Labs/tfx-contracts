@@ -18,10 +18,13 @@ async function main() {
   const positionRouter = await contractAt("PositionRouter", getContractAddress("positionRouter"), signer)
   const orderBook = await contractAt("OrderBook", getContractAddress("orderBook"), signer)
   let timelock;
+
+  const lastTaskId = 1610;
+  const depositETH = 0.1;
   
   // deploy FulfillController
+  const fulfillController = await deployContract("FulfillController", [getContractAddress("xOracle"), bnb.address, lastTaskId], "", signer)
   // const fulfillController = await contractAt("FulfillController", getContractAddress("fulfillController"), signer)
-  const fulfillController = await deployContract("FulfillController", [getContractAddress("xOracle"), bnb.address], "", signer)
 
   const isUpgradeFulfillController = (await router.fulfillController()).toLowerCase() != "0x0000000000000000000000000000000000000000";
   if (isUpgradeFulfillController) {
@@ -86,8 +89,12 @@ async function main() {
 
   // setController deployer and Calll requestUpdatePrices
   await sendTxn(fulfillController.setController(signer.address, true), `fulfillController.setController(${signer.address})`);
-  await sendTxn(fulfillController.requestUpdatePrices(), `fulfillController.requestUpdatePrices()`);
+
+  // transfer ETH
+  await signer.sendTransaction({ to: fulfillController.address, value: ethers.utils.parseEther(depositETH) });
   
+  // requestUpdatePrices
+  await sendTxn(fulfillController.requestUpdatePrices(), `fulfillController.requestUpdatePrices()`);
 }
 
 main()
