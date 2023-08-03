@@ -6,11 +6,12 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface IXOracle {
-    function requestPrices(bytes memory payload, uint256 expiration) external returns (uint256);
+    function requestPrices(bytes memory payload, uint256 expiration) external payable returns (uint256);
     function cancelRequestPrice(uint256 _reqId) external;
     function xOracleCall(uint256 reqId, bool priceUpdate, bytes memory payload) external;
     function getLastPrice(uint256 tokenIndex) external view returns (uint256, uint256, uint256);
     function getDecimals() external pure returns (uint256);
+    function reqFee() external view returns (uint256);
 }
 
 interface IWETH {
@@ -107,20 +108,16 @@ contract FulfillController is Ownable {
     }
 
     receive() external payable {
-        assert(msg.sender == WETH); // only accept ETH via fallback from the WETH contract
+
     }
 
-    constructor(address _xOracle, address _WETH) {
+    constructor(address _xOracle, address _WETH, uint256 _lastTaskId) {
         require(_xOracle != address(0), "address invalid");
         require(_WETH != address(0), "address invalid");
         xOracle = _xOracle;
         WETH = _WETH;
+        lastTaskId = _lastTaskId;
     }
-
-    // more implements: 
-    // set fulfill gas limit
-    // set fulfill gas price
-    // pay gas
 
     // ------------------------------
     // contract handler
@@ -146,7 +143,8 @@ contract FulfillController is Ownable {
 
         // make payload and call
         bytes memory payload = abi.encode(true, lastTaskId);
-        IXOracle(xOracle).requestPrices(payload, tasks[lastTaskId].expire); 
+        uint256 reqFee = IXOracle(xOracle).reqFee();
+        IXOracle(xOracle).requestPrices{ value: reqFee }(payload, tasks[lastTaskId].expire); 
 
         emit RequestTask(lastTaskId, _account, _data);
     }
@@ -182,7 +180,8 @@ contract FulfillController is Ownable {
 
         // make payload and call
         bytes memory payload = abi.encode(true, lastTaskId);
-        IXOracle(xOracle).requestPrices(payload, tasks[lastTaskId].expire); 
+        uint256 reqFee = IXOracle(xOracle).reqFee();
+        IXOracle(xOracle).requestPrices{ value: reqFee }(payload, tasks[lastTaskId].expire); 
 
         emit RequestTask(lastTaskId, _account, _data);
     }
@@ -193,7 +192,8 @@ contract FulfillController is Ownable {
     function requestUpdatePrices() external onlyController { 
          // make payload and call
         bytes memory payload = abi.encode(false, 0);
-        IXOracle(xOracle).requestPrices(payload, 0); // with no expiration
+        uint256 reqFee = IXOracle(xOracle).reqFee();
+        IXOracle(xOracle).requestPrices{ value: reqFee }(payload, 0); // with no expiration
     }
 
     function refundTask(uint256 _taskId) external onlyController { 
@@ -416,5 +416,10 @@ contract FulfillController is Ownable {
         require(_controller != address(0), "address invalid");
         controllers[_controller] = _flag;
         emit SetController(_controller, _flag);
+    }
+
+    function adminWithdraw(uint256 _amount) external onlyOwner {
+        (bool success, ) = payable(msg.sender).call{ value: _amount }("");
+        success; // avoid unused var
     }
 }

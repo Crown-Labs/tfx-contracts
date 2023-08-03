@@ -49,8 +49,11 @@ describe("BuyGLP", function () {
         const [btcPriceFeed, ethPriceFeed, bnbPriceFeed, usdtPriceFeed, busdPriceFeed, usdcPriceFeed] = await getPriceFeed();
 
         // deploy fulfillController
-        fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address])
+        fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address, 0])
         await fulfillController.setController(deployer.address, true)
+
+        // send fund to fulfillController
+        await deployer.sendTransaction({ to: fulfillController.address, value: ethers.utils.parseEther("1.0") })
 
         // set fulfillController
         await fulfillController.setController(deployer.address, true)

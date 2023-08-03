@@ -65,8 +65,11 @@ describe("OrderBook, decrease position orders", () => {
         const [btcPriceFeed, ethPriceFeed, bnbPriceFeed, usdtPriceFeed, busdPriceFeed, usdcPriceFeed] = await getPriceFeed();
 
         // deploy fulfillController
-        fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address])
+        fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address, 0])
         await fulfillController.setController(wallet.address, true)
+
+        // send fund to fulfillController
+        await wallet.sendTransaction({ to: fulfillController.address, value: ethers.utils.parseEther("1.0") })
 
         // set vaultPriceFeed
         await vaultPriceFeed.setTokenConfig(btc.address, btcPriceFeed.address, 8, false)

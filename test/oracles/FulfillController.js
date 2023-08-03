@@ -48,8 +48,11 @@ describe("\n📌 ### Test fulfillController ###\n", function () {
         const [btcPriceFeed, ethPriceFeed, bnbPriceFeed, usdtPriceFeed, busdPriceFeed, usdcPriceFeed] = await getPriceFeed();
 
         // deploy fulfillController
-        fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address])
+        fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address, 0])
         testSwap = await deployContract("TestSwapMock", [fulfillController.address, xOracle.address])
+
+        // send fund to fulfillController
+        await deployer.sendTransaction({ to: fulfillController.address, value: ethers.utils.parseEther("1.0") })
 
         // setTokenConfig
 		await vault.setTokenConfig(...getDaiConfig(busd))
@@ -64,8 +67,8 @@ describe("\n📌 ### Test fulfillController ###\n", function () {
         orderBook = await deployContract("OrderBook", [])
         orderBookOpenOrder = await deployContract("OrderBookOpenOrder", [orderBook.address, vaultPositionController.address])
 
-            const minExecutionFee = 500000;
-            await orderBook.initialize(
+        const minExecutionFee = 500000;
+        await orderBook.initialize(
             router.address,
             vault.address,
             vaultPositionController.address,
@@ -74,7 +77,7 @@ describe("\n📌 ### Test fulfillController ###\n", function () {
             usdg.address,
             minExecutionFee,
             expandDecimals(5, 30) // minPurchseTokenAmountUsd
-            );
+        );
         await router.addPlugin(orderBook.address)
         await router.connect(user0).approvePlugin(orderBook.address)
 
@@ -104,6 +107,7 @@ describe("\n📌 ### Test fulfillController ###\n", function () {
         await expect(fulfillController.connect(account).setExpireTime(5 * 60)).to.be.revertedWith(revert);
         await expect(fulfillController.connect(account).setHandler(account.address, true)).to.be.revertedWith(revert);
         await expect(fulfillController.connect(account).setController(account.address, true)).to.be.revertedWith(revert);
+        await expect(fulfillController.connect(account).adminWithdraw(0)).to.be.revertedWith(revert);
     });
 
     it("Test onlyController", async function () {
@@ -135,6 +139,18 @@ describe("\n📌 ### Test fulfillController ###\n", function () {
 
         // setHandler true
         await fulfillController.setHandler(handler.address, true);
+    });
+
+    it("Test adminWithdraw", async function () {
+
+        const beforeFundBalance = await ethers.provider.getBalance(fulfillController.address);
+
+        // adminWithdraw
+        await fulfillController.adminWithdraw(ethers.utils.parseEther("0.1"));
+
+        const fundBalance = await ethers.provider.getBalance(fulfillController.address);
+
+        expect(beforeFundBalance.sub(fundBalance)).eq(ethers.utils.parseEther("0.1"));
     });
 
     it("Test RequestOracleWithToken", async function() {

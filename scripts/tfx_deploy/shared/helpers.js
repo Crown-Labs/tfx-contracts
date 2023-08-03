@@ -61,7 +61,7 @@ const contactAddress = {
   arbPriceFeed: "0x7943EBf07bBf8b0068d708c1997FFB22b15eEB57",
 
   // deployed contract
-  xOracle: "0x246619D5534aaDea2C5F928C073a7fdEbF7EDCe8", // update 2023-06-21 (2)
+  xOracle: "0x8D57F2AcA5a352051eF9d5b8bfEaccE901Df3e33", // update 2023-08-03
   fulfillController: deployedAddress["FulfillController"],
   tokenManager: deployedAddress["TokenManager"],
   vault: deployedAddress["Vault"],

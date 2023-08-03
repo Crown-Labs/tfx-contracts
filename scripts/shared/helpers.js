@@ -79,6 +79,10 @@ function getChainId(network) {
     return 97;
   }
 
+  if (network === "lineaTestnet") {
+    return 59140;
+  }
+
   throw new Error("Unsupported network");
 }
 
