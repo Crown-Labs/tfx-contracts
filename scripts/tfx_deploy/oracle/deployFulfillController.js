@@ -4,7 +4,7 @@ const network = (process.env.HARDHAT_NETWORK || 'mainnet');
 const tokens = require('../core/tokens')[network];
 
 async function main() {
-  const { btc, eth, bnb, busd, usdc, matic, op, arb} = tokens
+  const { btc, eth, bnb, busd, usdc, matic, op, arb, nativeToken } = tokens
   const tokenArr = [btc, eth, bnb, busd, usdc, matic, op, arb]
 
   const signer = await getFrameSigner()
@@ -19,11 +19,11 @@ async function main() {
   const orderBook = await contractAt("OrderBook", getContractAddress("orderBook"), signer)
   let timelock;
 
-  const lastTaskId = 1610;
-  const depositETH = 0.1;
+  const lastTaskId = 0;
+  const depositETH = "0.1";
   
   // deploy FulfillController
-  const fulfillController = await deployContract("FulfillController", [getContractAddress("xOracle"), bnb.address, lastTaskId], "", signer)
+  const fulfillController = await deployContract("FulfillController", [getContractAddress("xOracle"), nativeToken.address, lastTaskId], "", signer)
   // const fulfillController = await contractAt("FulfillController", getContractAddress("fulfillController"), signer)
 
   const isUpgradeFulfillController = (await router.fulfillController()).toLowerCase() != "0x0000000000000000000000000000000000000000";

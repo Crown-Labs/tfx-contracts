@@ -24,66 +24,72 @@ const tokenIndexs = {
   ARB: 29,
 };
 
-const contactAddress = {
-  // address signer
-  deployer: "0x11114D88d288c48Ea5dEC180bA5DCC2D137398dF", // signer1
-  signer2: "0x666634e72c4948c7CB3F7206D2f731A34e076469", // account2
-  signer3: "0x9103c4B112ec249a34aB7AdD9D5589Ca4DF36Aaa", // account3
-
-  // bot
-  // updater: "0x5eD93987704b42f297d80ae784AfF17e19646d67",
-  keeper: "0x6C56eddb37a8d38f1bDeB33360A7f875eAB75c20",
-  liquidator: "0x6C56eddb37a8d38f1bDeB33360A7f875eAB75c20",
-
-  // fees
-  feeReceiver: "0x9103c4B112ec249a34aB7AdD9D5589Ca4DF36Aaa", // execute fee
-  mintReceiver: "0x9103c4B112ec249a34aB7AdD9D5589Ca4DF36Aaa",
-
-  // token address
-  btc: deployedAddress["BTC"],
-  eth: deployedAddress["ETH"],
-  wbnb: "0x617d91847b74b70a3d3e3745445cb0d1b3c8560e",
-  busd: deployedAddress["BUSD"],
-  usdc: deployedAddress["USDC"],
-  // usdt: deployedAddress["USDT"],
-  matic: deployedAddress["MATIC"],
-  op: deployedAddress["OP"],
-  arb: deployedAddress["ARB"],
-
-  // xOracle price feed
-  btcPriceFeed: "0xb376D2fe17CAfc7Fe841E16b897Fe658f1e8De7D",
-  ethPriceFeed: "0x1b404D1491e488001A8545b86E58ac8362D0E95C",
-  bnbPriceFeed: "0x1296d3a1DE3f7BE8cB1F76C888e51c47915d8001",
-  busdPriceFeed: "0xba13123b80d65fC170B30f29918884f212f62Fc5",
-  usdcPriceFeed: "0xC7cCDbD2cC787065A5b634A1E532430411A5849a",
-  maticPriceFeed: "0xccCd5c5D4e3d2F85d07f041759B96f8b8A622056",
-  opPriceFeed: "0x8008ef7228C13e14CB66F7cd08076728bd7538Bd",
-  arbPriceFeed: "0x7943EBf07bBf8b0068d708c1997FFB22b15eEB57",
-
-  // deployed contract
-  xOracle: "0x8D57F2AcA5a352051eF9d5b8bfEaccE901Df3e33", // update 2023-08-03
-  fulfillController: deployedAddress["FulfillController"],
-  tokenManager: deployedAddress["TokenManager"],
-  vault: deployedAddress["Vault"],
-  vaultPositionController: deployedAddress["VaultPositionController"],
-  vaultPriceFeed: deployedAddress["VaultPriceFeed"],
-  router: deployedAddress["Router"],
-  usdg: deployedAddress["USDG"],
-  glp: deployedAddress["GLP"],
-  glpManager: deployedAddress["GlpManager"],
-  referralStorage: deployedAddress["ReferralStorage"],
-  positionRouter: deployedAddress["PositionRouter"],
-  orderBook: deployedAddress["OrderBook"],
-  positionManager: deployedAddress["PositionManager"],
-  rewardRouterV2: deployedAddress["RewardRouterV2"],
-  timelock: deployedAddress["Timelock"],
-  stakedGmxDistributor: deployedAddress["1. stakedGmxDistributor"],
-  bonusDistributor: deployedAddress["2. BonusDistributor"],
-  feeGmxDistributor: deployedAddress["3. feeGmxDistributor"],
-  feeGlpDistributor: deployedAddress["4. feeGlpDistributor"],
-  stakedGlpDistributor: deployedAddress["5. stakedGlpDistributor"],
+  const contactAddress = {
+    // address signer
+    deployer: "0x11114D88d288c48Ea5dEC180bA5DCC2D137398dF", // signer1
+    signer2: "0x666634e72c4948c7CB3F7206D2f731A34e076469", // account2
+    signer3: "0x9103c4B112ec249a34aB7AdD9D5589Ca4DF36Aaa", // account3
   
-};
+    // bot
+    // updater: "0x5eD93987704b42f297d80ae784AfF17e19646d67",
+    keeper: "0x6C56eddb37a8d38f1bDeB33360A7f875eAB75c20",
+    liquidator: "0x6C56eddb37a8d38f1bDeB33360A7f875eAB75c20",
+  
+    // fees
+    feeReceiver: "0x9103c4B112ec249a34aB7AdD9D5589Ca4DF36Aaa", // execute fee
+    mintReceiver: "0x9103c4B112ec249a34aB7AdD9D5589Ca4DF36Aaa",
+  
+    // token address
+    btc: deployedAddress["BTC"],
+    /* opbnbTestnet
+    eth: deployedAddress["ETH"],
+    wbnb: "0x617d91847b74b70a3d3e3745445cb0d1b3c8560e",*/
+    // lineaTestnet
+    weth: "0x2C1b868d6596a18e32E61B901E4060C872647b6C",
+    bnb: deployedAddress["BNB"],
+    busd: deployedAddress["BUSD"],
+    usdc: deployedAddress["USDC"],
+    // usdt: deployedAddress["USDT"],
+    matic: deployedAddress["MATIC"],
+    op: deployedAddress["OP"],
+    arb: deployedAddress["ARB"],
+  
+    // xOracle price feed
+    btcPriceFeed: "0xb376D2fe17CAfc7Fe841E16b897Fe658f1e8De7D",
+    ethPriceFeed: "0x1b404D1491e488001A8545b86E58ac8362D0E95C",
+    bnbPriceFeed: "0x1296d3a1DE3f7BE8cB1F76C888e51c47915d8001",
+    busdPriceFeed: "0x4c685b51bc534508a3AfBf0d8F4c0Ec73E5d3c5A",
+    usdcPriceFeed: "0xba13123b80d65fC170B30f29918884f212f62Fc5",
+    maticPriceFeed: "0xC7cCDbD2cC787065A5b634A1E532430411A5849a",
+    opPriceFeed: "0x1d2CAd6755C698CF8d6558cb0f552D8631dd9D81",
+    arbPriceFeed: "0xEd9DB6294C83670366970D75d30FF3cB3717ddA6",
+  
+    // deployed contract
+    xOracle: "0xA2B2e9DEA64078BB3e69F25150e3Faa56d44014b", // update 2023-08-07
+    fulfillController: deployedAddress["FulfillController"],
+    tokenManager: deployedAddress["TokenManager"],
+    vault: deployedAddress["Vault"],
+    vaultPositionController: deployedAddress["VaultPositionController"],
+    vaultPriceFeed: deployedAddress["VaultPriceFeed"],
+    router: deployedAddress["Router"],
+    usdg: deployedAddress["USDG"],
+    glp: deployedAddress["GLP"],
+    glpManager: deployedAddress["GlpManager"],
+    referralStorage: deployedAddress["ReferralStorage"],
+    positionRouter: deployedAddress["PositionRouter"],
+    orderBook: deployedAddress["OrderBook"],
+    positionManager: deployedAddress["PositionManager"],
+    rewardRouterV2: deployedAddress["RewardRouterV2"],
+    timelock: deployedAddress["Timelock"],
+    stakedGmxDistributor: deployedAddress["1. stakedGmxDistributor"],
+    bonusDistributor: deployedAddress["2. BonusDistributor"],
+    feeGmxDistributor: deployedAddress["3. feeGmxDistributor"],
+    feeGlpDistributor: deployedAddress["4. feeGlpDistributor"],
+    stakedGlpDistributor: deployedAddress["5. stakedGlpDistributor"],
+    rewardTracker: deployedAddress["5. fsGLP (Fee + Staked GLP)"],
+    
+  };
+
 
 function getContractAddress(name) {
   const addr = contactAddress[name];
@@ -111,6 +117,10 @@ const readCsv = async (file) => {
 function getChainId(network) {
   if (network === "opbnbTestnet") {
     return 5611;
+  }
+
+  if (network === "lineaTestnet") {
+    return 59140;
   }
 
   if (network === "bscTestnet") {
