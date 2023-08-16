@@ -337,7 +337,7 @@ contract VaultPositionController is ReentrancyGuard, IVaultPositionController {
         if (remainingCollateral < marginFees) {
             if (_raise) { revert("Vault: fees exceed collateral"); }
             // cap the fees to the remainingCollateral
-            return (1, remainingCollateral);
+            return (0, remainingCollateral);
         }
 
         if (remainingCollateral < marginFees.add(vault.liquidationFeeUsd())) {
