@@ -3,7 +3,7 @@ const { getContractAddress } = require("../shared/helpers");
 const { expandDecimals } = require("../../../test/shared/utilities");
 
 module.exports = {
-  bsc: {
+  /* bsc: {
     btc: {
       name: "btc",
       address: getContractAddress("btc"),
@@ -50,8 +50,8 @@ module.exports = {
       address: getContractAddress("wbnb"),
       decimals: 18,
     },
-  },
-  opbnbTestnet: {
+  }, */
+  /* opbnbTestnet: {
     // tokenWeight = 100,000
     btc: {
       name: "btc",
@@ -190,8 +190,8 @@ module.exports = {
       // priceDecimals: 8,
       isStrictStable: false,
     },
-  },
-  bscTestnet: {
+  }, */
+  /* bscTestnet: {
     // tokenWeight = 100,000
     btc: {
       name: "btc",
@@ -244,21 +244,6 @@ module.exports = {
       isShortable: true,
       maxGlobalShortSize: 30 * 1000 * 1000,
     },
-    /*usdt: {
-      name: "usdt",
-      address: "0x991448A50Bf2495b78EC321F13880F60E3573C14",
-      priceFeed: "0xEca2605f0BCF2BA5966372C99837b1F182d3D620",
-      decimals: 18,
-      tokenIndex: 3,
-      priceDecimals: 8,
-      isStrictStable: true,
-      tokenWeight: 10000,
-      minProfitBps: 0,
-      maxUsdgAmount: 10 * 1000 * 1000,
-      // bufferAmount: 4 * 1000 * 1000,
-      isStable: true,
-      isShortable: false
-    },*/
     busd: {
       name: "busd",
       address: getContractAddress("busd"),
@@ -312,5 +297,145 @@ module.exports = {
       // priceDecimals: 8,
       isStrictStable: false,
     },
+  }, */
+lineaTestnet: {
+  // tokenWeight = 100,000
+  btc: {
+    name: "btc",
+    address: getContractAddress("btc"),
+    priceFeed: getContractAddress("btcPriceFeed"),
+    decimals: 18,
+    tokenIndex: 0,
+    priceDecimals: 8,
+    fastPricePrecision: 1000,
+    isStrictStable: false,
+    tokenWeight: 15000, // 15%
+    minProfitBps: 0,
+    maxUsdgAmount: 150 * 1000 * 1000,
+    // bufferAmount: 450,
+    isStable: false,
+    isShortable: true,
+    maxGlobalShortSize: 30 * 1000 * 1000,
   },
+  eth: {
+    name: "weth",
+    address: getContractAddress("weth"),
+    priceFeed: getContractAddress("ethPriceFeed"),
+    decimals: 18,
+    tokenIndex: 1,
+    priceDecimals: 8,
+    fastPricePrecision: 1000,
+    isStrictStable: false,
+    tokenWeight: 10000, // 10%
+    minProfitBps: 0,
+    maxUsdgAmount: 100 * 1000 * 1000,
+    // bufferAmount: 15000,
+    isStable: false,
+    isShortable: true,
+    maxGlobalShortSize: 30 * 1000 * 1000,
+  },
+  bnb: {
+    name: "bnb",
+    address: getContractAddress("bnb"),
+    priceFeed: getContractAddress("bnbPriceFeed"),
+    decimals: 18,
+    tokenIndex: 2,
+    priceDecimals: 8,
+    fastPricePrecision: 1000,
+    isStrictStable: false,
+    tokenWeight: 10000, // 10%
+    minProfitBps: 0,
+    maxUsdgAmount: 100 * 1000 * 1000,
+    // bufferAmount: 15000,
+    isStable: false,
+    isShortable: true,
+    maxGlobalShortSize: 30 * 1000 * 1000,
+  },
+  busd: {
+    name: "busd",
+    address: getContractAddress("busd"),
+    priceFeed: getContractAddress("busdPriceFeed"),
+    decimals: 18,
+    tokenIndex: 4,
+    priceDecimals: 8,
+    isStrictStable: true,
+    tokenWeight: 35000, // 35%
+    minProfitBps: 0,
+    maxUsdgAmount: 350 * 1000 * 1000,
+    // bufferAmount: 60 * 1000 * 1000,
+    isStable: true,
+    isShortable: false,
+  },
+  usdc: {
+    name: "usdc",
+    address: getContractAddress("usdc"),
+    decimals: 18,
+    priceFeed: getContractAddress("usdcPriceFeed"),
+    priceDecimals: 8,
+    isStrictStable: true,
+    tokenWeight: 15000, // 15%
+    minProfitBps: 0,
+    maxUsdgAmount: 150 * 1000 * 1000,
+    // bufferAmount: 60 * 1000 * 1000,
+    isStable: true,
+    isShortable: false
+  },
+  matic: {
+    name: "matic",
+    address: getContractAddress("matic"),
+    priceFeed: getContractAddress("maticPriceFeed"),
+    decimals: 18,
+    tokenIndex: 1,
+    priceDecimals: 8,
+    fastPricePrecision: 1000,
+    isStrictStable: false,
+    tokenWeight: 5000, // 5%
+    minProfitBps: 0,
+    maxUsdgAmount: 50 * 1000 * 1000,
+    // bufferAmount: 15000,
+    isStable: false,
+    isShortable: true,
+    maxGlobalShortSize: 30 * 1000 * 1000,
+  },
+  op: {
+    name: "op",
+    address: getContractAddress("op"),
+    priceFeed: getContractAddress("opPriceFeed"),
+    decimals: 18,
+    tokenIndex: 1,
+    priceDecimals: 8,
+    fastPricePrecision: 1000,
+    isStrictStable: false,
+    tokenWeight: 5000, // 5%
+    minProfitBps: 0,
+    maxUsdgAmount: 50 * 1000 * 1000,
+    // bufferAmount: 15000,
+    isStable: false,
+    isShortable: true,
+    maxGlobalShortSize: 30 * 1000 * 1000,
+  },
+  arb: {
+    name: "arb",
+    address: getContractAddress("arb"),
+    priceFeed: getContractAddress("arbPriceFeed"),
+    decimals: 18,
+    tokenIndex: 1,
+    priceDecimals: 8,
+    fastPricePrecision: 1000,
+    isStrictStable: false,
+    tokenWeight: 5000, // 5%
+    minProfitBps: 0,
+    maxUsdgAmount: 50 * 1000 * 1000,
+    // bufferAmount: 15000,
+    isStable: false,
+    isShortable: true,
+    maxGlobalShortSize: 30 * 1000 * 1000,
+  },
+  nativeToken: {
+    address: getContractAddress("weth"),
+    decimals: 18,
+    // priceDecimals: 8,
+    isStrictStable: false,
+  },
+},
 };

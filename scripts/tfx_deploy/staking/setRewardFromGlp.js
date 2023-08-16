@@ -23,16 +23,11 @@ async function main() {
 
   console.log(`signerArr: ${signerArr}`)
 
-  const provider = signer.provider
-
-  // // impersonate and steal fund
-  // const signer = await impersonateAddress("0x11114D88d288c48Ea5dEC180bA5DCC2D137398dF"); 
-  // const signerArr = await signer.getAddress();
+  // const provider = signer.provider
+  // const balance = await provider.getBalance(signerArr)
   
-  const balance = await provider.getBalance(signerArr)
-  
-  console.log(`\n ======= BNB / WBNB Balance =======`);
-  console.log("BNB balanceBefore",+balance / 10 ** 18)
+  // console.log(`\n ======= BNB / WBNB Balance =======`);
+  // console.log("BNB balanceBefore",+balance / 10 ** 18)
 
   const tokenDecimals = 18;
   const distributorArr = [
@@ -56,15 +51,15 @@ async function main() {
     //   name: "FeeGmxDistributor",
     //   address: getContractAddress("feeGmxDistributor"),
     //   transferAmount: "0.1", // 20
-    //   rewardCName: "MintableBaseToken",  // WXORD
+    //   rewardCName: "MintableBaseToken",  // WETH
     //   isRewardsPerInterval: true,
     //   isRewardNativeToken: true,
     // },
     {
       name: "FeeGlpDistributor",
       address: getContractAddress("feeGlpDistributor"),
-      transferAmount: "1", // 20
-      rewardCName: "MintableBaseToken",  // WXORD
+      transferAmount: "0", // 20
+      rewardCName: "MintableBaseToken",  // WETH
       isRewardsPerInterval: true,
       isRewardNativeToken: true,
     },
@@ -78,43 +73,41 @@ async function main() {
     // },
   ];
 
-  let sumOfShouldWrap = 0;
-  for (let j = 0; j < distributorArr.length; j++){
-    if (distributorArr[j].isRewardNativeToken == true){
-      sumOfShouldWrap = sumOfShouldWrap + +distributorArr[j].transferAmount;
-    }
-  }
-  console.log(`sumOfShouldWrap: ${sumOfShouldWrap}`);
+  // let sumOfShouldWrap = 0;
+  // for (let j = 0; j < distributorArr.length; j++){
+  //   if (distributorArr[j].isRewardNativeToken == true){
+  //     sumOfShouldWrap = sumOfShouldWrap + +distributorArr[j].transferAmount;
+  //   }
+  // }
+  // console.log(`sumOfShouldWrap: ${sumOfShouldWrap}`);
 
   const wbnb = await contractAt(
     "Token",
-    "0x617d91847b74b70a3d3e3745445cb0d1b3c8560e", //wBNB opbnbTestnet
+    "0x2C1b868d6596a18e32E61B901E4060C872647b6C", //wETH lineaTestnet
     signer
   );
 
-  const wbnbBalanceBefore = await wbnb.balanceOf(signerArr);
-  console.log("WBNB BalanceBefore: ", wbnbBalanceBefore.toString() / 10 ** 18);
+//   const wbnbBalanceBefore = await wbnb.balanceOf(signerArr);
+//   console.log("WBNB BalanceBefore: ", wbnbBalanceBefore.toString() / 10 ** 18);
 
-  const depositAmount = await new BigNumber(sumOfShouldWrap).times(new BigNumber(10).pow(18));
+//   const depositAmount = await new BigNumber(sumOfShouldWrap).times(new BigNumber(10).pow(18));
 
-  await sendTxn(
-    wbnb.deposit({value: depositAmount.toString()}),
-    `Wrap BNB: ${depositAmount.toString() / 10 ** 18}`
-  );
+//   await sendTxn(
+//     wbnb.deposit({value: depositAmount.toString()}),
+//     `Wrap BNB: ${depositAmount.toString() / 10 ** 18}`
+//   );
 
-  const wbnbBalanceAfter = await wbnb.balanceOf(signerArr);
-  console.log("WBNB BalanceAfter: ", wbnbBalanceAfter.toString() / 10 ** 18);
+//   const wbnbBalanceAfter = await wbnb.balanceOf(signerArr);
+//   console.log("WBNB BalanceAfter: ", wbnbBalanceAfter.toString() / 10 ** 18);
 
-  const balanceAfter = await provider.getBalance(signerArr)
-  console.log("BNB balanceAfter",+balanceAfter / 10 ** 18,"\n")
+//   const balanceAfter = await provider.getBalance(signerArr)
+//   console.log("BNB balanceAfter",+balanceAfter / 10 ** 18,"\n")
 
+// const wbnbBalance = await wbnb.balanceOf(signerArr);
 
-
-const wbnbBalance = await wbnb.balanceOf(signerArr);
-
-if (!Number(wbnbBalance.toString() / 10 ** 18)) {
-  throw new Error("No WBNB balance!!");
-}
+// if (!Number(wbnbBalance.toString() / 10 ** 18)) {
+//   throw new Error("No WBNB balance!!");
+// }
 
   for (let i = 0; i < distributorArr.length; i++) {
     const distributorItem = distributorArr[i];
@@ -129,7 +122,8 @@ if (!Number(wbnbBalance.toString() / 10 ** 18)) {
     const rewardArr = await distributor.rewardToken();
     const reward = await contractAt(distributorItem.rewardCName, rewardArr, signer);
     const convertedTransferAmount = ethers.utils.parseUnits(
-      distributorItem.transferAmount,
+      // distributorItem.transferAmount,
+      "10", // Adjust APR of GLP
       tokenDecimals
     );
 
@@ -155,12 +149,12 @@ if (!Number(wbnbBalance.toString() / 10 ** 18)) {
     //     `${distributorItem.rewardCName}.mint to ${distributorItem.address}`
     //   );
     // }
-    if (distributorItem.isRewardNativeToken) {
-      await sendTxn(
-        wbnb.transfer(distributorItem.address, convertedTransferAmount),
-        "wbnb.transfer"
-      );
-    }
+    // if (distributorItem.isRewardNativeToken) {
+    //   await sendTxn(
+    //     wbnb.transfer(distributorItem.address, convertedTransferAmount),
+    //     "wbnb.transfer"
+    //   );
+    // }
     if (distributorItem.isRewardsPerInterval) {
       console.log("rewardsPerInterval: ", +rewardsPerInterval)
       await sendTxn(
