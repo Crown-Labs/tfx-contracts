@@ -17,26 +17,26 @@ async function main() {
   const rewardRouterV2 = await contractAt("RewardRouterV2", getContractAddress("rewardRouterV2"), signer)
   console.log("rewardRouterV2.address: ", rewardRouterV2.address);
   
-  await sendTxn(btc.connect(signer).approve(rewardRouterV2.address, expandDecimals(20, 18)),"Approve BTC");
-  await sendTxn(rewardRouterV2.mintAndStakeGlp(btc.address, expandDecimals(20, 18), 0, 0),"Mint and Stake Glp by BTC");
+  await sendTxn(btc.connect(signer).approve(rewardRouterV2.address, expandDecimals(60, 18)),"Approve BTC"); // BTC Price $26000
+  await sendTxn(rewardRouterV2.mintAndStakeGlp(btc.address, expandDecimals(60, 18), 0, 0),"Mint and Stake Glp by BTC");
 
-  await sendTxn(bnb.connect(signer).approve(rewardRouterV2.address, expandDecimals(5000, 18)),"Approve BNB");
-  await sendTxn(rewardRouterV2.mintAndStakeGlp(bnb.address, expandDecimals(5000, 18), 0, 0),"Mint and Stake Glp by BNB");
+  await sendTxn(bnb.connect(signer).approve(rewardRouterV2.address, expandDecimals(4800, 18)),"Approve BNB"); // BNB Price $210
+  await sendTxn(rewardRouterV2.mintAndStakeGlp(bnb.address, expandDecimals(4800, 18), 0, 0),"Mint and Stake Glp by BNB");
 
-  await sendTxn(busd.connect(signer).approve(rewardRouterV2.address, expandDecimals(100, 18)),"Approve BUSD");
-  await sendTxn(rewardRouterV2.mintAndStakeGlp(busd.address, expandDecimals(100, 18), 0, "114339270654517225309"),"Mint and Stake Glp by BUSD");
+  await sendTxn(busd.connect(signer).approve(rewardRouterV2.address, expandDecimals(3500000, 18)),"Approve BUSD");
+  await sendTxn(rewardRouterV2.mintAndStakeGlp(busd.address, expandDecimals(3500000, 18), 0, "114339270654517225309"),"Mint and Stake Glp by BUSD");
 
-  await sendTxn(usdc.connect(signer).approve(rewardRouterV2.address, expandDecimals(500000, 18)),"Approve USDC");
-  await sendTxn(rewardRouterV2.mintAndStakeGlp(usdc.address, expandDecimals(500000, 18), 0, 0),"Mint and Stake Glp by USDC");
+  await sendTxn(usdc.connect(signer).approve(rewardRouterV2.address, expandDecimals(1500000, 18)),"Approve USDC");
+  await sendTxn(rewardRouterV2.mintAndStakeGlp(usdc.address, expandDecimals(1500000, 18), 0, 0),"Mint and Stake Glp by USDC");
 
-  await sendTxn(matic.connect(signer).approve(rewardRouterV2.address, expandDecimals(220000, 18)),"Approve MATIC");
-  await sendTxn(rewardRouterV2.mintAndStakeGlp(matic.address, expandDecimals(220000, 18), 0, 0),"Mint and Stake Glp by MATIC");
+  await sendTxn(matic.connect(signer).approve(rewardRouterV2.address, expandDecimals(880000, 18)),"Approve MATIC"); // MATIC Price $0.566
+  await sendTxn(rewardRouterV2.mintAndStakeGlp(matic.address, expandDecimals(880000, 18), 0, 0),"Mint and Stake Glp by MATIC");
 
-  await sendTxn(op.connect(signer).approve(rewardRouterV2.address, expandDecimals(700000, 18)),"Approve OP");
-  await sendTxn(rewardRouterV2.mintAndStakeGlp(op.address, expandDecimals(700000, 18), 0, 0),"Mint and Stake Glp by OP");
+  await sendTxn(op.connect(signer).approve(rewardRouterV2.address, expandDecimals(333333, 18)),"Approve OP"); // OP Price $1.5
+  await sendTxn(rewardRouterV2.mintAndStakeGlp(op.address, expandDecimals(333333, 18), 0, 0),"Mint and Stake Glp by OP");
   
-  await sendTxn(arb.connect(signer).approve(rewardRouterV2.address, expandDecimals(77500, 18)),"Approve ARB");
-  await sendTxn(rewardRouterV2.mintAndStakeGlp(arb.address, expandDecimals(77500, 18), 0, 0),"Mint and Stake Glp by ARB");
+  await sendTxn(arb.connect(signer).approve(rewardRouterV2.address, expandDecimals(500000, 18)),"Approve ARB"); //ARB Price $1
+  await sendTxn(rewardRouterV2.mintAndStakeGlp(arb.address, expandDecimals(500000, 18), 0, 0),"Mint and Stake Glp by ARB");
 }
 
 
