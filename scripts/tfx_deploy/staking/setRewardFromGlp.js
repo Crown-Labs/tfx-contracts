@@ -123,7 +123,7 @@ async function main() {
     const reward = await contractAt(distributorItem.rewardCName, rewardArr, signer);
     const convertedTransferAmount = ethers.utils.parseUnits(
       // distributorItem.transferAmount,
-      "10", // Adjust APR of GLP
+      "3", // Adjust APR of GLP ~ 20%
       tokenDecimals
     );
 
