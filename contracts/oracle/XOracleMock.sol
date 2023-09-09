@@ -2,11 +2,13 @@
 
 pragma solidity ^0.8.17;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 interface IPriceFeedStore {
     function tokenIndex() external view returns (uint256);
     function decimals() external view returns (uint256);
-    function getLastPrice() external view returns (uint256, uint256, uint256);
-    function getPrice(uint256 _roundId) external view returns (uint256, uint256, uint256);
+    function getLastPrice() external view returns (uint256, uint256, uint256, uint256);
+    function getPrice(uint256 _roundId) external view returns (uint256, uint256, uint256, uint256);
     function latestRound() external view returns (uint256);
     function setPrice(uint256 _price, uint256 _timestamp) external;
 }
@@ -29,9 +31,9 @@ contract XOracleMock {
     uint256 public reqId;
 
     // request fee
-    uint256 public reqFee;
-    uint256 public gasPrice;
-    uint256 public gasLimit;
+    IERC20 public weth; // payment with WETH
+    uint256 public fulfillFee;
+    uint256 public minFeeBalance;
 
     struct Data {
         uint256 price;
@@ -41,9 +43,14 @@ contract XOracleMock {
 
     mapping(uint256 => address) public priceFeedStores;
 
-    function requestPrices(bytes memory _payload, uint256 _expiration) external payable returns (uint256) {
-        // check fee for oracle service
-        require(msg.value >= reqFee, "insufficient request fee");
+    constructor(address _weth) {
+        require(_weth != address(0), "address invalid");
+        weth = IERC20(_weth);
+    }
+
+    function requestPrices(bytes memory _payload, uint256 _expiration) external returns (uint256) {
+        // check request fee balance
+        require(paymentAvailable(msg.sender), "insufficient request fee");
         
         reqId++;
 
@@ -90,10 +97,9 @@ contract XOracleMock {
                 continue;
             }
 
-
             (uint256 backword, uint256 total) = (roundId > _count) ? (_count, _count) : (roundId, roundId);
             for (uint256 j = 0; j < total; j++) {
-                (, uint256 price, uint256 timestamp) = priceFeed.getPrice(priceFeed.latestRound() + 1 - backword);
+                (, uint256 price, , uint256 timestamp) = priceFeed.getPrice(priceFeed.latestRound() + 1 - backword);
                 uint256 adjust = ((total - j - 1) * _spaceTime);
                 uint256 newTimestamp = block.timestamp - adjust;
                 if (newTimestamp < timestamp) {
@@ -104,22 +110,24 @@ contract XOracleMock {
                 priceFeed.setPrice(price, newTimestamp);
             }
         }
+    } 
+
+    function setFulfillFee(uint256 _fulfillFee) external {
+        fulfillFee = _fulfillFee;
     }
 
-    function setRequestFee(uint256 _reqFee, uint256 _gasPrice, uint256 _gasLimit) external {
-        reqFee = _reqFee;
-        gasPrice = _gasPrice;
-        gasLimit = _gasLimit;
+    function setMinFeeBalance(uint256 _minFeeBalance) external {
+        minFeeBalance = _minFeeBalance;
     }
 
     // ------------------------------
     // view function
     // ------------------------------
-    function getLastPrice(uint256 _tokenIndex) external view returns (uint256, uint256, uint256) {
+    function getLastPrice(uint256 _tokenIndex) external view returns (uint256, uint256, uint256, uint256) {
         return IPriceFeedStore(priceFeedStores[_tokenIndex]).getLastPrice();
     }
 
-    function getPrice(uint256 _tokenIndex, uint256 _roundId) external view returns (uint256, uint256, uint256) {
+    function getPrice(uint256 _tokenIndex, uint256 _roundId) external view returns (uint256, uint256, uint256, uint256) {
         return IPriceFeedStore(priceFeedStores[_tokenIndex]).getPrice(_roundId);
     }
 
@@ -135,7 +143,10 @@ contract XOracleMock {
         return priceFeedStores[_tokenIndex];
     }
 
-    function getRequest(uint256 _reqId) external view returns (Request memory) {
-        return requests[_reqId];
+    function paymentAvailable(address _owner) private view returns (bool) {
+        return ( 
+            weth.allowance(_owner, address(this)) > minFeeBalance && 
+            weth.balanceOf(_owner) > minFeeBalance
+        );
     }
 }

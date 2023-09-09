@@ -4,7 +4,7 @@ import "../libraries/math/SafeMath.sol";
 import "./interfaces/IVaultPriceFeed.sol";
 
 interface IPriceFeedStore {
-    function getPrice(uint256 _roundId) external view returns (uint256, uint256, uint256);
+    function getPrice(uint256 _roundId) external view returns (uint256, uint256, uint256, uint256);
     function latestRound() external view returns (uint256);
 }
 
@@ -109,7 +109,7 @@ contract VaultPriceFeed is IVaultPriceFeed {
 
         // find from last until out of priceSampleSpaceTime
         for (uint256 round = lastRound; ; round--) {
-            (, uint256 p, uint256 timestamp) = priceFeed.getPrice(round);
+            (, uint256 p, , uint256 timestamp) = priceFeed.getPrice(round);
             if (_validate && (timestamp < block.timestamp - priceSampleSpaceTime)) {
                 break;
             }

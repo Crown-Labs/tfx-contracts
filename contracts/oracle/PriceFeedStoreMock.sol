@@ -4,6 +4,8 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+import "hardhat/console.sol";
+
 // This contract is mockup for testing
 // [DO NOT USE ON PRODUCTION]
 //
@@ -16,13 +18,12 @@ contract PriceFeedStoreMock is Ownable {
     // price store
     struct PriceData {
         uint256 price;
+        uint256 latestPrice;
         uint256 timestamp;
     }
     mapping(uint256 => PriceData) public pricesData;
     uint256 public latestRound;
     uint256 public latestTimestamp;
-
-    event UpdatePrice(uint256 indexed tokenIndex, uint256 roundId, uint256 price, uint256 timestamp);
 
     modifier onlyXOracle() {
         require(xOracle == msg.sender, "xOracle: forbidden");
@@ -42,27 +43,33 @@ contract PriceFeedStoreMock is Ownable {
     // ------------------------------
     function setPrice(uint256 _price, uint256 _timestamp) external onlyXOracle { 
         latestRound++;
-        latestTimestamp = _timestamp;
-        
-        // already checked correct tokenIndex in xOracle.setPriceFeedStore
         pricesData[latestRound] = PriceData({
             price: _price,
+            latestPrice: _price,
             timestamp: _timestamp
         });
-
-        emit UpdatePrice(tokenIndex, latestRound, _price, _timestamp);
     }
 
     // ------------------------------
     // view function
     // ------------------------------
-    function getLastPrice() external view returns (uint256, uint256, uint256) {
+    function getLastPrice() external view returns (uint256, uint256, uint256, uint256) {
         PriceData memory priceData = pricesData[latestRound];
-        return (latestRound, priceData.price, priceData.timestamp);
+        return (
+            latestRound, 
+            priceData.price, 
+            priceData.latestPrice, 
+            priceData.timestamp
+        );
     }
 
-    function getPrice(uint256 _roundId) external view returns (uint256, uint256, uint256) {
+    function getPrice(uint256 _roundId) external view returns (uint256, uint256, uint256, uint256) {
         PriceData memory priceData = pricesData[_roundId];
-        return (_roundId, priceData.price, priceData.timestamp);
+        return (
+            _roundId, 
+            priceData.price, 
+            priceData.latestPrice, 
+            priceData.timestamp
+        );
     }
 }

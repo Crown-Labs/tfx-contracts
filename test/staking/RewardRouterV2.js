@@ -52,6 +52,7 @@ describe("RewardRouterV2", function () {
   let rewardRouter
   let xOracle
   let fulfillController
+  let depositFund
 
   beforeEach(async () => {
     rewardManager = await deployContract("RewardManager", [])
@@ -84,14 +85,15 @@ describe("RewardRouterV2", function () {
     glpManager = await deployContract("GlpManager", [vault.address, usdg.address, glp.address, 24 * 60 * 60])
 
     // deploy xOracle
-    xOracle = await deployXOracle();
+    xOracle = await deployXOracle(bnb);
     const [btcPriceFeed, ethPriceFeed, bnbPriceFeed, usdtPriceFeed, busdPriceFeed, usdcPriceFeed] = await getPriceFeed();
 
     // deploy fulfillController
     fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address, 0])
 
-    // send fund to fulfillController
-    await wallet.sendTransaction({ to: fulfillController.address, value: ethers.utils.parseEther("1.0") })
+    // deposit req fund to fulfillController
+    await bnb.mint(fulfillController.address, ethers.utils.parseEther("1.0"))
+    depositFund = ethers.utils.parseEther("1.0")
 
     // set vaultPriceFeed
     await vaultPriceFeed.setTokenConfig(btc.address, btcPriceFeed.address, 8, false)
@@ -733,7 +735,7 @@ describe("RewardRouterV2", function () {
 
     expect(await bnb.balanceOf(user0.address)).eq(0)
     expect(await bnb.balanceOf(vault.address)).eq(0)
-    expect(await bnb.totalSupply()).eq(0)
+    expect((await bnb.totalSupply()).sub(depositFund)).eq(0) 
     expect(await provider.getBalance(bnb.address)).eq(0)
     expect(await stakedGlpTracker.balanceOf(user0.address)).eq(0)
 
@@ -752,7 +754,7 @@ describe("RewardRouterV2", function () {
     expect(await bnb.balanceOf(user0.address)).eq(0)
     expect(await bnb.balanceOf(vault.address)).eq(expandDecimals(1, 18))
     expect(await provider.getBalance(bnb.address)).eq(expandDecimals(1, 18))
-    expect(await bnb.totalSupply()).eq(expandDecimals(1, 18))
+    expect((await bnb.totalSupply()).sub(depositFund)).eq(expandDecimals(1, 18)) 
     expect(await stakedGlpTracker.balanceOf(user0.address)).eq("299100000000000000000") // 299.1
 
     await rewardRouter.connect(user0).unstakeAndRedeemGlpETH(
@@ -812,7 +814,7 @@ describe("RewardRouterV2", function () {
     expect(await provider.getBalance(receiver0.address)).eq("994009000000000000") // 0.994009
     expect(await bnb.balanceOf(vault.address)).eq("5991000000000000") // 0.005991
     expect(await provider.getBalance(bnb.address)).eq("5991000000000000")
-    expect(await bnb.totalSupply()).eq("5991000000000000")
+    expect((await bnb.totalSupply()).sub(depositFund)).eq("5991000000000000") 
   })
   
   it("gmx: signalTransfer, acceptTransfer", async () =>{

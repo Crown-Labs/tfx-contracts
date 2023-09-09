@@ -20,7 +20,7 @@ async function main() {
   let timelock;
 
   const lastTaskId = 0;
-  const depositETH = "0.1";
+  const depositWETH = "0.1";
   
   // deploy FulfillController
   const fulfillController = await deployContract("FulfillController", [getContractAddress("xOracle"), nativeToken.address, lastTaskId], "", signer)
@@ -90,8 +90,9 @@ async function main() {
   // setController deployer and Calll requestUpdatePrices
   await sendTxn(fulfillController.setController(signer.address, true), `fulfillController.setController(${signer.address})`);
 
-  // transfer ETH
-  await signer.sendTransaction({ to: fulfillController.address, value: ethers.utils.parseEther(depositETH) });
+  // wrap ETH and deposit fund
+  await nativeToken.deposit({ value: ethers.utils.parseEther(depositWETH) });
+  await nativeToken.transfer(fulfillController.address, ethers.utils.parseEther(depositWETH));
   
   // requestUpdatePrices
   await sendTxn(fulfillController.requestUpdatePrices(), `fulfillController.requestUpdatePrices()`);

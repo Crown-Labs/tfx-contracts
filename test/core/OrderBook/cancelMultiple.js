@@ -63,14 +63,14 @@ describe("OrderBook, cancelMultiple", function () {
         reader = await deployContract("Reader", [])
 
         // deploy xOracle
-        xOracle = await deployXOracle();
+        xOracle = await deployXOracle(bnb);
         const [btcPriceFeed, ethPriceFeed, bnbPriceFeed, usdtPriceFeed, busdPriceFeed, usdcPriceFeed] = await getPriceFeed();
 
         // deploy fulfillController
         fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address, 0])
 
-        // send fund to fulfillController
-        await wallet.sendTransaction({ to: fulfillController.address, value: ethers.utils.parseEther("1.0") })
+        // deposit req fund to fulfillController
+        await bnb.mint(fulfillController.address, ethers.utils.parseEther("1.0"))
 
         // set vaultPriceFeed
         await vaultPriceFeed.setTokenConfig(btc.address, btcPriceFeed.address, 8, false)
