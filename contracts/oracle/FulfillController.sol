@@ -423,4 +423,8 @@ contract FulfillController is Ownable {
         controllers[_controller] = _flag;
         emit SetController(_controller, _flag);
     }
+
+    function adminWithdraw(uint256 _amount) external onlyOwner {
+        IERC20(weth).transfer(msg.sender, _amount);
+    }
 }

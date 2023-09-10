@@ -107,6 +107,7 @@ describe("\n📌 ### Test fulfillController ###\n", function () {
         await expect(fulfillController.connect(account).setExpireTime(5 * 60)).to.be.revertedWith(revert);
         await expect(fulfillController.connect(account).setHandler(account.address, true)).to.be.revertedWith(revert);
         await expect(fulfillController.connect(account).setController(account.address, true)).to.be.revertedWith(revert);
+        await expect(fulfillController.connect(account).adminWithdraw(0)).to.be.revertedWith(revert);
     });
 
     it("Test onlyController", async function () {
