@@ -9,6 +9,7 @@ async function main() {
 
   const signer = await getFrameSigner()
 
+  const weth = await contractAt("Token", nativeToken.address, signer)
   const vault = await contractAt("Vault", getContractAddress("vault"), signer)
   const vaultPriceFeed = await contractAt("VaultPriceFeed", getContractAddress("vaultPriceFeed"), signer)
   const glpManager = await contractAt("GlpManager", getContractAddress("glpManager"), signer)
@@ -23,8 +24,8 @@ async function main() {
   const depositWETH = "0.1";
   
   // deploy FulfillController
-  const fulfillController = await deployContract("FulfillController", [getContractAddress("xOracle"), nativeToken.address, lastTaskId], "", signer)
-  // const fulfillController = await contractAt("FulfillController", getContractAddress("fulfillController"), signer)
+  // const fulfillController = await deployContract("FulfillController", [getContractAddress("xOracle"), nativeToken.address, lastTaskId], "", signer)
+  const fulfillController = await contractAt("FulfillController", getContractAddress("fulfillController"), signer)
 
   const isUpgradeFulfillController = (await router.fulfillController()).toLowerCase() != "0x0000000000000000000000000000000000000000";
   if (isUpgradeFulfillController) {
@@ -91,8 +92,8 @@ async function main() {
   await sendTxn(fulfillController.setController(signer.address, true), `fulfillController.setController(${signer.address})`);
 
   // wrap ETH and deposit fund
-  await nativeToken.deposit({ value: ethers.utils.parseEther(depositWETH) });
-  await nativeToken.transfer(fulfillController.address, ethers.utils.parseEther(depositWETH));
+  await sendTxn(weth.deposit({ value: ethers.utils.parseEther(depositWETH) }), `weth.deposit(${depositWETH})`);
+  await sendTxn(weth.transfer(fulfillController.address, ethers.utils.parseEther(depositWETH)), `weth.transfer(${fulfillController.address})`);
   
   // requestUpdatePrices
   await sendTxn(fulfillController.requestUpdatePrices(), `fulfillController.requestUpdatePrices()`);
