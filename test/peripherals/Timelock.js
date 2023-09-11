@@ -54,7 +54,7 @@ describe("Timelock", function () {
     await usdg.setYieldTrackers([yieldTracker0.address])
 
     // deploy xOracle
-    xOracle = await deployXOracle();
+    xOracle = await deployXOracle(bnb);
 
     const priceFeed = await getPriceFeed();
     btcPriceFeed = priceFeed[0];
@@ -68,8 +68,8 @@ describe("Timelock", function () {
     fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address, 0])
     await fulfillController.setController(wallet.address, true)
 
-    // send fund to fulfillController
-    await wallet.sendTransaction({ to: fulfillController.address, value: ethers.utils.parseEther("1.0") })
+    // deposit req fund to fulfillController
+    await bnb.mint(fulfillController.address, ethers.utils.parseEther("1.0"))
 
     // set vaultPriceFeed
     await vaultPriceFeed.setTokenConfig(bnb.address, bnbPriceFeed.address, 8, false)

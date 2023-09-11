@@ -48,15 +48,15 @@ describe("\n📌 ### Test fulfillRequest ###\n", function () {
         glpManager = await deployContract("GlpManager", [vault.address, usdg.address, glp.address, 24 * 60 * 60])
         
         // deploy xOracle
-        xOracle = await deployXOracle();
+        xOracle = await deployXOracle(bnb);
         const [btcPriceFeed, ethPriceFeed, bnbPriceFeed, usdtPriceFeed, busdPriceFeed, usdcPriceFeed] = await getPriceFeed();
 
         // deploy fulfillController
         fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address, 0])
         testSwap = await deployContract("TestSwapMock", [fulfillController.address, xOracle.address])
 
-        // send fund to fulfillController
-        await deployer.sendTransaction({ to: fulfillController.address, value: ethers.utils.parseEther("1.0") })
+        // deposit req fund to fulfillController
+        await bnb.mint(fulfillController.address, ethers.utils.parseEther("1.0"))
 
         // set vault TokenConfig
 		await vault.setTokenConfig(...getDaiConfig(busd))

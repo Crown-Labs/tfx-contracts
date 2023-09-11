@@ -8,12 +8,11 @@ let bnbPriceFeed;
 let usdtPriceFeed;
 let busdPriceFeed;
 let usdcPriceFeed;
-const reqFee = 3900000000000000; // 0.003900 ETH
-const gasPrice = 1*10**9;
-const gasLimit = 3000000;
+const fulfillFee = 3000; // 30%
+const minFeeBalance = 0.02 * 10**9;
 
-async function deployXOracle() {
-    xOracle = await deployContract("XOracleMock", [])
+async function deployXOracle(weth) {
+    xOracle = await deployContract("XOracleMock", [weth.address])
     btcPriceFeed = await deployContract("PriceFeedStoreMock", [xOracle.address, "BTC/USD Price Feed", tokenIndexs.BTC, 8])
     ethPriceFeed = await deployContract("PriceFeedStoreMock", [xOracle.address, "ETH/USD Price Feed", tokenIndexs.ETH, 8])
     bnbPriceFeed = await deployContract("PriceFeedStoreMock", [xOracle.address, "BNB/USD Price Feed", tokenIndexs.BNB, 8])
@@ -28,7 +27,9 @@ async function deployXOracle() {
     await xOracle.setPriceFeedStore(busdPriceFeed.address, tokenIndexs.BUSD)
     await xOracle.setPriceFeedStore(usdcPriceFeed.address, tokenIndexs.USDC)
     
-    await xOracle.setRequestFee(reqFee, gasPrice, gasLimit)
+    // set reqFee
+    await xOracle.setFulfillFee(fulfillFee);
+    await xOracle.setMinFeeBalance(minFeeBalance);
 
     return xOracle;
 }
