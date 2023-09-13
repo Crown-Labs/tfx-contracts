@@ -24,13 +24,19 @@ async function main() {
   const depositWETH = "0.1";
   
   // deploy FulfillController
-  // const fulfillController = await deployContract("FulfillController", [getContractAddress("xOracle"), nativeToken.address, lastTaskId], "", signer)
-  const fulfillController = await contractAt("FulfillController", getContractAddress("fulfillController"), signer)
+  const fulfillController = await deployContract("FulfillController", [getContractAddress("xOracle"), nativeToken.address, lastTaskId], "", signer)
+  // const fulfillController = await contractAt("FulfillController", getContractAddress("fulfillController"), signer)
 
-  const isUpgradeFulfillController = (await router.fulfillController()).toLowerCase() != "0x0000000000000000000000000000000000000000";
+  const prevFulfillControllerAddress = await router.fulfillController();
+  const isUpgradeFulfillController = prevFulfillControllerAddress.toLowerCase() != "0x0000000000000000000000000000000000000000";
   if (isUpgradeFulfillController) {
     console.log(`🪄 Upgrade FulfillController to ${fulfillController.address}`);
-    
+
+    // adminWithdraw
+    const prevFulfillController = await contractAt("FulfillController", prevFulfillControllerAddress, signer)
+    const prevFund = await weth.balanceOf(prevFulfillControllerAddress);
+    await sendTxn(prevFulfillController.adminWithdraw(prevFund), `prevFulfillController.adminWithdraw(${prevFund})`);
+
     // setGov to deployer
     timelock = await contractAt("Timelock", getContractAddress("timelock"), signer)
     await sendTxn(timelock.signalSetGov(router.address, signer.address), `timelock.signalSetGov(router)`);

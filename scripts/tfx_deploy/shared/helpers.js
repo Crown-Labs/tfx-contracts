@@ -55,17 +55,17 @@ const tokenIndexs = {
     arb: deployedAddress["ARB"],
   
     // xOracle price feed
-    btcPriceFeed: "0x469D034A83efFbE4dfAc58515e9fFDDb62F86b4A",
-    ethPriceFeed: "0xb82e3Fd141664c3c2c480ca13DD7374AE05A9D30",
-    bnbPriceFeed: "0x9265Ae4D31b6817D2f196c35C44aFD828E32B403",
-    busdPriceFeed: "0x5CF208bC1562bD9852afAf29f1d68F6431077661",
-    usdcPriceFeed: "0x6Ef24798819EDCa7CA286A48698E942969D23AE8",
-    maticPriceFeed: "0xE4D6533c02ee149868204604dd5c1D7262F3e56f",
-    opPriceFeed: "0x7fe9D138e63276dB6562E5d911B5E4A826194494",
-    arbPriceFeed: "0x688099d0B022815045EADf7A621153C6cAab51DC",
+    btcPriceFeed: "0x3432dD444774c4A88D330EdB127D837072e5cc9e",
+    ethPriceFeed: "0xe767d64F9b37fe809232a7f20304d28F03EED2B1",
+    bnbPriceFeed: "0x0c8b54e305E8CBb9958671a9C02467328EF4c95C",
+    busdPriceFeed: "0x4926B8803db627a3a77687cB9160725c0845Aabb",
+    usdcPriceFeed: "0xA23902465EC47904b4b53dCD95f2395b45F33E4F",
+    maticPriceFeed: "0xE41CEc959C332968226B2a07f6252Bc57964de1d",
+    opPriceFeed: "0x81E12991821d0bFdFC7D1a79D49056bcFa0Eaf75",
+    arbPriceFeed: "0x9b5C82a57AcF5569e10fe1f1783ab57230B18ab9",
   
     // deployed contract
-    xOracle: "0x3D7b9C99Ab00768B3b2EA50e002Dc25aa26ebc23", // update 2023-09-11
+    xOracle: "0xB1CBd1d5A394E6B4BDaA687468266Caf533D9035", // update 2023-09-13
     fulfillController: deployedAddress["FulfillController"],
     tokenManager: deployedAddress["TokenManager"],
     vault: deployedAddress["Vault"],
