@@ -37,7 +37,8 @@ contract TestSwapMock {
         require(_path.length == 2, "path invalid");
         require(tokens[_path[0]] && tokens[_path[1]], "token not allow");
 
-        IERC20(_path[0]).transferFrom(msg.sender, fulfillController, _amountIn);
+        IERC20(_path[0]).transferFrom(msg.sender, address(this), _amountIn); 
+        IERC20(_path[0]).approve(fulfillController, _amountIn);
 
         // request oracle
         bytes memory data = abi.encodeWithSignature("fulfillSwap(address,address[],uint256,uint256)", msg.sender, _path, _amountIn, _minAmountOut);

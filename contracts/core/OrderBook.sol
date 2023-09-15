@@ -620,11 +620,11 @@ contract OrderBook is ReentrancyGuard, IOrderBook {
         if (_shouldWrap) {
             require(_path[0] == weth, "OrderBook: only weth could be wrapped");
             require(msg.value == _executionFee.add(_amountIn), "OrderBook: incorrect value transferred");
-            IERC20(_path[0]).safeTransfer(fulfillController, _amountIn);
         } else {
             require(msg.value == _executionFee, "OrderBook: incorrect execution fee transferred");
-            IRouter(router).pluginTransfer(_path[0], msg.sender, fulfillController, _amountIn);
+            IRouter(router).pluginTransfer(_path[0], msg.sender, address(this), _amountIn);
         }
+        IERC20(_path[0]).approve(fulfillController, _amountIn);
 
         if (_path.length > 1) {
             require(_path[0] != _path[_path.length - 1], "OrderBook: invalid _path");

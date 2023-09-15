@@ -98,7 +98,8 @@ contract GlpManager is ReentrancyGuard, Governable, IGlpManager {
         if (inPrivateMode) { revert("GlpManager: action not enabled"); }
 
         require(_amount > 0, "GlpManager: invalid _amount");
-        IERC20(_token).safeTransferFrom(msg.sender, fulfillController, _amount); 
+        IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount); 
+        IERC20(_token).approve(fulfillController, _amount);
 
         // request oracle
         bytes memory data = abi.encodeWithSignature("handlerAddLiquidity(address,address,address,uint256,uint256,uint256)", fulfillController, msg.sender, _token, _amount, _minUsdg, _minGlp);
