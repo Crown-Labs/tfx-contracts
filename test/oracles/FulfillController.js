@@ -50,7 +50,7 @@ describe("\n📌 ### Test fulfillController ###\n", function () {
         // deploy fulfillController
         fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address, 0])
         testSwap = await deployContract("TestSwapMock", [fulfillController.address, xOracle.address])
-
+        
         // deposit req fund to fulfillController
         await bnb.mint(fulfillController.address, ethers.utils.parseEther("1.0"))
 
@@ -58,15 +58,15 @@ describe("\n📌 ### Test fulfillController ###\n", function () {
 		await vault.setTokenConfig(...getDaiConfig(busd))
         await vault.setTokenConfig(...getBtcConfig(btc))
         await vault.setTokenConfig(...getBnbConfig(bnb))
-
+        
         // set vaultPriceFeed
         await vaultPriceFeed.setTokenConfig(btc.address, btcPriceFeed.address, 8, false)
         await vaultPriceFeed.setTokenConfig(bnb.address, bnbPriceFeed.address, 8, false)
         await vaultPriceFeed.setTokenConfig(busd.address, usdtPriceFeed.address, 8, false) // instead DAI with USDT
- 
-        orderBook = await deployContract("OrderBook", [])
+        
+        orderBook = await deployContract("OrderBook", []) 
         orderBookOpenOrder = await deployContract("OrderBookOpenOrder", [orderBook.address, vaultPositionController.address])
-
+        
         const minExecutionFee = 500000;
         await orderBook.initialize(
             router.address,
@@ -82,24 +82,24 @@ describe("\n📌 ### Test fulfillController ###\n", function () {
         await router.connect(user0).approvePlugin(orderBook.address)
 
         positionManager = await deployContract("PositionManager", [vault.address, vaultPositionController.address, router.address, bnb.address, 50, orderBook.address])
-
+        
         // setController
         await fulfillController.setController(deployer.address, true);
         
         // setFulfillController
         await positionManager.setFulfillController(fulfillController.address)
         await router.setFulfillController(fulfillController.address)
-
+        
         // setHandler
         await fulfillController.setHandler(testSwap.address, true);
         await fulfillController.setHandler(handler.address, true);
         await fulfillController.setHandler(router.address, true);
         await fulfillController.setHandler(positionManager.address, true);
-
+        
         await testSwap.setToken(btc.address, 0, true)
         await testSwap.setToken(busd.address, 4, true)
     });
-
+    
     it("Test onlyOwner", async function () {
         const account = [ user0, user1, user2 ].at(random(3));
 
@@ -151,10 +151,10 @@ describe("\n📌 ### Test fulfillController ###\n", function () {
         await expect(fulfillController.connect(handler).requestOracleWithToken(data, AddressZero, btc.address, 1, false, [])).to.be.revertedWith("address invalid");
         // _transferETH = true
         await expect(fulfillController.connect(handler).requestOracleWithToken(data, user0.address, btc.address, 1, true, [])).to.be.revertedWith("address invalid");
-        
-        await btc.mint(fulfillController.address, expandDecimals(2, 8))
 
-        await expect(fulfillController.connect(handler).requestOracleWithToken(data, user0.address, btc.address, expandDecimals(3, 8), false, [])).to.be.revertedWith("token balance insufficient");
+        await btc.mint(handler.address, expandDecimals(2, 8));
+        await btc.connect(handler).approve(fulfillController.address, expandDecimals(2, 8));
+        await expect(fulfillController.connect(handler).requestOracleWithToken(data, user0.address, btc.address, expandDecimals(3, 8), false, [])).to.be.revertedWith("ERC20: transfer amount exceeds balance");
 
         await fulfillController.connect(handler).requestOracleWithToken(data, user0.address, btc.address, expandDecimals(2, 8), false, [])
 
@@ -168,7 +168,7 @@ describe("\n📌 ### Test fulfillController ###\n", function () {
         await expect(task.owner).eq(user0.address);
         await expect(task.status).eq(0);
         await expect(task.expire).above(0);
-    });
+    }); 
     
     it("swap, refundTask", async function() {
         await busd.mint(testSwap.address, expandDecimals(100000000, 18))

@@ -76,9 +76,6 @@ contract FulfillController is Ownable {
     mapping (uint256 => Task) public tasks;
     uint256 public lastTaskId;
 
-    // token balance
-    mapping (address => uint256) public balances;
-
     uint256 public expireTime = 60; // secs
 
     // access control
@@ -159,11 +156,8 @@ contract FulfillController is Ownable {
             require(_token == weth, "address invalid");
         }
 
-        uint256 tokenBalance = IERC20(_token).balanceOf(address(this));
-        require((tokenBalance - balances[_token]) >= _amount, "token balance insufficient");
-
-        // update balance
-        balances[_token] = tokenBalance;
+        // transfer token
+        IERC20(_token).transferFrom(msg.sender, address(this), _amount);
 
         lastTaskId++;
 
@@ -254,10 +248,6 @@ contract FulfillController is Ownable {
             return;
         }
 
-        // update balance
-        if (task.amount > 0) {
-            balances[task.token] = IERC20(task.token).balanceOf(address(this));
-        }
         task.status = 1; // executed
     }
 
@@ -357,16 +347,6 @@ contract FulfillController is Ownable {
             (address _account, uint256 _glpAmount, uint256 _minOut, address _receiver) = abi.decode(_data[4:], (address, uint256, uint256, address));
             IHandler(_to).fulfillUnstakeAndRedeemGlpETH(_account, _glpAmount, _minOut, _receiver);
         } 
-        // [Test]
-        // - fulfillSwap(address,address[],uint256,uint256)
-        // else if (sig == bytes4(keccak256("fulfillSwap(address,address[],uint256,uint256)"))) { 
-        //     // low-level call
-        //     (bool success, ) = _to.call{value: 0}(_data);
-        //     if (!success) {
-        //         revert("low-level call reverted");
-        //     }
-        // }
-        // [other cases]
         else {
             // low-level call
             (bool success, ) = _to.call{value: 0}(_data);
@@ -390,9 +370,6 @@ contract FulfillController is Ownable {
             } else {
                 IERC20(task.token).transfer(task.owner, task.amount);
             }
-            
-            // update balance
-            balances[task.token] = IERC20(task.token).balanceOf(address(this));
         }
 
         // allow handle on revert

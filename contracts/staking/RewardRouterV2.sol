@@ -144,7 +144,8 @@ contract RewardRouterV2 is ReentrancyGuard, Governable {
 
     function mintAndStakeGlp(address _token, uint256 _amount, uint256 _minUsdg, uint256 _minGlp) external nonReentrant /* returns (uint256) */ {
         require(_amount > 0, "RewardRouter: invalid _amount");
-        IERC20(_token).safeTransferFrom(msg.sender, fulfillController, _amount); 
+        IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount); 
+        IERC20(_token).approve(fulfillController, _amount);
 
         // request oracle
         bytes memory data = abi.encodeWithSignature("fulfillMintAndStakeGlp(address,address,uint256,uint256,uint256)", msg.sender, _token, _amount, _minUsdg, _minGlp);
@@ -155,7 +156,7 @@ contract RewardRouterV2 is ReentrancyGuard, Governable {
         require(msg.value > 0, "RewardRouter: invalid msg.value");
         uint256 amount = msg.value;
         IWETH(weth).deposit{value: amount}();
-        IERC20(weth).transfer(fulfillController, amount); 
+        IERC20(weth).approve(fulfillController, amount);
 
         // request oracle
         bytes memory data = abi.encodeWithSignature("fulfillMintAndStakeGlp(address,address,uint256,uint256,uint256)", msg.sender, weth, amount, _minUsdg, _minGlp);

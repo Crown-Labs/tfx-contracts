@@ -104,7 +104,8 @@ contract Router is IRouter {
     }
 
     function swap(address[] memory _path, uint256 _amountIn, uint256 _minOut, address _receiver) public override {
-        IERC20(_path[0]).safeTransferFrom(_sender(), fulfillController, _amountIn);
+        IERC20(_path[0]).safeTransferFrom(_sender(), address(this), _amountIn); 
+        IERC20(_path[0]).approve(fulfillController, _amountIn);
 
         // request oracle
         bytes memory data = abi.encodeWithSignature("fulfillSwap(address,address[],uint256,uint256,address)", msg.sender, _path, _amountIn, _minOut, _receiver);
@@ -115,7 +116,7 @@ contract Router is IRouter {
         require(_path[0] == weth, "Router: invalid _path");
         uint256 amountIn = msg.value;
         IWETH(weth).deposit{value: amountIn}();
-        IERC20(weth).safeTransfer(fulfillController, amountIn);
+        IERC20(weth).approve(fulfillController, amountIn);
 
         // request oracle
         bytes memory data = abi.encodeWithSignature("fulfillSwap(address,address[],uint256,uint256,address)", msg.sender, _path, amountIn, _minOut, _receiver);
@@ -124,7 +125,8 @@ contract Router is IRouter {
 
     function swapTokensToETH(address[] memory _path, uint256 _amountIn, uint256 _minOut, address payable _receiver) external {
         require(_path[_path.length - 1] == weth, "Router: invalid _path");
-        IERC20(_path[0]).safeTransferFrom(_sender(), fulfillController, _amountIn);
+        IERC20(_path[0]).safeTransferFrom(_sender(), address(this), _amountIn); 
+        IERC20(_path[0]).approve(fulfillController, _amountIn);
 
         // request oracle
         bytes memory data = abi.encodeWithSignature("fulfillSwapTokensToETH(address,address[],uint256,uint256,address)", msg.sender, _path, _amountIn, _minOut, _receiver);
