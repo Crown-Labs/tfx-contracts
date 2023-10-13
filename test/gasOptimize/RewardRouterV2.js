@@ -19,7 +19,7 @@ describe("BuyGLP", function () {
     let vaultPriceFeed
   
     beforeEach(async () => {
-        bnb = await deployContract("Token", [])
+        // bnb = await deployContract("Token", [])
         btc = await deployContract("Token", [])
         eth = await deployContract("Token", [])
         dai = await deployContract("Token", [])
@@ -40,10 +40,10 @@ describe("BuyGLP", function () {
         vault = await deployContract("Vault", [])
         vaultPositionController = await deployContract("VaultPositionController", [])
         usdg = await deployContract("USDG", [vault.address])
-        router = await deployContract("Router", [vault.address, vaultPositionController.address, usdg.address, bnb.address])
+        router = await deployContract("Router", [vault.address, vaultPositionController.address, usdg.address, eth.address])
         vaultPriceFeed = await deployContract("VaultPriceFeed", [])
         glp = await deployContract("GLP", [])
-        rewardRouter = await deployContract("RewardRouterV2", [])
+        rewardRouter = await deployContract("RewardRouterV3", [])
 
         await initVault(vault, vaultPositionController, router, usdg, vaultPriceFeed)
         glpManager = await deployContract("GlpManager", [vault.address, usdg.address, glp.address, 24 * 60 * 60])
@@ -52,20 +52,20 @@ describe("BuyGLP", function () {
         yieldTracker0 = await deployContract("YieldTracker", [usdg.address])
 
         await yieldTracker0.setDistributor(distributor0.address)
-        await distributor0.setDistribution([yieldTracker0.address], [1000], [bnb.address])
+        await distributor0.setDistribution([yieldTracker0.address], [1000], [eth.address])
 
-        await bnb.mint(distributor0.address, 5000)
+        await eth.mint(distributor0.address, 5000)
         await usdg.setYieldTrackers([yieldTracker0.address])
         
         // deploy xOracle
-        xOracle = await deployXOracle(bnb);
+        xOracle = await deployXOracle(eth);
         const [btcPriceFeed, ethPriceFeed, bnbPriceFeed, usdtPriceFeed, busdPriceFeed, usdcPriceFeed] = await getPriceFeed();
 
         // deploy fulfillController
-        fulfillController = await deployContract("FulfillController", [xOracle.address, bnb.address, 0])
+        fulfillController = await deployContract("FulfillController", [xOracle.address, eth.address, 0])
 
         // deposit req fund to fulfillController
-        await bnb.mint(fulfillController.address, ethers.utils.parseEther("1.0"))
+        await eth.mint(fulfillController.address, ethers.utils.parseEther("1.0"))
     
         // set fulfillController
         await fulfillController.setController(wallet.address, true)
@@ -77,7 +77,7 @@ describe("BuyGLP", function () {
         // set vaultPriceFeed
         await vaultPriceFeed.setTokenConfig(btc.address, btcPriceFeed.address, 8, false)
         await vaultPriceFeed.setTokenConfig(eth.address, ethPriceFeed.address, 8, false)
-        await vaultPriceFeed.setTokenConfig(bnb.address, bnbPriceFeed.address, 8, false)
+        // await vaultPriceFeed.setTokenConfig(bnb.address, bnbPriceFeed.address, 8, false)
         await vaultPriceFeed.setTokenConfig(dai.address, usdtPriceFeed.address, 8, false) // instead DAI with USDT
         await vaultPriceFeed.setTokenConfig(busd.address, busdPriceFeed.address, 8, false)
         await vaultPriceFeed.setTokenConfig(usdc.address, usdcPriceFeed.address, 8, false)
@@ -85,7 +85,7 @@ describe("BuyGLP", function () {
         // set vault
         await vault.setTokenConfig(...getDaiConfig(dai))
         await vault.setTokenConfig(...getBtcConfig(btc))
-        await vault.setTokenConfig(...getBnbConfig(bnb))
+        await vault.setTokenConfig(...getBnbConfig(eth))
 
         await glp.setInPrivateTransferMode(true)
         await glp.setMinter(glpManager.address, true)
@@ -97,25 +97,25 @@ describe("BuyGLP", function () {
 
         await glpManager.setInPrivateMode(true)
 
-        gmx = await deployContract("GMX", []);
-        esGmx = await deployContract("EsGMX", []);
-        bnGmx = await deployContract("MintableBaseToken", ["Bonus GMX", "bnGMX", 0]);
+        // gmx = await deployContract("GMX", []);
+        // esGmx = await deployContract("EsGMX", []);
+        // bnGmx = await deployContract("MintableBaseToken", ["Bonus GMX", "bnGMX", 0]);
 
         // GMX
-        stakedGmxTracker = await deployContract("RewardTracker", ["Staked GMX", "sGMX"])
-        stakedGmxDistributor = await deployContract("RewardDistributor", [esGmx.address, stakedGmxTracker.address])
-        await stakedGmxTracker.initialize([gmx.address, esGmx.address], stakedGmxDistributor.address)
-        await stakedGmxDistributor.updateLastDistributionTime()
+        // stakedGmxTracker = await deployContract("RewardTracker", ["Staked GMX", "sGMX"])
+        // stakedGmxDistributor = await deployContract("RewardDistributor", [esGmx.address, stakedGmxTracker.address])
+        // await stakedGmxTracker.initialize([gmx.address, esGmx.address], stakedGmxDistributor.address)
+        // await stakedGmxDistributor.updateLastDistributionTime()
 
-        bonusGmxTracker = await deployContract("RewardTracker", ["Staked + Bonus GMX", "sbGMX"])
-        bonusGmxDistributor = await deployContract("BonusDistributor", [bnGmx.address, bonusGmxTracker.address])
-        await bonusGmxTracker.initialize([stakedGmxTracker.address], bonusGmxDistributor.address)
-        await bonusGmxDistributor.updateLastDistributionTime()
+        // bonusGmxTracker = await deployContract("RewardTracker", ["Staked + Bonus GMX", "sbGMX"])
+        // bonusGmxDistributor = await deployContract("BonusDistributor", [bnGmx.address, bonusGmxTracker.address])
+        // await bonusGmxTracker.initialize([stakedGmxTracker.address], bonusGmxDistributor.address)
+        // await bonusGmxDistributor.updateLastDistributionTime()
 
-        feeGmxTracker = await deployContract("RewardTracker", ["Staked + Bonus + Fee GMX", "sbfGMX"])
-        feeGmxDistributor = await deployContract("RewardDistributor", [eth.address, feeGmxTracker.address])
-        await feeGmxTracker.initialize([bonusGmxTracker.address, bnGmx.address], feeGmxDistributor.address)
-        await feeGmxDistributor.updateLastDistributionTime()
+        // feeGmxTracker = await deployContract("RewardTracker", ["Staked + Bonus + Fee GMX", "sbfGMX"])
+        // feeGmxDistributor = await deployContract("RewardDistributor", [eth.address, feeGmxTracker.address])
+        // await feeGmxTracker.initialize([bonusGmxTracker.address, bnGmx.address], feeGmxDistributor.address)
+        // await feeGmxDistributor.updateLastDistributionTime()
 
         // GLP
         feeGlpTracker = await deployContract("RewardTracker", ["Fee GLP", "fGLP"])
@@ -123,109 +123,110 @@ describe("BuyGLP", function () {
         await feeGlpTracker.initialize([glp.address], feeGlpDistributor.address)
         await feeGlpDistributor.updateLastDistributionTime()
 
-        stakedGlpTracker = await deployContract("RewardTracker", ["Fee + Staked GLP", "fsGLP"])
-        stakedGlpDistributor = await deployContract("RewardDistributor", [esGmx.address, stakedGlpTracker.address])
-        await stakedGlpTracker.initialize([feeGlpTracker.address], stakedGlpDistributor.address)
-        await stakedGlpDistributor.updateLastDistributionTime()
+        // stakedGlpTracker = await deployContract("RewardTracker", ["Fee + Staked GLP", "fsGLP"])
+        // stakedGlpDistributor = await deployContract("RewardDistributor", [esGmx.address, stakedGlpTracker.address])
+        // await stakedGlpTracker.initialize([feeGlpTracker.address], stakedGlpDistributor.address)
+        // await stakedGlpDistributor.updateLastDistributionTime()
 
-        gmxVester = await deployContract("Vester", [
-        "Vested GMX", // _name
-        "vGMX", // _symbol
-        vestingDuration, // _vestingDuration
-        esGmx.address, // _esToken
-        feeGmxTracker.address, // _pairToken
-        gmx.address, // _claimableToken
-        stakedGmxTracker.address, // _rewardTracker
-        ])
+        // gmxVester = await deployContract("Vester", [
+        // "Vested GMX", // _name
+        // "vGMX", // _symbol
+        // vestingDuration, // _vestingDuration
+        // esGmx.address, // _esToken
+        // feeGmxTracker.address, // _pairToken
+        // gmx.address, // _claimableToken
+        // stakedGmxTracker.address, // _rewardTracker
+        // ])
 
-        glpVester = await deployContract("Vester", [
-        "Vested GLP", // _name
-        "vGLP", // _symbol
-        vestingDuration, // _vestingDuration
-        esGmx.address, // _esToken
-        stakedGlpTracker.address, // _pairToken
-        gmx.address, // _claimableToken
-        stakedGlpTracker.address, // _rewardTracker
-        ])
+        // glpVester = await deployContract("Vester", [
+        // "Vested GLP", // _name
+        // "vGLP", // _symbol
+        // vestingDuration, // _vestingDuration
+        // esGmx.address, // _esToken
+        // stakedGlpTracker.address, // _pairToken
+        // gmx.address, // _claimableToken
+        // stakedGlpTracker.address, // _rewardTracker
+        // ])
 
-        await stakedGmxTracker.setInPrivateTransferMode(true)
-        await stakedGmxTracker.setInPrivateStakingMode(true)
-        await bonusGmxTracker.setInPrivateTransferMode(true)
-        await bonusGmxTracker.setInPrivateStakingMode(true)
-        await bonusGmxTracker.setInPrivateClaimingMode(true)
-        await feeGmxTracker.setInPrivateTransferMode(true)
-        await feeGmxTracker.setInPrivateStakingMode(true)
+        // await stakedGmxTracker.setInPrivateTransferMode(true)
+        // await stakedGmxTracker.setInPrivateStakingMode(true)
+        // await bonusGmxTracker.setInPrivateTransferMode(true)
+        // await bonusGmxTracker.setInPrivateStakingMode(true)
+        // await bonusGmxTracker.setInPrivateClaimingMode(true)
+        // await feeGmxTracker.setInPrivateTransferMode(true)
+        // await feeGmxTracker.setInPrivateStakingMode(true)
 
         await feeGlpTracker.setInPrivateTransferMode(true)
         await feeGlpTracker.setInPrivateStakingMode(true)
-        await stakedGlpTracker.setInPrivateTransferMode(true)
-        await stakedGlpTracker.setInPrivateStakingMode(true)
+        // await stakedGlpTracker.setInPrivateTransferMode(true)
+        // await stakedGlpTracker.setInPrivateStakingMode(true)
 
-        await esGmx.setInPrivateTransferMode(true)
+        // await esGmx.setInPrivateTransferMode(true)
 
         await rewardRouter.initialize(
-        bnb.address,
-        gmx.address,
-        esGmx.address,
-        bnGmx.address,
+        eth.address,
+        // gmx.address,
+        // esGmx.address,
+        // bnGmx.address,
         glp.address,
-        stakedGmxTracker.address,
-        bonusGmxTracker.address,
-        feeGmxTracker.address,
+        // stakedGmxTracker.address,
+        // bonusGmxTracker.address,
+        // feeGmxTracker.address,
         feeGlpTracker.address,
-        stakedGlpTracker.address,
+        // stakedGlpTracker.address,
         glpManager.address,
-        gmxVester.address,
-        glpVester.address
+        // gmxVester.address,
+        // glpVester.address
+        0
         )
 
         await rewardManager.initialize(
         timelock.address,
         rewardRouter.address,
         glpManager.address,
-        stakedGmxTracker.address,
-        bonusGmxTracker.address,
-        feeGmxTracker.address,
+        // stakedGmxTracker.address,
+        // bonusGmxTracker.address,
+        // feeGmxTracker.address,
         feeGlpTracker.address,
-        stakedGlpTracker.address,
-        stakedGmxDistributor.address,
-        stakedGlpDistributor.address,
-        esGmx.address,
-        bnGmx.address,
-        gmxVester.address,
-        glpVester.address
+        // stakedGlpTracker.address,
+        // stakedGmxDistributor.address,
+        // stakedGlpDistributor.address,
+        // esGmx.address,
+        // bnGmx.address,
+        // gmxVester.address,
+        // glpVester.address
         )
 
         // allow bonusGmxTracker to stake stakedGmxTracker
-        await stakedGmxTracker.setHandler(bonusGmxTracker.address, true)
+        // await stakedGmxTracker.setHandler(bonusGmxTracker.address, true)
         // allow bonusGmxTracker to stake feeGmxTracker
-        await bonusGmxTracker.setHandler(feeGmxTracker.address, true)
-        await bonusGmxDistributor.setBonusMultiplier(10000)
+        // await bonusGmxTracker.setHandler(feeGmxTracker.address, true)
+        // await bonusGmxDistributor.setBonusMultiplier(10000)
         // allow feeGmxTracker to stake bnGmx
-        await bnGmx.setHandler(feeGmxTracker.address, true)
+        // await bnGmx.setHandler(feeGmxTracker.address, true)
 
         // allow stakedGlpTracker to stake feeGlpTracker
-        await feeGlpTracker.setHandler(stakedGlpTracker.address, true)
+        // await feeGlpTracker.setHandler(stakedGlpTracker.address, true)
 
         // allow fulfillController
-        await stakedGlpTracker.setHandler(fulfillController.address, true)
+        // await stakedGlpTracker.setHandler(fulfillController.address, true)
 
         // allow feeGlpTracker to stake glp
         await glp.setHandler(feeGlpTracker.address, true)
 
         // mint esGmx for distributors
-        await esGmx.setMinter(wallet.address, true)
-        await esGmx.mint(stakedGmxDistributor.address, expandDecimals(50000, 18))
-        await stakedGmxDistributor.setTokensPerInterval("20667989410000000") // 0.02066798941 esGmx per second
-        await esGmx.mint(stakedGlpDistributor.address, expandDecimals(50000, 18))
-        await stakedGlpDistributor.setTokensPerInterval("20667989410000000") // 0.02066798941 esGmx per second
+        // await esGmx.setMinter(wallet.address, true)
+        // await esGmx.mint(stakedGmxDistributor.address, expandDecimals(50000, 18))
+        // await stakedGmxDistributor.setTokensPerInterval("20667989410000000") // 0.02066798941 esGmx per second
+        // await esGmx.mint(stakedGlpDistributor.address, expandDecimals(50000, 18))
+        // await stakedGlpDistributor.setTokensPerInterval("20667989410000000") // 0.02066798941 esGmx per second
 
         // mint bnGmx for distributor
-        await bnGmx.setMinter(wallet.address, true)
-        await bnGmx.mint(bonusGmxDistributor.address, expandDecimals(1500, 18))
+        // await bnGmx.setMinter(wallet.address, true)
+        // await bnGmx.mint(bonusGmxDistributor.address, expandDecimals(1500, 18))
 
-        await esGmx.setHandler(tokenManager.address, true)
-        await gmxVester.setHandler(wallet.address, true)
+        // await esGmx.setHandler(tokenManager.address, true)
+        // await gmxVester.setHandler(wallet.address, true)
 
         // setFulfillController
         await fulfillController.setHandler(rewardRouter.address, true)
@@ -233,32 +234,32 @@ describe("BuyGLP", function () {
         await glpManager.setHandler(rewardRouter.address, true);
 
         await glpManager.setGov(timelock.address)
-        await stakedGmxTracker.setGov(timelock.address)
-        await bonusGmxTracker.setGov(timelock.address)
-        await feeGmxTracker.setGov(timelock.address)
+        // await stakedGmxTracker.setGov(timelock.address)
+        // await bonusGmxTracker.setGov(timelock.address)
+        // await feeGmxTracker.setGov(timelock.address)
         await feeGlpTracker.setGov(timelock.address)
-        await stakedGlpTracker.setGov(timelock.address)
-        await stakedGmxDistributor.setGov(timelock.address)
-        await stakedGlpDistributor.setGov(timelock.address)
-        await esGmx.setGov(timelock.address)
-        await bnGmx.setGov(timelock.address)
-        await gmxVester.setGov(timelock.address)
-        await glpVester.setGov(timelock.address)
+        // await stakedGlpTracker.setGov(timelock.address)
+        // await stakedGmxDistributor.setGov(timelock.address)
+        // await stakedGlpDistributor.setGov(timelock.address)
+        // await esGmx.setGov(timelock.address)
+        // await bnGmx.setGov(timelock.address)
+        // await gmxVester.setGov(timelock.address)
+        // await glpVester.setGov(timelock.address)
 
-        await rewardManager.updateEsGmxHandlers()
+        // await rewardManager.updateEsGmxHandlers()
         await rewardManager.enableRewardRouter() 
 
     }) 
-    it("BuyGLP by rewardRouterV2", async () => {
+    it("BuyGLP by rewardRouterV3", async () => {
         for (let i = 0; i < 10; i++){
             await eth.mint(feeGlpDistributor.address, expandDecimals(100, 18))
             await feeGlpDistributor.setTokensPerInterval("41335970000000") // 0.00004133597 ETH per second
         
-            await bnb.mint(user1.address, expandDecimals(1, 18))
-            await bnb.connect(user1).approve(rewardRouter.address, expandDecimals(1, 18))
+            await eth.mint(user1.address, expandDecimals(1, 18))
+            await eth.connect(user1).approve(rewardRouter.address, expandDecimals(1, 18))
         
             const tx0 = await rewardRouter.connect(user1).mintAndStakeGlp(
-              bnb.address,
+              eth.address,
               expandDecimals(1, 18),
               expandDecimals(299, 18),
               expandDecimals(299, 18)
@@ -270,7 +271,7 @@ describe("BuyGLP", function () {
             await xOracle.fulfillRequest([
               { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
               { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
-              { tokenIndex: tokenIndexs.BNB, price: toXOraclePrice(300), lastUpdate: 0 }
+              { tokenIndex: tokenIndexs.ETH, price: toXOraclePrice(300), lastUpdate: 0 }
             ], 0)
         }
     });

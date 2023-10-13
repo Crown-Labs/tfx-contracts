@@ -349,7 +349,7 @@ contract FulfillController is Ownable {
             IHandler(_to).fulfillUnstakeAndRedeemGlpETH(_account, _glpAmount, _minOut, _receiver);
         } 
         // - fulfillCompound(address)
-        else if (sig == 0x3b3b57de) {
+        else if (sig == 0xadf13488) {
             (address _account) = abi.decode(_data[4:], (address));
             IHandler(_to).fulfillCompound(_account);
         }
