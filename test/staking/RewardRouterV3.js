@@ -141,13 +141,13 @@ describe("RewardRouterV3", function () {
     // await feeGmxTracker.initialize([bonusGmxTracker.address, bnGmx.address], feeGmxDistributor.address)
     // await feeGmxDistributor.updateLastDistributionTime()
 
-    // GLP
+    // XLP
     feeXlpTracker = await deployContract("RewardTracker", ["Fee XLP", "fXLP"])
     feeXlpDistributor = await deployContract("RewardDistributor", [eth.address, feeXlpTracker.address])
     await feeXlpTracker.initialize([xlp.address], feeXlpDistributor.address)
     await feeXlpDistributor.updateLastDistributionTime()
 
-    // stakedXlpTracker = await deployContract("RewardTracker", ["Fee + Staked GLP", "fsGLP"])
+    // stakedXlpTracker = await deployContract("RewardTracker", ["Fee + Staked XLP", "fsXLP"])
     // stakedXlpDistributor = await deployContract("RewardDistributor", [esGmx.address, stakedXlpTracker.address])
     // await stakedXlpTracker.initialize([feeXlpTracker.address], stakedXlpDistributor.address)
     // await stakedXlpDistributor.updateLastDistributionTime()
@@ -163,8 +163,8 @@ describe("RewardRouterV3", function () {
     // ])
 
     // xlpVester = await deployContract("Vester", [
-    //   "Vested GLP", // _name
-    //   "vGLP", // _symbol
+    //   "Vested XLP", // _name
+    //   "vXLP", // _symbol
     //   vestingDuration, // _vestingDuration
     //   esGmx.address, // _esToken
     //   stakedXlpTracker.address, // _pairToken
@@ -524,7 +524,7 @@ describe("RewardRouterV3", function () {
     // expect(await stakedXlpTracker.stakedAmounts(user1.address)).eq("598300000000000000000")
     expect(await eth.balanceOf(user1.address)).eq("993676666666666666") // ~0.99
   })
-return
+
   it("mintAndStakeXlpETH, unstakeAndRedeemXlpETH", async () => {
     const receiver0 = newWallet()
 
@@ -550,18 +550,18 @@ return
       { value: expandDecimals(1, 18) }
     )
     
-    // revertedWith("XlpManager: insufficient GLP output")
+    // revertedWith("XlpManager: insufficient XLP output")
     await xOracle.fulfillRequest([
       { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
       { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
       { tokenIndex: tokenIndexs.ETH, price: toXOraclePrice(300), lastUpdate: 0 }
     ], 0)
 
-    expect(await bnb.balanceOf(user0.address)).eq(0)
-    expect(await bnb.balanceOf(vault.address)).eq(0)
-    expect((await bnb.totalSupply()).sub(depositFund)).eq(0) 
-    expect(await provider.getBalance(bnb.address)).eq(0)
-    expect(await stakedXlpTracker.balanceOf(user0.address)).eq(0)
+    expect(await eth.balanceOf(user0.address)).eq(0)
+    expect(await eth.balanceOf(vault.address)).eq(0)
+    expect((await eth.totalSupply()).sub(depositFund)).eq(0) 
+    expect(await provider.getBalance(eth.address)).eq(0)
+    // expect(await stakedXlpTracker.balanceOf(user0.address)).eq(0)
 
     await rewardRouter.connect(user0).mintAndStakeXlpETH(
       expandDecimals(299, 18), 
@@ -575,11 +575,11 @@ return
       { tokenIndex: tokenIndexs.ETH, price: toXOraclePrice(300), lastUpdate: 0 }
     ], 0)
 
-    expect(await bnb.balanceOf(user0.address)).eq(0)
-    expect(await bnb.balanceOf(vault.address)).eq(expandDecimals(1, 18))
-    expect(await provider.getBalance(bnb.address)).eq(expandDecimals(1, 18))
-    expect((await bnb.totalSupply()).sub(depositFund)).eq(expandDecimals(1, 18)) 
-    expect(await stakedXlpTracker.balanceOf(user0.address)).eq("299100000000000000000") // 299.1
+    expect(await eth.balanceOf(user0.address)).eq(0)
+    expect(await eth.balanceOf(vault.address)).eq(expandDecimals(1, 18))
+    expect(await provider.getBalance(eth.address)).eq(expandDecimals(1, 18))
+    expect((await eth.totalSupply()).sub(depositFund)).eq(expandDecimals(1, 18)) 
+    // expect(await stakedXlpTracker.balanceOf(user0.address)).eq("299100000000000000000") // 299.1
 
     await rewardRouter.connect(user0).unstakeAndRedeemXlpETH(
       expandDecimals(300, 18), 
@@ -636,11 +636,11 @@ return
     ], 0)
 
     expect(await provider.getBalance(receiver0.address)).eq("994009000000000000") // 0.994009
-    expect(await bnb.balanceOf(vault.address)).eq("5991000000000000") // 0.005991
-    expect(await provider.getBalance(bnb.address)).eq("5991000000000000")
-    expect((await bnb.totalSupply()).sub(depositFund)).eq("5991000000000000") 
+    expect(await eth.balanceOf(vault.address)).eq("5991000000000000") // 0.005991
+    expect(await provider.getBalance(eth.address)).eq("5991000000000000")
+    expect((await eth.totalSupply()).sub(depositFund)).eq("5991000000000000") 
   })
-  
+
   // it("gmx: signalTransfer, acceptTransfer", async () =>{
   //   await gmx.setMinter(wallet.address, true)
   //   await gmx.mint(user1.address, expandDecimals(200, 18))
@@ -800,7 +800,7 @@ return
     // await rewardRouter.connect(user2).stakeGmx(expandDecimals(200, 18))
     // expect(await gmx.balanceOf(user2.address)).eq(0)
 
-    // await rewardRouter.connect(user2).signalTransfer(user1.address)
+    await rewardRouter.connect(user2).signalTransfer(user1.address)
     
     await increaseTime(provider, 24 * 60 * 60)
     await mineBlock(provider)
@@ -808,80 +808,80 @@ return
     await rewardRouter.connect(user2).signalTransfer(user1.address)
     await rewardRouter.connect(user1).compound()
 
-    await expect(rewardRouter.connect(user2).signalTransfer(user1.address))
-      .to.be.revertedWith("RewardRouter: stakedGmxTracker.averageStakedAmounts > 0")
-
+    // await expect(rewardRouter.connect(user2).signalTransfer(user1.address))
+    //   .to.be.revertedWith("RewardRouter: stakedGmxTracker.averageStakedAmounts > 0")
+      
     await rewardRouter.connect(user2).signalTransfer(user3.address)
 
     await expect(rewardRouter.connect(user3).acceptTransfer(user1.address))
       .to.be.revertedWith("RewardRouter: transfer not signalled")
 
-    await gmxVester.setBonusRewards(user2.address, expandDecimals(100, 18))
+    // await gmxVester.setBonusRewards(user2.address, expandDecimals(100, 18))
 
-    expect(await stakedGmxTracker.depositBalances(user2.address, gmx.address)).eq(expandDecimals(200, 18))
-    expect(await stakedGmxTracker.depositBalances(user2.address, esGmx.address)).eq(0)
-    expect(await stakedGmxTracker.depositBalances(user3.address, gmx.address)).eq(0)
-    expect(await stakedGmxTracker.depositBalances(user3.address, esGmx.address)).eq(0)
+    // expect(await stakedGmxTracker.depositBalances(user2.address, gmx.address)).eq(expandDecimals(200, 18))
+    // expect(await stakedGmxTracker.depositBalances(user2.address, esGmx.address)).eq(0)
+    // expect(await stakedGmxTracker.depositBalances(user3.address, gmx.address)).eq(0)
+    // expect(await stakedGmxTracker.depositBalances(user3.address, esGmx.address)).eq(0)
 
-    expect(await feeGmxTracker.depositBalances(user2.address, bnGmx.address)).eq(0)
-    expect(await feeGmxTracker.depositBalances(user3.address, bnGmx.address)).eq(0)
+    // expect(await feeGmxTracker.depositBalances(user2.address, bnGmx.address)).eq(0)
+    // expect(await feeGmxTracker.depositBalances(user3.address, bnGmx.address)).eq(0)
 
     expect(await feeXlpTracker.depositBalances(user2.address, xlp.address)).eq("299100000000000000000") // 299.1
     expect(await feeXlpTracker.depositBalances(user3.address, xlp.address)).eq(0)
 
-    expect(await stakedXlpTracker.depositBalances(user2.address, feeXlpTracker.address)).eq("299100000000000000000") // 299.1
-    expect(await stakedXlpTracker.depositBalances(user3.address, feeXlpTracker.address)).eq(0)
+    // expect(await stakedXlpTracker.depositBalances(user2.address, feeXlpTracker.address)).eq("299100000000000000000") // 299.1
+    // expect(await stakedXlpTracker.depositBalances(user3.address, feeXlpTracker.address)).eq(0)
 
-    expect(await gmxVester.transferredAverageStakedAmounts(user3.address)).eq(0)
-    expect(await gmxVester.transferredCumulativeRewards(user3.address)).eq(0)
-    expect(await gmxVester.bonusRewards(user2.address)).eq(expandDecimals(100, 18))
-    expect(await gmxVester.bonusRewards(user3.address)).eq(0)
-    expect(await gmxVester.getCombinedAverageStakedAmount(user2.address)).eq(0)
-    expect(await gmxVester.getCombinedAverageStakedAmount(user3.address)).eq(0)
-    expect(await gmxVester.getMaxVestableAmount(user2.address)).eq(expandDecimals(100, 18))
-    expect(await gmxVester.getMaxVestableAmount(user3.address)).eq(0)
-    expect(await gmxVester.getPairAmount(user2.address, expandDecimals(892, 18))).eq(0)
-    expect(await gmxVester.getPairAmount(user3.address, expandDecimals(892, 18))).eq(0)
+    // expect(await gmxVester.transferredAverageStakedAmounts(user3.address)).eq(0)
+    // expect(await gmxVester.transferredCumulativeRewards(user3.address)).eq(0)
+    // expect(await gmxVester.bonusRewards(user2.address)).eq(expandDecimals(100, 18))
+    // expect(await gmxVester.bonusRewards(user3.address)).eq(0)
+    // expect(await gmxVester.getCombinedAverageStakedAmount(user2.address)).eq(0)
+    // expect(await gmxVester.getCombinedAverageStakedAmount(user3.address)).eq(0)
+    // expect(await gmxVester.getMaxVestableAmount(user2.address)).eq(expandDecimals(100, 18))
+    // expect(await gmxVester.getMaxVestableAmount(user3.address)).eq(0)
+    // expect(await gmxVester.getPairAmount(user2.address, expandDecimals(892, 18))).eq(0)
+    // expect(await gmxVester.getPairAmount(user3.address, expandDecimals(892, 18))).eq(0)
 
     await rewardRouter.connect(user3).acceptTransfer(user2.address)
 
-    expect(await stakedGmxTracker.depositBalances(user2.address, gmx.address)).eq(0)
-    expect(await stakedGmxTracker.depositBalances(user2.address, esGmx.address)).eq(0)
-    expect(await stakedGmxTracker.depositBalances(user3.address, gmx.address)).eq(expandDecimals(200, 18))
-    expect(await stakedGmxTracker.depositBalances(user3.address, esGmx.address)).gt(expandDecimals(1785, 18))
-    expect(await stakedGmxTracker.depositBalances(user3.address, esGmx.address)).lt(expandDecimals(1786, 18))
+    // expect(await stakedGmxTracker.depositBalances(user2.address, gmx.address)).eq(0)
+    // expect(await stakedGmxTracker.depositBalances(user2.address, esGmx.address)).eq(0)
+    // expect(await stakedGmxTracker.depositBalances(user3.address, gmx.address)).eq(expandDecimals(200, 18))
+    // expect(await stakedGmxTracker.depositBalances(user3.address, esGmx.address)).gt(expandDecimals(1785, 18))
+    // expect(await stakedGmxTracker.depositBalances(user3.address, esGmx.address)).lt(expandDecimals(1786, 18))
 
-    expect(await feeGmxTracker.depositBalances(user2.address, bnGmx.address)).eq(0)
-    expect(await feeGmxTracker.depositBalances(user3.address, bnGmx.address)).gt("547000000000000000") // 0.547
-    expect(await feeGmxTracker.depositBalances(user3.address, bnGmx.address)).lt("549000000000000000") // 0.548
+    // expect(await feeGmxTracker.depositBalances(user2.address, bnGmx.address)).eq(0)
+    // expect(await feeGmxTracker.depositBalances(user3.address, bnGmx.address)).gt("547000000000000000") // 0.547
+    // expect(await feeGmxTracker.depositBalances(user3.address, bnGmx.address)).lt("549000000000000000") // 0.548
 
     expect(await feeXlpTracker.depositBalances(user2.address, xlp.address)).eq(0)
     expect(await feeXlpTracker.depositBalances(user3.address, xlp.address)).eq("299100000000000000000") // 299.1
+    
+    // expect(await stakedXlpTracker.depositBalances(user2.address, feeXlpTracker.address)).eq(0)
+    // expect(await stakedXlpTracker.depositBalances(user3.address, feeXlpTracker.address)).eq("299100000000000000000") // 299.1
 
-    expect(await stakedXlpTracker.depositBalances(user2.address, feeXlpTracker.address)).eq(0)
-    expect(await stakedXlpTracker.depositBalances(user3.address, feeXlpTracker.address)).eq("299100000000000000000") // 299.1
-
-    expect(await gmxVester.transferredAverageStakedAmounts(user3.address)).eq(expandDecimals(200, 18))
-    expect(await gmxVester.transferredCumulativeRewards(user3.address)).gt(expandDecimals(892, 18))
-    expect(await gmxVester.transferredCumulativeRewards(user3.address)).lt(expandDecimals(893, 18))
-    expect(await gmxVester.bonusRewards(user2.address)).eq(0)
-    expect(await gmxVester.bonusRewards(user3.address)).eq(expandDecimals(100, 18))
-    expect(await gmxVester.getCombinedAverageStakedAmount(user2.address)).eq(expandDecimals(200, 18))
-    expect(await gmxVester.getCombinedAverageStakedAmount(user3.address)).eq(expandDecimals(200, 18))
-    expect(await gmxVester.getMaxVestableAmount(user2.address)).eq(0)
-    expect(await gmxVester.getMaxVestableAmount(user3.address)).gt(expandDecimals(992, 18))
-    expect(await gmxVester.getMaxVestableAmount(user3.address)).lt(expandDecimals(993, 18))
-    expect(await gmxVester.getPairAmount(user2.address, expandDecimals(992, 18))).eq(0)
-    expect(await gmxVester.getPairAmount(user3.address, expandDecimals(992, 18))).gt(expandDecimals(199, 18))
-    expect(await gmxVester.getPairAmount(user3.address, expandDecimals(992, 18))).lt(expandDecimals(200, 18))
-    expect(await gmxVester.getPairAmount(user1.address, expandDecimals(892, 18))).gt(expandDecimals(199, 18))
-    expect(await gmxVester.getPairAmount(user1.address, expandDecimals(892, 18))).lt(expandDecimals(200, 18))
+    // expect(await gmxVester.transferredAverageStakedAmounts(user3.address)).eq(expandDecimals(200, 18))
+    // expect(await gmxVester.transferredCumulativeRewards(user3.address)).gt(expandDecimals(892, 18))
+    // expect(await gmxVester.transferredCumulativeRewards(user3.address)).lt(expandDecimals(893, 18))
+    // expect(await gmxVester.bonusRewards(user2.address)).eq(0)
+    // expect(await gmxVester.bonusRewards(user3.address)).eq(expandDecimals(100, 18))
+    // expect(await gmxVester.getCombinedAverageStakedAmount(user2.address)).eq(expandDecimals(200, 18))
+    // expect(await gmxVester.getCombinedAverageStakedAmount(user3.address)).eq(expandDecimals(200, 18))
+    // expect(await gmxVester.getMaxVestableAmount(user2.address)).eq(0)
+    // expect(await gmxVester.getMaxVestableAmount(user3.address)).gt(expandDecimals(992, 18))
+    // expect(await gmxVester.getMaxVestableAmount(user3.address)).lt(expandDecimals(993, 18))
+    // expect(await gmxVester.getPairAmount(user2.address, expandDecimals(992, 18))).eq(0)
+    // expect(await gmxVester.getPairAmount(user3.address, expandDecimals(992, 18))).gt(expandDecimals(199, 18))
+    // expect(await gmxVester.getPairAmount(user3.address, expandDecimals(992, 18))).lt(expandDecimals(200, 18))
+    // expect(await gmxVester.getPairAmount(user1.address, expandDecimals(892, 18))).gt(expandDecimals(199, 18))
+    // expect(await gmxVester.getPairAmount(user1.address, expandDecimals(892, 18))).lt(expandDecimals(200, 18))
 
     await rewardRouter.connect(user1).compound()
     
     await expect(rewardRouter.connect(user3).acceptTransfer(user1.address))
       .to.be.revertedWith("RewardRouter: transfer not signalled")
-
+      
     await increaseTime(provider, 24 * 60 * 60)
     await mineBlock(provider)
 
@@ -889,90 +889,90 @@ return
     await rewardRouter.connect(user2).claim()
     await rewardRouter.connect(user3).claim()
 
-    expect(await gmxVester.getCombinedAverageStakedAmount(user1.address)).gt(expandDecimals(1092, 18))
-    expect(await gmxVester.getCombinedAverageStakedAmount(user1.address)).lt(expandDecimals(1094, 18))
-    expect(await gmxVester.getCombinedAverageStakedAmount(user3.address)).gt(expandDecimals(1092, 18))
-    expect(await gmxVester.getCombinedAverageStakedAmount(user3.address)).lt(expandDecimals(1094, 18))
+    // expect(await gmxVester.getCombinedAverageStakedAmount(user1.address)).gt(expandDecimals(1092, 18))
+    // expect(await gmxVester.getCombinedAverageStakedAmount(user1.address)).lt(expandDecimals(1094, 18))
+    // expect(await gmxVester.getCombinedAverageStakedAmount(user3.address)).gt(expandDecimals(1092, 18))
+    // expect(await gmxVester.getCombinedAverageStakedAmount(user3.address)).lt(expandDecimals(1094, 18))
 
-    expect(await gmxVester.getMaxVestableAmount(user2.address)).eq(0)
-    expect(await gmxVester.getMaxVestableAmount(user3.address)).gt(expandDecimals(1885, 18))
-    expect(await gmxVester.getMaxVestableAmount(user3.address)).lt(expandDecimals(1887, 18))
-    expect(await gmxVester.getMaxVestableAmount(user1.address)).gt(expandDecimals(1785, 18))
-    expect(await gmxVester.getMaxVestableAmount(user1.address)).lt(expandDecimals(1787, 18))
+    // expect(await gmxVester.getMaxVestableAmount(user2.address)).eq(0)
+    // expect(await gmxVester.getMaxVestableAmount(user3.address)).gt(expandDecimals(1885, 18))
+    // expect(await gmxVester.getMaxVestableAmount(user3.address)).lt(expandDecimals(1887, 18))
+    // expect(await gmxVester.getMaxVestableAmount(user1.address)).gt(expandDecimals(1785, 18))
+    // expect(await gmxVester.getMaxVestableAmount(user1.address)).lt(expandDecimals(1787, 18))
 
-    expect(await gmxVester.getPairAmount(user2.address, expandDecimals(992, 18))).eq(0)
-    expect(await gmxVester.getPairAmount(user3.address, expandDecimals(1885, 18))).gt(expandDecimals(1092, 18))
-    expect(await gmxVester.getPairAmount(user3.address, expandDecimals(1885, 18))).lt(expandDecimals(1094, 18))
-    expect(await gmxVester.getPairAmount(user1.address, expandDecimals(1785, 18))).gt(expandDecimals(1092, 18))
-    expect(await gmxVester.getPairAmount(user1.address, expandDecimals(1785, 18))).lt(expandDecimals(1094, 18))
+    // expect(await gmxVester.getPairAmount(user2.address, expandDecimals(992, 18))).eq(0)
+    // expect(await gmxVester.getPairAmount(user3.address, expandDecimals(1885, 18))).gt(expandDecimals(1092, 18))
+    // expect(await gmxVester.getPairAmount(user3.address, expandDecimals(1885, 18))).lt(expandDecimals(1094, 18))
+    // expect(await gmxVester.getPairAmount(user1.address, expandDecimals(1785, 18))).gt(expandDecimals(1092, 18))
+    // expect(await gmxVester.getPairAmount(user1.address, expandDecimals(1785, 18))).lt(expandDecimals(1094, 18))
 
     await rewardRouter.connect(user1).compound()
     await rewardRouter.connect(user3).compound()
 
-    expect(await feeGmxTracker.balanceOf(user1.address)).gt(expandDecimals(1992, 18))
-    expect(await feeGmxTracker.balanceOf(user1.address)).lt(expandDecimals(1993, 18))
+    // expect(await feeGmxTracker.balanceOf(user1.address)).gt(expandDecimals(1992, 18))
+    // expect(await feeGmxTracker.balanceOf(user1.address)).lt(expandDecimals(1993, 18))
 
-    await gmxVester.connect(user1).deposit(expandDecimals(1785, 18))
+    // await gmxVester.connect(user1).deposit(expandDecimals(1785, 18))
 
-    expect(await feeGmxTracker.balanceOf(user1.address)).gt(expandDecimals(1991 - 1092, 18)) // 899
-    expect(await feeGmxTracker.balanceOf(user1.address)).lt(expandDecimals(1993 - 1092, 18)) // 901
+    // expect(await feeGmxTracker.balanceOf(user1.address)).gt(expandDecimals(1991 - 1092, 18)) // 899
+    // expect(await feeGmxTracker.balanceOf(user1.address)).lt(expandDecimals(1993 - 1092, 18)) // 901
 
-    expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).gt(expandDecimals(4, 18))
-    expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).lt(expandDecimals(6, 18))
+    // expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).gt(expandDecimals(4, 18))
+    // expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).lt(expandDecimals(6, 18))
 
-    await rewardRouter.connect(user1).unstakeGmx(expandDecimals(200, 18))
-    await expect(rewardRouter.connect(user1).unstakeEsGmx(expandDecimals(699, 18)))
-      .to.be.revertedWith("RewardTracker: burn amount exceeds balance")
+    // await rewardRouter.connect(user1).unstakeGmx(expandDecimals(200, 18))
+    // await expect(rewardRouter.connect(user1).unstakeEsGmx(expandDecimals(699, 18)))
+    //   .to.be.revertedWith("RewardTracker: burn amount exceeds balance")
 
-    await rewardRouter.connect(user1).unstakeEsGmx(expandDecimals(599, 18))
+    // await rewardRouter.connect(user1).unstakeEsGmx(expandDecimals(599, 18))
 
     await increaseTime(provider, 24 * 60 * 60)
     await mineBlock(provider)
 
-    expect(await feeGmxTracker.balanceOf(user1.address)).gt(expandDecimals(97, 18))
-    expect(await feeGmxTracker.balanceOf(user1.address)).lt(expandDecimals(99, 18))
+    // expect(await feeGmxTracker.balanceOf(user1.address)).gt(expandDecimals(97, 18))
+    // expect(await feeGmxTracker.balanceOf(user1.address)).lt(expandDecimals(99, 18))
 
-    expect(await esGmx.balanceOf(user1.address)).gt(expandDecimals(599, 18))
-    expect(await esGmx.balanceOf(user1.address)).lt(expandDecimals(601, 18))
+    // expect(await esGmx.balanceOf(user1.address)).gt(expandDecimals(599, 18))
+    // expect(await esGmx.balanceOf(user1.address)).lt(expandDecimals(601, 18))
 
-    expect(await gmx.balanceOf(user1.address)).eq(expandDecimals(200, 18))
+    // expect(await gmx.balanceOf(user1.address)).eq(expandDecimals(200, 18))
 
-    await gmxVester.connect(user1).withdraw()
+    // await gmxVester.connect(user1).withdraw()
 
-    expect(await feeGmxTracker.balanceOf(user1.address)).gt(expandDecimals(1190, 18)) // 1190 - 98 => 1092
-    expect(await feeGmxTracker.balanceOf(user1.address)).lt(expandDecimals(1191, 18))
+    // expect(await feeGmxTracker.balanceOf(user1.address)).gt(expandDecimals(1190, 18)) // 1190 - 98 => 1092
+    // expect(await feeGmxTracker.balanceOf(user1.address)).lt(expandDecimals(1191, 18))
 
-    expect(await esGmx.balanceOf(user1.address)).gt(expandDecimals(2378, 18))
-    expect(await esGmx.balanceOf(user1.address)).lt(expandDecimals(2380, 18))
+    // expect(await esGmx.balanceOf(user1.address)).gt(expandDecimals(2378, 18))
+    // expect(await esGmx.balanceOf(user1.address)).lt(expandDecimals(2380, 18))
 
-    expect(await gmx.balanceOf(user1.address)).gt(expandDecimals(204, 18))
-    expect(await gmx.balanceOf(user1.address)).lt(expandDecimals(206, 18))
+    // expect(await gmx.balanceOf(user1.address)).gt(expandDecimals(204, 18))
+    // expect(await gmx.balanceOf(user1.address)).lt(expandDecimals(206, 18))
 
-    expect(await xlpVester.getMaxVestableAmount(user3.address)).gt(expandDecimals(1785, 18))
-    expect(await xlpVester.getMaxVestableAmount(user3.address)).lt(expandDecimals(1787, 18))
+    // expect(await xlpVester.getMaxVestableAmount(user3.address)).gt(expandDecimals(1785, 18))
+    // expect(await xlpVester.getMaxVestableAmount(user3.address)).lt(expandDecimals(1787, 18))
 
-    expect(await xlpVester.getPairAmount(user3.address, expandDecimals(1785, 18))).gt(expandDecimals(298, 18))
-    expect(await xlpVester.getPairAmount(user3.address, expandDecimals(1785, 18))).lt(expandDecimals(300, 18))
+    // expect(await xlpVester.getPairAmount(user3.address, expandDecimals(1785, 18))).gt(expandDecimals(298, 18))
+    // expect(await xlpVester.getPairAmount(user3.address, expandDecimals(1785, 18))).lt(expandDecimals(300, 18))
 
-    expect(await stakedXlpTracker.balanceOf(user3.address)).eq("299100000000000000000")
+    // expect(await stakedXlpTracker.balanceOf(user3.address)).eq("299100000000000000000")
 
-    expect(await esGmx.balanceOf(user3.address)).gt(expandDecimals(1785, 18))
-    expect(await esGmx.balanceOf(user3.address)).lt(expandDecimals(1787, 18))
+    // expect(await esGmx.balanceOf(user3.address)).gt(expandDecimals(1785, 18))
+    // expect(await esGmx.balanceOf(user3.address)).lt(expandDecimals(1787, 18))
 
-    expect(await gmx.balanceOf(user3.address)).eq(0)
+    // expect(await gmx.balanceOf(user3.address)).eq(0)
 
-    await xlpVester.connect(user3).deposit(expandDecimals(1785, 18))
+    // await xlpVester.connect(user3).deposit(expandDecimals(1785, 18))
 
-    expect(await stakedXlpTracker.balanceOf(user3.address)).gt(0)
-    expect(await stakedXlpTracker.balanceOf(user3.address)).lt(expandDecimals(1, 18))
+    // expect(await stakedXlpTracker.balanceOf(user3.address)).gt(0)
+    // expect(await stakedXlpTracker.balanceOf(user3.address)).lt(expandDecimals(1, 18))
 
-    expect(await esGmx.balanceOf(user3.address)).gt(0)
-    expect(await esGmx.balanceOf(user3.address)).lt(expandDecimals(1, 18))
+    // expect(await esGmx.balanceOf(user3.address)).gt(0)
+    // expect(await esGmx.balanceOf(user3.address)).lt(expandDecimals(1, 18))
 
-    expect(await gmx.balanceOf(user3.address)).eq(0)
+    // expect(await gmx.balanceOf(user3.address)).eq(0)
     
     await rewardRouter.connect(user3).unstakeAndRedeemXlp(
-      bnb.address,
+      eth.address,
       expandDecimals(1, 18),
       0,
       user3.address
@@ -984,204 +984,204 @@ return
       { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
       { tokenIndex: tokenIndexs.ETH, price: toXOraclePrice(300), lastUpdate: 0 }
     ], 0)
+    return
+    // await increaseTime(provider, 24 * 60 * 60)
+    // await mineBlock(provider)
 
-    await increaseTime(provider, 24 * 60 * 60)
-    await mineBlock(provider)
+    // await xlpVester.connect(user3).withdraw()
 
-    await xlpVester.connect(user3).withdraw()
+    // expect(await stakedXlpTracker.balanceOf(user3.address)).eq("299100000000000000000")
 
-    expect(await stakedXlpTracker.balanceOf(user3.address)).eq("299100000000000000000")
+    // expect(await esGmx.balanceOf(user3.address)).gt(expandDecimals(1785 - 5, 18))
+    // expect(await esGmx.balanceOf(user3.address)).lt(expandDecimals(1787 - 5, 18))
 
-    expect(await esGmx.balanceOf(user3.address)).gt(expandDecimals(1785 - 5, 18))
-    expect(await esGmx.balanceOf(user3.address)).lt(expandDecimals(1787 - 5, 18))
+    // expect(await gmx.balanceOf(user3.address)).gt(expandDecimals(4, 18))
+    // expect(await gmx.balanceOf(user3.address)).lt(expandDecimals(6, 18))
 
-    expect(await gmx.balanceOf(user3.address)).gt(expandDecimals(4, 18))
-    expect(await gmx.balanceOf(user3.address)).lt(expandDecimals(6, 18))
+    // expect(await feeGmxTracker.balanceOf(user1.address)).gt(expandDecimals(1190, 18))
+    // expect(await feeGmxTracker.balanceOf(user1.address)).lt(expandDecimals(1191, 18))
 
-    expect(await feeGmxTracker.balanceOf(user1.address)).gt(expandDecimals(1190, 18))
-    expect(await feeGmxTracker.balanceOf(user1.address)).lt(expandDecimals(1191, 18))
+    // expect(await esGmx.balanceOf(user1.address)).gt(expandDecimals(2379, 18))
+    // expect(await esGmx.balanceOf(user1.address)).lt(expandDecimals(2381, 18))
 
-    expect(await esGmx.balanceOf(user1.address)).gt(expandDecimals(2379, 18))
-    expect(await esGmx.balanceOf(user1.address)).lt(expandDecimals(2381, 18))
+    // expect(await gmx.balanceOf(user1.address)).gt(expandDecimals(204, 18))
+    // expect(await gmx.balanceOf(user1.address)).lt(expandDecimals(206, 18))
 
-    expect(await gmx.balanceOf(user1.address)).gt(expandDecimals(204, 18))
-    expect(await gmx.balanceOf(user1.address)).lt(expandDecimals(206, 18))
+    // await gmxVester.connect(user1).deposit(expandDecimals(365 * 2, 18))
 
-    await gmxVester.connect(user1).deposit(expandDecimals(365 * 2, 18))
+    // expect(await feeGmxTracker.balanceOf(user1.address)).gt(expandDecimals(743, 18)) // 1190 - 743 => 447
+    // expect(await feeGmxTracker.balanceOf(user1.address)).lt(expandDecimals(754, 18))
 
-    expect(await feeGmxTracker.balanceOf(user1.address)).gt(expandDecimals(743, 18)) // 1190 - 743 => 447
-    expect(await feeGmxTracker.balanceOf(user1.address)).lt(expandDecimals(754, 18))
+    // expect(await gmxVester.claimable(user1.address)).eq(0)
 
-    expect(await gmxVester.claimable(user1.address)).eq(0)
+    // await increaseTime(provider, 48 * 60 * 60)
+    // await mineBlock(provider)
 
-    await increaseTime(provider, 48 * 60 * 60)
-    await mineBlock(provider)
+    // expect(await gmxVester.claimable(user1.address)).gt("3900000000000000000") // 3.9
+    // expect(await gmxVester.claimable(user1.address)).lt("4100000000000000000") // 4.1
 
-    expect(await gmxVester.claimable(user1.address)).gt("3900000000000000000") // 3.9
-    expect(await gmxVester.claimable(user1.address)).lt("4100000000000000000") // 4.1
+    // await gmxVester.connect(user1).deposit(expandDecimals(365, 18))
 
-    await gmxVester.connect(user1).deposit(expandDecimals(365, 18))
+    // expect(await feeGmxTracker.balanceOf(user1.address)).gt(expandDecimals(522, 18)) // 743 - 522 => 221
+    // expect(await feeGmxTracker.balanceOf(user1.address)).lt(expandDecimals(524, 18))
 
-    expect(await feeGmxTracker.balanceOf(user1.address)).gt(expandDecimals(522, 18)) // 743 - 522 => 221
-    expect(await feeGmxTracker.balanceOf(user1.address)).lt(expandDecimals(524, 18))
+    // await increaseTime(provider, 48 * 60 * 60)
+    // await mineBlock(provider)
 
-    await increaseTime(provider, 48 * 60 * 60)
-    await mineBlock(provider)
+    // expect(await gmxVester.claimable(user1.address)).gt("9900000000000000000") // 9.9
+    // expect(await gmxVester.claimable(user1.address)).lt("10100000000000000000") // 10.1
 
-    expect(await gmxVester.claimable(user1.address)).gt("9900000000000000000") // 9.9
-    expect(await gmxVester.claimable(user1.address)).lt("10100000000000000000") // 10.1
+    // expect(await gmx.balanceOf(user1.address)).gt(expandDecimals(204, 18))
+    // expect(await gmx.balanceOf(user1.address)).lt(expandDecimals(206, 18))
 
-    expect(await gmx.balanceOf(user1.address)).gt(expandDecimals(204, 18))
-    expect(await gmx.balanceOf(user1.address)).lt(expandDecimals(206, 18))
+    // await gmxVester.connect(user1).claim()
 
-    await gmxVester.connect(user1).claim()
+    // expect(await gmx.balanceOf(user1.address)).gt(expandDecimals(214, 18))
+    // expect(await gmx.balanceOf(user1.address)).lt(expandDecimals(216, 18))
 
-    expect(await gmx.balanceOf(user1.address)).gt(expandDecimals(214, 18))
-    expect(await gmx.balanceOf(user1.address)).lt(expandDecimals(216, 18))
+    // await gmxVester.connect(user1).deposit(expandDecimals(365, 18))
+    // expect(await gmxVester.balanceOf(user1.address)).gt(expandDecimals(1449, 18)) // 365 * 4 => 1460, 1460 - 10 => 1450
+    // expect(await gmxVester.balanceOf(user1.address)).lt(expandDecimals(1451, 18))
+    // expect(await gmxVester.getVestedAmount(user1.address)).eq(expandDecimals(1460, 18))
 
-    await gmxVester.connect(user1).deposit(expandDecimals(365, 18))
-    expect(await gmxVester.balanceOf(user1.address)).gt(expandDecimals(1449, 18)) // 365 * 4 => 1460, 1460 - 10 => 1450
-    expect(await gmxVester.balanceOf(user1.address)).lt(expandDecimals(1451, 18))
-    expect(await gmxVester.getVestedAmount(user1.address)).eq(expandDecimals(1460, 18))
+    // expect(await feeGmxTracker.balanceOf(user1.address)).gt(expandDecimals(303, 18)) // 522 - 303 => 219
+    // expect(await feeGmxTracker.balanceOf(user1.address)).lt(expandDecimals(304, 18))
 
-    expect(await feeGmxTracker.balanceOf(user1.address)).gt(expandDecimals(303, 18)) // 522 - 303 => 219
-    expect(await feeGmxTracker.balanceOf(user1.address)).lt(expandDecimals(304, 18))
+    // await increaseTime(provider, 48 * 60 * 60)
+    // await mineBlock(provider)
 
-    await increaseTime(provider, 48 * 60 * 60)
-    await mineBlock(provider)
+    // expect(await gmxVester.claimable(user1.address)).gt("7900000000000000000") // 7.9
+    // expect(await gmxVester.claimable(user1.address)).lt("8100000000000000000") // 8.1
 
-    expect(await gmxVester.claimable(user1.address)).gt("7900000000000000000") // 7.9
-    expect(await gmxVester.claimable(user1.address)).lt("8100000000000000000") // 8.1
+    // await gmxVester.connect(user1).withdraw()
 
-    await gmxVester.connect(user1).withdraw()
+    // expect(await feeGmxTracker.balanceOf(user1.address)).gt(expandDecimals(1190, 18))
+    // expect(await feeGmxTracker.balanceOf(user1.address)).lt(expandDecimals(1191, 18))
 
-    expect(await feeGmxTracker.balanceOf(user1.address)).gt(expandDecimals(1190, 18))
-    expect(await feeGmxTracker.balanceOf(user1.address)).lt(expandDecimals(1191, 18))
+    // expect(await gmx.balanceOf(user1.address)).gt(expandDecimals(222, 18))
+    // expect(await gmx.balanceOf(user1.address)).lt(expandDecimals(224, 18))
 
-    expect(await gmx.balanceOf(user1.address)).gt(expandDecimals(222, 18))
-    expect(await gmx.balanceOf(user1.address)).lt(expandDecimals(224, 18))
+    // expect(await esGmx.balanceOf(user1.address)).gt(expandDecimals(2360, 18))
+    // expect(await esGmx.balanceOf(user1.address)).lt(expandDecimals(2362, 18))
 
-    expect(await esGmx.balanceOf(user1.address)).gt(expandDecimals(2360, 18))
-    expect(await esGmx.balanceOf(user1.address)).lt(expandDecimals(2362, 18))
+    // await gmxVester.connect(user1).deposit(expandDecimals(365, 18))
 
-    await gmxVester.connect(user1).deposit(expandDecimals(365, 18))
+    // await increaseTime(provider, 500 * 24 * 60 * 60)
+    // await mineBlock(provider)
 
-    await increaseTime(provider, 500 * 24 * 60 * 60)
-    await mineBlock(provider)
+    // expect(await gmxVester.claimable(user1.address)).eq(expandDecimals(365, 18))
 
-    expect(await gmxVester.claimable(user1.address)).eq(expandDecimals(365, 18))
+    // await gmxVester.connect(user1).withdraw()
 
-    await gmxVester.connect(user1).withdraw()
+    // expect(await gmx.balanceOf(user1.address)).gt(expandDecimals(222 + 365, 18))
+    // expect(await gmx.balanceOf(user1.address)).lt(expandDecimals(224 + 365, 18))
 
-    expect(await gmx.balanceOf(user1.address)).gt(expandDecimals(222 + 365, 18))
-    expect(await gmx.balanceOf(user1.address)).lt(expandDecimals(224 + 365, 18))
+    // expect(await esGmx.balanceOf(user1.address)).gt(expandDecimals(2360 - 365, 18))
+    // expect(await esGmx.balanceOf(user1.address)).lt(expandDecimals(2362 - 365, 18))
 
-    expect(await esGmx.balanceOf(user1.address)).gt(expandDecimals(2360 - 365, 18))
-    expect(await esGmx.balanceOf(user1.address)).lt(expandDecimals(2362 - 365, 18))
-
-    expect(await gmxVester.transferredAverageStakedAmounts(user2.address)).eq(0)
-    expect(await gmxVester.transferredAverageStakedAmounts(user3.address)).eq(expandDecimals(200, 18))
-    expect(await stakedGmxTracker.cumulativeRewards(user2.address)).gt(expandDecimals(892, 18))
-    expect(await stakedGmxTracker.cumulativeRewards(user2.address)).lt(expandDecimals(893, 18))
-    expect(await stakedGmxTracker.cumulativeRewards(user3.address)).gt(expandDecimals(892, 18))
-    expect(await stakedGmxTracker.cumulativeRewards(user3.address)).lt(expandDecimals(893, 18))
-    expect(await gmxVester.transferredCumulativeRewards(user3.address)).gt(expandDecimals(892, 18))
-    expect(await gmxVester.transferredCumulativeRewards(user3.address)).lt(expandDecimals(893, 18))
-    expect(await gmxVester.bonusRewards(user2.address)).eq(0)
-    expect(await gmxVester.bonusRewards(user3.address)).eq(expandDecimals(100, 18))
-    expect(await gmxVester.getCombinedAverageStakedAmount(user2.address)).eq(expandDecimals(200, 18))
-    expect(await gmxVester.getCombinedAverageStakedAmount(user3.address)).gt(expandDecimals(1092, 18))
-    expect(await gmxVester.getCombinedAverageStakedAmount(user3.address)).lt(expandDecimals(1093, 18))
-    expect(await gmxVester.getMaxVestableAmount(user2.address)).eq(0)
-    expect(await gmxVester.getMaxVestableAmount(user3.address)).gt(expandDecimals(1884, 18))
-    expect(await gmxVester.getMaxVestableAmount(user3.address)).lt(expandDecimals(1886, 18))
-    expect(await gmxVester.getPairAmount(user2.address, expandDecimals(992, 18))).eq(0)
-    expect(await gmxVester.getPairAmount(user3.address, expandDecimals(992, 18))).gt(expandDecimals(574, 18))
-    expect(await gmxVester.getPairAmount(user3.address, expandDecimals(992, 18))).lt(expandDecimals(575, 18))
-    expect(await gmxVester.getPairAmount(user1.address, expandDecimals(892, 18))).gt(expandDecimals(545, 18))
-    expect(await gmxVester.getPairAmount(user1.address, expandDecimals(892, 18))).lt(expandDecimals(546, 18))
+    // expect(await gmxVester.transferredAverageStakedAmounts(user2.address)).eq(0)
+    // expect(await gmxVester.transferredAverageStakedAmounts(user3.address)).eq(expandDecimals(200, 18))
+    // expect(await stakedGmxTracker.cumulativeRewards(user2.address)).gt(expandDecimals(892, 18))
+    // expect(await stakedGmxTracker.cumulativeRewards(user2.address)).lt(expandDecimals(893, 18))
+    // expect(await stakedGmxTracker.cumulativeRewards(user3.address)).gt(expandDecimals(892, 18))
+    // expect(await stakedGmxTracker.cumulativeRewards(user3.address)).lt(expandDecimals(893, 18))
+    // expect(await gmxVester.transferredCumulativeRewards(user3.address)).gt(expandDecimals(892, 18))
+    // expect(await gmxVester.transferredCumulativeRewards(user3.address)).lt(expandDecimals(893, 18))
+    // expect(await gmxVester.bonusRewards(user2.address)).eq(0)
+    // expect(await gmxVester.bonusRewards(user3.address)).eq(expandDecimals(100, 18))
+    // expect(await gmxVester.getCombinedAverageStakedAmount(user2.address)).eq(expandDecimals(200, 18))
+    // expect(await gmxVester.getCombinedAverageStakedAmount(user3.address)).gt(expandDecimals(1092, 18))
+    // expect(await gmxVester.getCombinedAverageStakedAmount(user3.address)).lt(expandDecimals(1093, 18))
+    // expect(await gmxVester.getMaxVestableAmount(user2.address)).eq(0)
+    // expect(await gmxVester.getMaxVestableAmount(user3.address)).gt(expandDecimals(1884, 18))
+    // expect(await gmxVester.getMaxVestableAmount(user3.address)).lt(expandDecimals(1886, 18))
+    // expect(await gmxVester.getPairAmount(user2.address, expandDecimals(992, 18))).eq(0)
+    // expect(await gmxVester.getPairAmount(user3.address, expandDecimals(992, 18))).gt(expandDecimals(574, 18))
+    // expect(await gmxVester.getPairAmount(user3.address, expandDecimals(992, 18))).lt(expandDecimals(575, 18))
+    // expect(await gmxVester.getPairAmount(user1.address, expandDecimals(892, 18))).gt(expandDecimals(545, 18))
+    // expect(await gmxVester.getPairAmount(user1.address, expandDecimals(892, 18))).lt(expandDecimals(546, 18))
     
-    const esGmxBatchSender = await deployContract("EsGmxBatchSender", [esGmx.address])
+    // const esGmxBatchSender = await deployContract("EsGmxBatchSender", [esGmx.address])
 
-    await timelock.signalSetHandler(esGmx.address, esGmxBatchSender.address, true)
-    await timelock.signalSetHandler(gmxVester.address, esGmxBatchSender.address, true)
-    await timelock.signalSetHandler(xlpVester.address, esGmxBatchSender.address, true)
-    await timelock.signalMint(esGmx.address, wallet.address, expandDecimals(1000, 18))
+    // await timelock.signalSetHandler(esGmx.address, esGmxBatchSender.address, true)
+    // await timelock.signalSetHandler(gmxVester.address, esGmxBatchSender.address, true)
+    // await timelock.signalSetHandler(xlpVester.address, esGmxBatchSender.address, true)
+    // await timelock.signalMint(esGmx.address, wallet.address, expandDecimals(1000, 18))
 
-    await increaseTime(provider, 20)
-    await mineBlock(provider)
+    // await increaseTime(provider, 20)
+    // await mineBlock(provider)
     
-    await timelock.setHandler(esGmx.address, esGmxBatchSender.address, true)
-    await timelock.setHandler(gmxVester.address, esGmxBatchSender.address, true)
-    await timelock.setHandler(xlpVester.address, esGmxBatchSender.address, true)
-    await timelock.processMint(esGmx.address, wallet.address, expandDecimals(1000, 18))
+    // await timelock.setHandler(esGmx.address, esGmxBatchSender.address, true)
+    // await timelock.setHandler(gmxVester.address, esGmxBatchSender.address, true)
+    // await timelock.setHandler(xlpVester.address, esGmxBatchSender.address, true)
+    // await timelock.processMint(esGmx.address, wallet.address, expandDecimals(1000, 18))
 
-    await esGmxBatchSender.connect(wallet).send(
-      gmxVester.address,
-      4,
-      [user2.address, user3.address],
-      [expandDecimals(100, 18), expandDecimals(200, 18)]
-    )
+    // await esGmxBatchSender.connect(wallet).send(
+    //   gmxVester.address,
+    //   4,
+    //   [user2.address, user3.address],
+    //   [expandDecimals(100, 18), expandDecimals(200, 18)]
+    // )
     
-    expect(await gmxVester.transferredAverageStakedAmounts(user2.address)).gt(expandDecimals(37648, 18))
-    expect(await gmxVester.transferredAverageStakedAmounts(user2.address)).lt(expandDecimals(37649, 18))
+    // expect(await gmxVester.transferredAverageStakedAmounts(user2.address)).gt(expandDecimals(37648, 18))
+    // expect(await gmxVester.transferredAverageStakedAmounts(user2.address)).lt(expandDecimals(37649, 18))
 
     // expect(await gmxVester.transferredAverageStakedAmounts(user3.address)).gt(expandDecimals(12810, 18))
-    expect(await gmxVester.transferredAverageStakedAmounts(user3.address)).gt(expandDecimals(12810 - 1, 18))
+    // expect(await gmxVester.transferredAverageStakedAmounts(user3.address)).gt(expandDecimals(12810 - 1, 18))
     
-    expect(await gmxVester.transferredAverageStakedAmounts(user3.address)).lt(expandDecimals(12811, 18))
-    expect(await gmxVester.transferredCumulativeRewards(user2.address)).eq(expandDecimals(100, 18))
-    expect(await gmxVester.transferredCumulativeRewards(user3.address)).gt(expandDecimals(892 + 200, 18))
-    expect(await gmxVester.transferredCumulativeRewards(user3.address)).lt(expandDecimals(893 + 200, 18))
-    expect(await gmxVester.bonusRewards(user2.address)).eq(0)
-    expect(await gmxVester.bonusRewards(user3.address)).eq(expandDecimals(100, 18))
-    expect(await gmxVester.getCombinedAverageStakedAmount(user2.address)).gt(expandDecimals(3971, 18))
-    expect(await gmxVester.getCombinedAverageStakedAmount(user2.address)).lt(expandDecimals(3972, 18))
-    expect(await gmxVester.getCombinedAverageStakedAmount(user3.address)).gt(expandDecimals(7943, 18))
-    expect(await gmxVester.getCombinedAverageStakedAmount(user3.address)).lt(expandDecimals(7944, 18))
-    expect(await gmxVester.getMaxVestableAmount(user2.address)).eq(expandDecimals(100, 18))
-    expect(await gmxVester.getMaxVestableAmount(user3.address)).gt(expandDecimals(1884 + 200, 18))
-    expect(await gmxVester.getMaxVestableAmount(user3.address)).lt(expandDecimals(1886 + 200, 18))
-    expect(await gmxVester.getPairAmount(user2.address, expandDecimals(100, 18))).gt(expandDecimals(3971, 18))
-    expect(await gmxVester.getPairAmount(user2.address, expandDecimals(100, 18))).lt(expandDecimals(3972, 18))
-    expect(await gmxVester.getPairAmount(user3.address, expandDecimals(1884 + 200, 18))).gt(expandDecimals(7936, 18))
-    expect(await gmxVester.getPairAmount(user3.address, expandDecimals(1884 + 200, 18))).lt(expandDecimals(7937, 18))
-    expect(await xlpVester.transferredAverageStakedAmounts(user4.address)).eq(0)
-    expect(await xlpVester.transferredCumulativeRewards(user4.address)).eq(0)
-    expect(await xlpVester.bonusRewards(user4.address)).eq(0)
-    expect(await xlpVester.getCombinedAverageStakedAmount(user4.address)).eq(0)
-    expect(await xlpVester.getMaxVestableAmount(user4.address)).eq(0)
-    expect(await xlpVester.getPairAmount(user4.address, expandDecimals(10, 18))).eq(0)
+    // expect(await gmxVester.transferredAverageStakedAmounts(user3.address)).lt(expandDecimals(12811, 18))
+    // expect(await gmxVester.transferredCumulativeRewards(user2.address)).eq(expandDecimals(100, 18))
+    // expect(await gmxVester.transferredCumulativeRewards(user3.address)).gt(expandDecimals(892 + 200, 18))
+    // expect(await gmxVester.transferredCumulativeRewards(user3.address)).lt(expandDecimals(893 + 200, 18))
+    // expect(await gmxVester.bonusRewards(user2.address)).eq(0)
+    // expect(await gmxVester.bonusRewards(user3.address)).eq(expandDecimals(100, 18))
+    // expect(await gmxVester.getCombinedAverageStakedAmount(user2.address)).gt(expandDecimals(3971, 18))
+    // expect(await gmxVester.getCombinedAverageStakedAmount(user2.address)).lt(expandDecimals(3972, 18))
+    // expect(await gmxVester.getCombinedAverageStakedAmount(user3.address)).gt(expandDecimals(7943, 18))
+    // expect(await gmxVester.getCombinedAverageStakedAmount(user3.address)).lt(expandDecimals(7944, 18))
+    // expect(await gmxVester.getMaxVestableAmount(user2.address)).eq(expandDecimals(100, 18))
+    // expect(await gmxVester.getMaxVestableAmount(user3.address)).gt(expandDecimals(1884 + 200, 18))
+    // expect(await gmxVester.getMaxVestableAmount(user3.address)).lt(expandDecimals(1886 + 200, 18))
+    // expect(await gmxVester.getPairAmount(user2.address, expandDecimals(100, 18))).gt(expandDecimals(3971, 18))
+    // expect(await gmxVester.getPairAmount(user2.address, expandDecimals(100, 18))).lt(expandDecimals(3972, 18))
+    // expect(await gmxVester.getPairAmount(user3.address, expandDecimals(1884 + 200, 18))).gt(expandDecimals(7936, 18))
+    // expect(await gmxVester.getPairAmount(user3.address, expandDecimals(1884 + 200, 18))).lt(expandDecimals(7937, 18))
+    // expect(await xlpVester.transferredAverageStakedAmounts(user4.address)).eq(0)
+    // expect(await xlpVester.transferredCumulativeRewards(user4.address)).eq(0)
+    // expect(await xlpVester.bonusRewards(user4.address)).eq(0)
+    // expect(await xlpVester.getCombinedAverageStakedAmount(user4.address)).eq(0)
+    // expect(await xlpVester.getMaxVestableAmount(user4.address)).eq(0)
+    // expect(await xlpVester.getPairAmount(user4.address, expandDecimals(10, 18))).eq(0)
     
-    await esGmxBatchSender.connect(wallet).send(
-      xlpVester.address,
-      320,
-      [user4.address],
-      [expandDecimals(10, 18)]
-    )
+    // await esGmxBatchSender.connect(wallet).send(
+    //   xlpVester.address,
+    //   320,
+    //   [user4.address],
+    //   [expandDecimals(10, 18)]
+    // )
 
-    expect(await xlpVester.transferredAverageStakedAmounts(user4.address)).eq(expandDecimals(3200, 18))
-    expect(await xlpVester.transferredCumulativeRewards(user4.address)).eq(expandDecimals(10, 18))
-    expect(await xlpVester.bonusRewards(user4.address)).eq(0)
-    expect(await xlpVester.getCombinedAverageStakedAmount(user4.address)).eq(expandDecimals(3200, 18))
-    expect(await xlpVester.getMaxVestableAmount(user4.address)).eq(expandDecimals(10, 18))
-    expect(await xlpVester.getPairAmount(user4.address, expandDecimals(10, 18))).eq(expandDecimals(3200, 18))
+    // expect(await xlpVester.transferredAverageStakedAmounts(user4.address)).eq(expandDecimals(3200, 18))
+    // expect(await xlpVester.transferredCumulativeRewards(user4.address)).eq(expandDecimals(10, 18))
+    // expect(await xlpVester.bonusRewards(user4.address)).eq(0)
+    // expect(await xlpVester.getCombinedAverageStakedAmount(user4.address)).eq(expandDecimals(3200, 18))
+    // expect(await xlpVester.getMaxVestableAmount(user4.address)).eq(expandDecimals(10, 18))
+    // expect(await xlpVester.getPairAmount(user4.address, expandDecimals(10, 18))).eq(expandDecimals(3200, 18))
 
-    await esGmxBatchSender.connect(wallet).send(
-      xlpVester.address,
-      320,
-      [user4.address],
-      [expandDecimals(10, 18)]
-    )
+    // await esGmxBatchSender.connect(wallet).send(
+    //   xlpVester.address,
+    //   320,
+    //   [user4.address],
+    //   [expandDecimals(10, 18)]
+    // )
 
-    expect(await xlpVester.transferredAverageStakedAmounts(user4.address)).eq(expandDecimals(6400, 18))
-    expect(await xlpVester.transferredCumulativeRewards(user4.address)).eq(expandDecimals(20, 18))
-    expect(await xlpVester.bonusRewards(user4.address)).eq(0)
-    expect(await xlpVester.getCombinedAverageStakedAmount(user4.address)).eq(expandDecimals(6400, 18))
-    expect(await xlpVester.getMaxVestableAmount(user4.address)).eq(expandDecimals(20, 18))
-    expect(await xlpVester.getPairAmount(user4.address, expandDecimals(10, 18))).eq(expandDecimals(3200, 18))
+    // expect(await xlpVester.transferredAverageStakedAmounts(user4.address)).eq(expandDecimals(6400, 18))
+    // expect(await xlpVester.transferredCumulativeRewards(user4.address)).eq(expandDecimals(20, 18))
+    // expect(await xlpVester.bonusRewards(user4.address)).eq(0)
+    // expect(await xlpVester.getCombinedAverageStakedAmount(user4.address)).eq(expandDecimals(6400, 18))
+    // expect(await xlpVester.getMaxVestableAmount(user4.address)).eq(expandDecimals(20, 18))
+    // expect(await xlpVester.getPairAmount(user4.address, expandDecimals(10, 18))).eq(expandDecimals(3200, 18))
   })
-  
+
   it("handleRewards", async () => {
     const rewardManagerV2 = await deployContract("RewardManager", [])
     const timelockV2 = await deployContract("Timelock", [
@@ -1207,89 +1207,90 @@ return
     await mineBlock(provider)
 
     await timelock.setHandler(xlpManager.address, rewardRouterV3.address, true)
-
+    const minRewardCompound = 0;
     await rewardRouterV3.initialize(
       eth.address,
-      gmx.address,
-      esGmx.address,
-      bnGmx.address,
+      // gmx.address,
+      // esGmx.address,
+      // bnGmx.address,
       xlp.address,
-      stakedGmxTracker.address,
-      bonusGmxTracker.address,
-      feeGmxTracker.address,
+      // stakedGmxTracker.address,
+      // bonusGmxTracker.address,
+      // feeGmxTracker.address,
       feeXlpTracker.address,
-      stakedXlpTracker.address,
+      // stakedXlpTracker.address,
       xlpManager.address,
-      gmxVester.address,
-      xlpVester.address
+      // gmxVester.address,
+      // xlpVester.address
+      minRewardCompound
     )
 
     await rewardManagerV2.initialize(
       timelockV2.address,
       rewardRouterV3.address,
       xlpManager.address,
-      stakedGmxTracker.address,
-      bonusGmxTracker.address,
-      feeGmxTracker.address,
+      // stakedGmxTracker.address,
+      // bonusGmxTracker.address,
+      // feeGmxTracker.address,
       feeXlpTracker.address,
-      stakedXlpTracker.address,
-      stakedGmxDistributor.address,
-      stakedXlpDistributor.address,
-      esGmx.address,
-      bnGmx.address,
-      gmxVester.address,
-      xlpVester.address
+      // stakedXlpTracker.address,
+      // stakedGmxDistributor.address,
+      // stakedXlpDistributor.address,
+      // esGmx.address,
+      // bnGmx.address,
+      // gmxVester.address,
+      // xlpVester.address
     )
 
     await timelock.signalSetGov(xlpManager.address, timelockV2.address)
-    await timelock.signalSetGov(stakedGmxTracker.address, timelockV2.address)
-    await timelock.signalSetGov(bonusGmxTracker.address, timelockV2.address)
-    await timelock.signalSetGov(feeGmxTracker.address, timelockV2.address)
+    // await timelock.signalSetGov(stakedGmxTracker.address, timelockV2.address)
+    // await timelock.signalSetGov(bonusGmxTracker.address, timelockV2.address)
+    // await timelock.signalSetGov(feeGmxTracker.address, timelockV2.address)
     await timelock.signalSetGov(feeXlpTracker.address, timelockV2.address)
-    await timelock.signalSetGov(stakedXlpTracker.address, timelockV2.address)
-    await timelock.signalSetGov(stakedGmxDistributor.address, timelockV2.address)
-    await timelock.signalSetGov(stakedXlpDistributor.address, timelockV2.address)
-    await timelock.signalSetGov(esGmx.address, timelockV2.address)
-    await timelock.signalSetGov(bnGmx.address, timelockV2.address)
-    await timelock.signalSetGov(gmxVester.address, timelockV2.address)
-    await timelock.signalSetGov(xlpVester.address, timelockV2.address)
+    // await timelock.signalSetGov(stakedXlpTracker.address, timelockV2.address)
+    // await timelock.signalSetGov(stakedGmxDistributor.address, timelockV2.address)
+    // await timelock.signalSetGov(stakedXlpDistributor.address, timelockV2.address)
+    // await timelock.signalSetGov(esGmx.address, timelockV2.address)
+    // await timelock.signalSetGov(bnGmx.address, timelockV2.address)
+    // await timelock.signalSetGov(gmxVester.address, timelockV2.address)
+    // await timelock.signalSetGov(xlpVester.address, timelockV2.address)
 
     await increaseTime(provider, 20)
     await mineBlock(provider)
 
     await timelock.setGov(xlpManager.address, timelockV2.address)
-    await timelock.setGov(stakedGmxTracker.address, timelockV2.address)
-    await timelock.setGov(bonusGmxTracker.address, timelockV2.address)
-    await timelock.setGov(feeGmxTracker.address, timelockV2.address)
+    // await timelock.setGov(stakedGmxTracker.address, timelockV2.address)
+    // await timelock.setGov(bonusGmxTracker.address, timelockV2.address)
+    // await timelock.setGov(feeGmxTracker.address, timelockV2.address)
     await timelock.setGov(feeXlpTracker.address, timelockV2.address)
-    await timelock.setGov(stakedXlpTracker.address, timelockV2.address)
-    await timelock.setGov(stakedGmxDistributor.address, timelockV2.address)
-    await timelock.setGov(stakedXlpDistributor.address, timelockV2.address)
-    await timelock.setGov(esGmx.address, timelockV2.address)
-    await timelock.setGov(bnGmx.address, timelockV2.address)
-    await timelock.setGov(gmxVester.address, timelockV2.address)
-    await timelock.setGov(xlpVester.address, timelockV2.address)
+    // await timelock.setGov(stakedXlpTracker.address, timelockV2.address)
+    // await timelock.setGov(stakedGmxDistributor.address, timelockV2.address)
+    // await timelock.setGov(stakedXlpDistributor.address, timelockV2.address)
+    // await timelock.setGov(esGmx.address, timelockV2.address)
+    // await timelock.setGov(bnGmx.address, timelockV2.address)
+    // await timelock.setGov(gmxVester.address, timelockV2.address)
+    // await timelock.setGov(xlpVester.address, timelockV2.address)
 
-    await rewardManagerV2.updateEsGmxHandlers()
+    // await rewardManagerV2.updateEsGmxHandlers()
     await rewardManagerV2.enableRewardRouter()
 
     await eth.deposit({ value: expandDecimals(10, 18) })
 
-    await gmx.setMinter(wallet.address, true)
-    await gmx.mint(gmxVester.address, expandDecimals(10000, 18))
-    await gmx.mint(xlpVester.address, expandDecimals(10000, 18))
+    // await gmx.setMinter(wallet.address, true)
+    // await gmx.mint(gmxVester.address, expandDecimals(10000, 18))
+    // await gmx.mint(xlpVester.address, expandDecimals(10000, 18))
 
     await eth.mint(feeXlpDistributor.address, expandDecimals(50, 18))
     await feeXlpDistributor.setTokensPerInterval("41335970000000") // 0.00004133597 ETH per second
 
-    await eth.mint(feeGmxDistributor.address, expandDecimals(50, 18))
-    await feeGmxDistributor.setTokensPerInterval("41335970000000") // 0.00004133597 ETH per second
+    // await eth.mint(feeGmxDistributor.address, expandDecimals(50, 18))
+    // await feeGmxDistributor.setTokensPerInterval("41335970000000") // 0.00004133597 ETH per second
 
-    await bnb.mint(user1.address, expandDecimals(1, 18))
-    await bnb.connect(user1).approve(rewardRouterV3.address, expandDecimals(1, 18))
+    await eth.mint(user1.address, expandDecimals(1, 18))
+    await eth.connect(user1).approve(rewardRouterV3.address, expandDecimals(1, 18))
 
     await rewardRouterV3.connect(user1).mintAndStakeXlp(
-      bnb.address,
+      eth.address,
       expandDecimals(1, 18),
       expandDecimals(299, 18),
       expandDecimals(299, 18)
@@ -1301,47 +1302,48 @@ return
       { tokenIndex: tokenIndexs.ETH, price: toXOraclePrice(300), lastUpdate: 0 }
     ], 0)
 
-    await gmx.mint(user1.address, expandDecimals(200, 18))
-    expect(await gmx.balanceOf(user1.address)).eq(expandDecimals(200, 18))
-    await gmx.connect(user1).approve(stakedGmxTracker.address, expandDecimals(200, 18))
-    await rewardRouterV3.connect(user1).stakeGmx(expandDecimals(200, 18))
-    expect(await gmx.balanceOf(user1.address)).eq(0)
+    // await gmx.mint(user1.address, expandDecimals(200, 18))
+    // expect(await gmx.balanceOf(user1.address)).eq(expandDecimals(200, 18))
+    // await gmx.connect(user1).approve(stakedGmxTracker.address, expandDecimals(200, 18))
+    // await rewardRouterV3.connect(user1).stakeGmx(expandDecimals(200, 18))
+    // expect(await gmx.balanceOf(user1.address)).eq(0)
 
     await increaseTime(provider, 24 * 60 * 60)
     await mineBlock(provider)
 
-    expect(await gmx.balanceOf(user1.address)).eq(0)
-    expect(await esGmx.balanceOf(user1.address)).eq(0)
-    expect(await bnGmx.balanceOf(user1.address)).eq(0)
+    // expect(await gmx.balanceOf(user1.address)).eq(0)
+    // expect(await esGmx.balanceOf(user1.address)).eq(0)
+    // expect(await bnGmx.balanceOf(user1.address)).eq(0)
     expect(await xlp.balanceOf(user1.address)).eq(0)
     expect(await eth.balanceOf(user1.address)).eq(0)
 
-    expect(await stakedGmxTracker.depositBalances(user1.address, gmx.address)).eq(expandDecimals(200, 18))
-    expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).eq(0)
-    expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).eq(0)
+    // expect(await stakedGmxTracker.depositBalances(user1.address, gmx.address)).eq(expandDecimals(200, 18))
+    // expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).eq(0)
+    // expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).eq(0)
 
     await rewardRouterV3.connect(user1).handleRewards(
-      true, // _shouldClaimGmx
-      true, // _shouldStakeGmx
-      true, // _shouldClaimEsGmx
-      true, // _shouldStakeEsGmx
-      true, // _shouldStakeMultiplierPoints
-      true, // _shouldClaimWeth
+      // true, // _shouldClaimGmx
+      // true, // _shouldStakeGmx
+      // true, // _shouldClaimEsGmx
+      // true, // _shouldStakeEsGmx
+      // true, // _shouldStakeMultiplierPoints
+      // true, // _shouldClaimWeth
       false // _shouldConvertWethToEth
     )
 
-    expect(await gmx.balanceOf(user1.address)).eq(0)
-    expect(await esGmx.balanceOf(user1.address)).eq(0)
-    expect(await bnGmx.balanceOf(user1.address)).eq(0)
-    expect(await xlp.balanceOf(user1.address)).eq(0)
-    expect(await eth.balanceOf(user1.address)).gt(expandDecimals(7, 18))
-    expect(await eth.balanceOf(user1.address)).lt(expandDecimals(8, 18))
+    // expect(await gmx.balanceOf(user1.address)).eq(0)
+    // expect(await esGmx.balanceOf(user1.address)).eq(0)
+    // expect(await bnGmx.balanceOf(user1.address)).eq(0)
 
-    expect(await stakedGmxTracker.depositBalances(user1.address, gmx.address)).eq(expandDecimals(200, 18))
-    expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).gt(expandDecimals(3571, 18))
-    expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).lt(expandDecimals(3572, 18))
-    expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).gt("540000000000000000") // 0.54
-    expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).lt("560000000000000000") // 0.56
+    expect(await xlp.balanceOf(user1.address)).eq(0)
+    expect(await eth.balanceOf(user1.address)).gt(expandDecimals(35, 17)) // 3.5 WETH
+    expect(await eth.balanceOf(user1.address)).lt(expandDecimals(4, 18)) // 4 WETH
+
+    // expect(await stakedGmxTracker.depositBalances(user1.address, gmx.address)).eq(expandDecimals(200, 18))
+    // expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).gt(expandDecimals(3571, 18))
+    // expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).lt(expandDecimals(3572, 18))
+    // expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).gt("540000000000000000") // 0.54
+    // expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).lt("560000000000000000") // 0.56
 
     await increaseTime(provider, 24 * 60 * 60)
     await mineBlock(provider)
@@ -1349,378 +1351,383 @@ return
     const ethBalance0 = await provider.getBalance(user1.address)
 
     await rewardRouterV3.connect(user1).handleRewards(
-      false, // _shouldClaimGmx
-      false, // _shouldStakeGmx
-      false, // _shouldClaimEsGmx
-      false, // _shouldStakeEsGmx
-      false, // _shouldStakeMultiplierPoints
-      true, // _shouldClaimWeth
+      // false, // _shouldClaimGmx
+      // false, // _shouldStakeGmx
+      // false, // _shouldClaimEsGmx
+      // false, // _shouldStakeEsGmx
+      // false, // _shouldStakeMultiplierPoints
+      // true, // _shouldClaimWeth
       true // _shouldConvertWethToEth
     )
 
     const ethBalance1 = await provider.getBalance(user1.address)
 
-    expect(await ethBalance1.sub(ethBalance0)).gt(expandDecimals(7, 18))
-    expect(await ethBalance1.sub(ethBalance0)).lt(expandDecimals(8, 18))
-    expect(await gmx.balanceOf(user1.address)).eq(0)
-    expect(await esGmx.balanceOf(user1.address)).eq(0)
-    expect(await bnGmx.balanceOf(user1.address)).eq(0)
-    expect(await xlp.balanceOf(user1.address)).eq(0)
-    expect(await eth.balanceOf(user1.address)).gt(expandDecimals(7, 18))
-    expect(await eth.balanceOf(user1.address)).lt(expandDecimals(8, 18))
+    expect(await ethBalance1.sub(ethBalance0)).gt(expandDecimals(35, 17)) // 3.5 WETH
+    expect(await ethBalance1.sub(ethBalance0)).lt(expandDecimals(4, 18)) // 4 WETH
 
-    expect(await stakedGmxTracker.depositBalances(user1.address, gmx.address)).eq(expandDecimals(200, 18))
-    expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).gt(expandDecimals(3571, 18))
-    expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).lt(expandDecimals(3572, 18))
-    expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).gt("540000000000000000") // 0.54
-    expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).lt("560000000000000000") // 0.56
+    // expect(await gmx.balanceOf(user1.address)).eq(0)
+    // expect(await esGmx.balanceOf(user1.address)).eq(0)
+    // expect(await bnGmx.balanceOf(user1.address)).eq(0)
+    expect(await xlp.balanceOf(user1.address)).eq(0)
+    expect(await eth.balanceOf(user1.address)).gt(expandDecimals(35, 17)) // 3.5 WETH
+    expect(await eth.balanceOf(user1.address)).lt(expandDecimals(4, 18)) // 4 WETH
+
+    // expect(await stakedGmxTracker.depositBalances(user1.address, gmx.address)).eq(expandDecimals(200, 18))
+    // expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).gt(expandDecimals(3571, 18))
+    // expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).lt(expandDecimals(3572, 18))
+    // expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).gt("540000000000000000") // 0.54
+    // expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).lt("560000000000000000") // 0.56
 
     await rewardRouterV3.connect(user1).handleRewards(
-      false, // _shouldClaimGmx
-      false, // _shouldStakeGmx
-      true, // _shouldClaimEsGmx
-      false, // _shouldStakeEsGmx
-      false, // _shouldStakeMultiplierPoints
-      false, // _shouldClaimWeth
+      // false, // _shouldClaimGmx
+      // false, // _shouldStakeGmx
+      // true, // _shouldClaimEsGmx
+      // false, // _shouldStakeEsGmx
+      // false, // _shouldStakeMultiplierPoints
+      // false, // _shouldClaimWeth
       false // _shouldConvertWethToEth
     )
 
-    expect(await ethBalance1.sub(ethBalance0)).gt(expandDecimals(7, 18))
-    expect(await ethBalance1.sub(ethBalance0)).lt(expandDecimals(8, 18))
-    expect(await gmx.balanceOf(user1.address)).eq(0)
-    expect(await esGmx.balanceOf(user1.address)).gt(expandDecimals(3571, 18))
-    expect(await esGmx.balanceOf(user1.address)).lt(expandDecimals(3572, 18))
-    expect(await bnGmx.balanceOf(user1.address)).eq(0)
+    expect(await ethBalance1.sub(ethBalance0)).gt(expandDecimals(35, 17)) // 3.5 WETH
+    expect(await ethBalance1.sub(ethBalance0)).lt(expandDecimals(4, 18)) // 4 WETH
+    // expect(await gmx.balanceOf(user1.address)).eq(0)
+    // expect(await esGmx.balanceOf(user1.address)).gt(expandDecimals(3571, 18))
+    // expect(await esGmx.balanceOf(user1.address)).lt(expandDecimals(3572, 18))
+    // expect(await bnGmx.balanceOf(user1.address)).eq(0)
     expect(await xlp.balanceOf(user1.address)).eq(0)
-    expect(await eth.balanceOf(user1.address)).gt(expandDecimals(7, 18))
-    expect(await eth.balanceOf(user1.address)).lt(expandDecimals(8, 18))
+    expect(await eth.balanceOf(user1.address)).gt(expandDecimals(35, 17)) // 3.5 WETH
+    expect(await eth.balanceOf(user1.address)).lt(expandDecimals(4, 18)) // 4 WETH
 
-    expect(await stakedGmxTracker.depositBalances(user1.address, gmx.address)).eq(expandDecimals(200, 18))
-    expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).gt(expandDecimals(3571, 18))
-    expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).lt(expandDecimals(3572, 18))
-    expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).gt("540000000000000000") // 0.54
-    expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).lt("560000000000000000") // 0.56
+    // expect(await stakedGmxTracker.depositBalances(user1.address, gmx.address)).eq(expandDecimals(200, 18))
+    // expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).gt(expandDecimals(3571, 18))
+    // expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).lt(expandDecimals(3572, 18))
+    // expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).gt("540000000000000000") // 0.54
+    // expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).lt("560000000000000000") // 0.56
 
-    await gmxVester.connect(user1).deposit(expandDecimals(365, 18))
-    await xlpVester.connect(user1).deposit(expandDecimals(365 * 2, 18))
+    // await gmxVester.connect(user1).deposit(expandDecimals(365, 18))
+    // await xlpVester.connect(user1).deposit(expandDecimals(365 * 2, 18))
 
-    expect(await ethBalance1.sub(ethBalance0)).gt(expandDecimals(7, 18))
-    expect(await ethBalance1.sub(ethBalance0)).lt(expandDecimals(8, 18))
-    expect(await gmx.balanceOf(user1.address)).eq(0)
-    expect(await esGmx.balanceOf(user1.address)).gt(expandDecimals(3571 - 365 * 3, 18))
-    expect(await esGmx.balanceOf(user1.address)).lt(expandDecimals(3572 - 365 * 3, 18))
-    expect(await bnGmx.balanceOf(user1.address)).eq(0)
+    expect(await ethBalance1.sub(ethBalance0)).gt(expandDecimals(35, 17)) // 3.5 WETH
+    expect(await ethBalance1.sub(ethBalance0)).lt(expandDecimals(4, 18)) // 4 WETH
+    // expect(await gmx.balanceOf(user1.address)).eq(0)
+    // expect(await esGmx.balanceOf(user1.address)).gt(expandDecimals(3571 - 365 * 3, 18))
+    // expect(await esGmx.balanceOf(user1.address)).lt(expandDecimals(3572 - 365 * 3, 18))
+    // expect(await bnGmx.balanceOf(user1.address)).eq(0)
     expect(await xlp.balanceOf(user1.address)).eq(0)
-    expect(await eth.balanceOf(user1.address)).gt(expandDecimals(7, 18))
-    expect(await eth.balanceOf(user1.address)).lt(expandDecimals(8, 18))
+    expect(await eth.balanceOf(user1.address)).gt(expandDecimals(35, 17)) // 3.5 WETH
+    expect(await eth.balanceOf(user1.address)).lt(expandDecimals(4, 18)) // 4 WETH
 
-    expect(await stakedGmxTracker.depositBalances(user1.address, gmx.address)).eq(expandDecimals(200, 18))
-    expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).gt(expandDecimals(3571, 18))
-    expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).lt(expandDecimals(3572, 18))
-    expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).gt("540000000000000000") // 0.54
-    expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).lt("560000000000000000") // 0.56
+    // expect(await stakedGmxTracker.depositBalances(user1.address, gmx.address)).eq(expandDecimals(200, 18))
+    // expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).gt(expandDecimals(3571, 18))
+    // expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).lt(expandDecimals(3572, 18))
+    // expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).gt("540000000000000000") // 0.54
+    // expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).lt("560000000000000000") // 0.56
 
     await increaseTime(provider, 24 * 60 * 60)
     await mineBlock(provider)
 
     await rewardRouterV3.connect(user1).handleRewards(
-      true, // _shouldClaimGmx
-      false, // _shouldStakeGmx
-      false, // _shouldClaimEsGmx
-      false, // _shouldStakeEsGmx
-      false, // _shouldStakeMultiplierPoints
-      false, // _shouldClaimWeth
+      // true, // _shouldClaimGmx
+      // false, // _shouldStakeGmx
+      // false, // _shouldClaimEsGmx
+      // false, // _shouldStakeEsGmx
+      // false, // _shouldStakeMultiplierPoints
+      // false, // _shouldClaimWeth
       false // _shouldConvertWethToEth
     )
 
-    expect(await ethBalance1.sub(ethBalance0)).gt(expandDecimals(7, 18))
-    expect(await ethBalance1.sub(ethBalance0)).lt(expandDecimals(8, 18))
-    expect(await gmx.balanceOf(user1.address)).gt("2900000000000000000") // 2.9
-    expect(await gmx.balanceOf(user1.address)).lt("3100000000000000000") // 3.1
-    expect(await esGmx.balanceOf(user1.address)).gt(expandDecimals(3571 - 365 * 3, 18))
-    expect(await esGmx.balanceOf(user1.address)).lt(expandDecimals(3572 - 365 * 3, 18))
-    expect(await bnGmx.balanceOf(user1.address)).eq(0)
+    expect(await ethBalance1.sub(ethBalance0)).gt(expandDecimals(35, 17)) // 3.5 WETH
+    expect(await ethBalance1.sub(ethBalance0)).lt(expandDecimals(4, 18)) // 4 WETH
+
+    // expect(await gmx.balanceOf(user1.address)).gt("2900000000000000000") // 2.9
+    // expect(await gmx.balanceOf(user1.address)).lt("3100000000000000000") // 3.1
+    // expect(await esGmx.balanceOf(user1.address)).gt(expandDecimals(3571 - 365 * 3, 18))
+    // expect(await esGmx.balanceOf(user1.address)).lt(expandDecimals(3572 - 365 * 3, 18))
+    // expect(await bnGmx.balanceOf(user1.address)).eq(0)
     expect(await xlp.balanceOf(user1.address)).eq(0)
-    expect(await eth.balanceOf(user1.address)).gt(expandDecimals(7, 18))
-    expect(await eth.balanceOf(user1.address)).lt(expandDecimals(8, 18))
 
-    expect(await stakedGmxTracker.depositBalances(user1.address, gmx.address)).eq(expandDecimals(200, 18))
-    expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).gt(expandDecimals(3571, 18))
-    expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).lt(expandDecimals(3572, 18))
-    expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).gt("540000000000000000") // 0.54
-    expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).lt("560000000000000000") // 0.56
+    expect(await eth.balanceOf(user1.address)).gt(expandDecimals(7, 18)) // 7 WETH
+    expect(await eth.balanceOf(user1.address)).lt(expandDecimals(8, 18)) // 8 WETH
+
+    // expect(await stakedGmxTracker.depositBalances(user1.address, gmx.address)).eq(expandDecimals(200, 18))
+    // expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).gt(expandDecimals(3571, 18))
+    // expect(await stakedGmxTracker.depositBalances(user1.address, esGmx.address)).lt(expandDecimals(3572, 18))
+    // expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).gt("540000000000000000") // 0.54
+    // expect(await feeGmxTracker.depositBalances(user1.address, bnGmx.address)).lt("560000000000000000") // 0.56
   })
+
+  // it("StakedXlp", async () => {
+  //   await eth.mint(feeXlpDistributor.address, expandDecimals(100, 18))
+  //   await feeXlpDistributor.setTokensPerInterval("41335970000000") // 0.00004133597 ETH per second
+
+  //   await eth.mint(user1.address, expandDecimals(1, 18))
+  //   await eth.connect(user1).approve(rewardRouter.address, expandDecimals(1, 18))
+
+  //   await rewardRouter.connect(user1).mintAndStakeXlp(
+  //     eth.address,
+  //     expandDecimals(1, 18),
+  //     expandDecimals(299, 18),
+  //     expandDecimals(299, 18)
+  //   )
+
+  //   await xOracle.fulfillRequest([
+  //     { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
+  //     { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
+  //     { tokenIndex: tokenIndexs.ETH, price: toXOraclePrice(300), lastUpdate: 0 }
+  //   ], 0)
+
+  //   expect(await feeXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2991, 17))
+  //   expect(await feeXlpTracker.depositBalances(user1.address, xlp.address)).eq(expandDecimals(2991, 17))
+
+  //   expect(await stakedXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2991, 17))
+  //   expect(await stakedXlpTracker.depositBalances(user1.address, feeXlpTracker.address)).eq(expandDecimals(2991, 17))
+
+  //   const stakedXlp = await deployContract("StakedXlp", [xlp.address, xlpManager.address, stakedXlpTracker.address, feeXlpTracker.address])
+
+  //   await expect(stakedXlp.connect(user2).transferFrom(user1.address, user3.address, expandDecimals(2991, 17)))
+  //     .to.be.revertedWith("StakedXlp: transfer amount exceeds allowance")
+
+  //   await stakedXlp.connect(user1).approve(user2.address, expandDecimals(2991, 17))
+
+  //   await expect(stakedXlp.connect(user2).transferFrom(user1.address, user3.address, expandDecimals(2991, 17)))
+  //     .to.be.revertedWith("StakedXlp: cooldown duration not yet passed")
+
+  //   await increaseTime(provider, 24 * 60 * 60 + 10)
+  //   await mineBlock(provider)
+
+  //   await expect(stakedXlp.connect(user2).transferFrom(user1.address, user3.address, expandDecimals(2991, 17)))
+  //     .to.be.revertedWith("RewardTracker: forbidden")
+
+  //   await timelock.signalSetHandler(stakedXlpTracker.address, stakedXlp.address, true)
+  //   await increaseTime(provider, 20)
+  //   await mineBlock(provider)
+  //   await timelock.setHandler(stakedXlpTracker.address, stakedXlp.address, true)
+
+  //   await expect(stakedXlp.connect(user2).transferFrom(user1.address, user3.address, expandDecimals(2991, 17)))
+  //     .to.be.revertedWith("RewardTracker: forbidden")
+
+  //   await timelock.signalSetHandler(feeXlpTracker.address, stakedXlp.address, true)
+  //   await increaseTime(provider, 20)
+  //   await mineBlock(provider)
+  //   await timelock.setHandler(feeXlpTracker.address, stakedXlp.address, true)
+
+  //   expect(await feeXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2991, 17))
+  //   expect(await feeXlpTracker.depositBalances(user1.address, xlp.address)).eq(expandDecimals(2991, 17))
+
+  //   expect(await stakedXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2991, 17))
+  //   expect(await stakedXlpTracker.depositBalances(user1.address, feeXlpTracker.address)).eq(expandDecimals(2991, 17))
+
+  //   expect(await feeXlpTracker.stakedAmounts(user3.address)).eq(0)
+  //   expect(await feeXlpTracker.depositBalances(user3.address, xlp.address)).eq(0)
+
+  //   expect(await stakedXlpTracker.stakedAmounts(user3.address)).eq(0)
+  //   expect(await stakedXlpTracker.depositBalances(user3.address, feeXlpTracker.address)).eq(0)
+
+  //   await stakedXlp.connect(user2).transferFrom(user1.address, user3. address, expandDecimals(2991, 17))
+
+  //   expect(await feeXlpTracker.stakedAmounts(user1.address)).eq(0)
+  //   expect(await feeXlpTracker.depositBalances(user1.address, xlp.address)).eq(0)
+
+
+  //   expect(await stakedXlpTracker.stakedAmounts(user1.address)).eq(0)
+  //   expect(await stakedXlpTracker.depositBalances(user1.address, feeXlpTracker.address)).eq(0)
+
+  //   expect(await feeXlpTracker.stakedAmounts(user3.address)).eq(expandDecimals(2991, 17))
+  //   expect(await feeXlpTracker.depositBalances(user3.address, xlp.address)).eq(expandDecimals(2991, 17))
+
+  //   expect(await stakedXlpTracker.stakedAmounts(user3.address)).eq(expandDecimals(2991, 17))
+  //   expect(await stakedXlpTracker.depositBalances(user3.address, feeXlpTracker.address)).eq(expandDecimals(2991, 17))
+
+  //   await expect(stakedXlp.connect(user2).transferFrom(user3.address, user1.address, expandDecimals(3000, 17)))
+  //     .to.be.revertedWith("StakedXlp: transfer amount exceeds allowance")
+
+  //   await stakedXlp.connect(user3).approve(user2.address, expandDecimals(3000, 17))
+
+  //   await expect(stakedXlp.connect(user2).transferFrom(user3.address, user1.address, expandDecimals(3000, 17)))
+  //     .to.be.revertedWith("RewardTracker: _amount exceeds stakedAmount")
+
+  //   await stakedXlp.connect(user2).transferFrom(user3.address, user1.address, expandDecimals(1000, 17))
+
+  //   expect(await feeXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(1000, 17))
+  //   expect(await feeXlpTracker.depositBalances(user1.address, xlp.address)).eq(expandDecimals(1000, 17))
+
+  //   expect(await stakedXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(1000, 17))
+  //   expect(await stakedXlpTracker.depositBalances(user1.address, feeXlpTracker.address)).eq(expandDecimals(1000, 17))
+
+  //   expect(await feeXlpTracker.stakedAmounts(user3.address)).eq(expandDecimals(1991, 17))
+  //   expect(await feeXlpTracker.depositBalances(user3.address, xlp.address)).eq(expandDecimals(1991, 17))
+
+  //   expect(await stakedXlpTracker.stakedAmounts(user3.address)).eq(expandDecimals(1991, 17))
+  //   expect(await stakedXlpTracker.depositBalances(user3.address, feeXlpTracker.address)).eq(expandDecimals(1991, 17))
+
+  //   await stakedXlp.connect(user3).transfer(user1.address, expandDecimals(1500, 17))
+
+  //   expect(await feeXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2500, 17))
+  //   expect(await feeXlpTracker.depositBalances(user1.address, xlp.address)).eq(expandDecimals(2500, 17))
+
+  //   expect(await stakedXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2500, 17))
+  //   expect(await stakedXlpTracker.depositBalances(user1.address, feeXlpTracker.address)).eq(expandDecimals(2500, 17))
+
+  //   expect(await feeXlpTracker.stakedAmounts(user3.address)).eq(expandDecimals(491, 17))
+  //   expect(await feeXlpTracker.depositBalances(user3.address, xlp.address)).eq(expandDecimals(491, 17))
+
+  //   expect(await stakedXlpTracker.stakedAmounts(user3.address)).eq(expandDecimals(491, 17))
+  //   expect(await stakedXlpTracker.depositBalances(user3.address, feeXlpTracker.address)).eq(expandDecimals(491, 17))
+
+  //   await expect(stakedXlp.connect(user3).transfer(user1.address, expandDecimals(492, 17)))
+  //     .to.be.revertedWith("RewardTracker: _amount exceeds stakedAmount")
+
+  //   expect(await eth.balanceOf(user1.address)).eq(0)
+
+  //   await rewardRouter.connect(user1).unstakeAndRedeemXlp(
+  //     eth.address,
+  //     expandDecimals(2500, 17),
+  //     "830000000000000000", // 0.83
+  //     user1.address
+  //   )
+
+  //   await xOracle.fulfillRequest([
+  //     { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
+  //     { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
+  //     { tokenIndex: tokenIndexs.ETH, price: toXOraclePrice(300), lastUpdate: 0 }
+  //   ], 0)
+
+  //   expect(await eth.balanceOf(user1.address)).eq("830833333333333333")
+
+  //   await usdx.addVault(xlpManager.address)
+
+  //   expect(await eth.balanceOf(user3.address)).eq("0")
+
+  //   await rewardRouter.connect(user3).unstakeAndRedeemXlp(
+  //     eth.address,
+  //     expandDecimals(491, 17),
+  //     "160000000000000000", // 0.16
+  //     user3.address
+  //   )
+
+  //   await xOracle.fulfillRequest([
+  //     { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
+  //     { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
+  //     { tokenIndex: tokenIndexs.ETH, price: toXOraclePrice(300), lastUpdate: 0 }
+  //   ], 0)
+
+  //   expect(await eth.balanceOf(user3.address)).eq("163175666666666666")
+  // })
+
+  // it("FeeXlp", async () => {
+  //   await eth.mint(feeXlpDistributor.address, expandDecimals(100, 18))
+  //   await feeXlpDistributor.setTokensPerInterval("41335970000000") // 0.00004133597 ETH per second
+
+  //   await eth.mint(user1.address, expandDecimals(1, 18))
+  //   await eth.connect(user1).approve(rewardRouter.address, expandDecimals(1, 18))
+
+  //   await rewardRouter.connect(user1).mintAndStakeXlp(
+  //     eth.address,
+  //     expandDecimals(1, 18),
+  //     expandDecimals(299, 18),
+  //     expandDecimals(299, 18)
+  //   )
+
+  //   await xOracle.fulfillRequest([
+  //     { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
+  //     { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
+  //     { tokenIndex: tokenIndexs.ETH, price: toXOraclePrice(300), lastUpdate: 0 }
+  //   ], 0)
+
+  //   expect(await feeXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2991, 17))
+  //   expect(await feeXlpTracker.depositBalances(user1.address, xlp.address)).eq(expandDecimals(2991, 17))
+
+  //   expect(await stakedXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2991, 17))
+  //   expect(await stakedXlpTracker.depositBalances(user1.address, feeXlpTracker.address)).eq(expandDecimals(2991, 17))
+
+  //   const xlpBalance = await deployContract("XlpBalance", [xlpManager.address, stakedXlpTracker.address])
+
+  //   await expect(xlpBalance.connect(user2).transferFrom(user1.address, user3.address, expandDecimals(2991, 17)))
+  //     .to.be.revertedWith("XlpBalance: transfer amount exceeds allowance")
+
+  //   await xlpBalance.connect(user1).approve(user2.address, expandDecimals(2991, 17))
+
+  //   await expect(xlpBalance.connect(user2).transferFrom(user1.address, user3.address, expandDecimals(2991, 17)))
+  //     .to.be.revertedWith("XlpBalance: cooldown duration not yet passed")
+
+  //   await increaseTime(provider, 24 * 60 * 60 + 10)
+  //   await mineBlock(provider)
+
+  //   await expect(xlpBalance.connect(user2).transferFrom(user1.address, user3.address, expandDecimals(2991, 17)))
+  //     .to.be.revertedWith("RewardTracker: transfer amount exceeds allowance")
+
+  //   await timelock.signalSetHandler(stakedXlpTracker.address, xlpBalance.address, true)
+  //   await increaseTime(provider, 20)
+  //   await mineBlock(provider)
+  //   await timelock.setHandler(stakedXlpTracker.address, xlpBalance.address, true)
+
+  //   expect(await feeXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2991, 17))
+  //   expect(await feeXlpTracker.depositBalances(user1.address, xlp.address)).eq(expandDecimals(2991, 17))
+
+  //   expect(await stakedXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2991, 17))
+  //   expect(await stakedXlpTracker.depositBalances(user1.address, feeXlpTracker.address)).eq(expandDecimals(2991, 17))
+  //   expect(await stakedXlpTracker.balanceOf(user1.address)).eq(expandDecimals(2991, 17))
+
+  //   expect(await feeXlpTracker.stakedAmounts(user3.address)).eq(0)
+  //   expect(await feeXlpTracker.depositBalances(user3.address, xlp.address)).eq(0)
+
+  //   expect(await stakedXlpTracker.stakedAmounts(user3.address)).eq(0)
+  //   expect(await stakedXlpTracker.depositBalances(user3.address, feeXlpTracker.address)).eq(0)
+  //   expect(await stakedXlpTracker.balanceOf(user3.address)).eq(0)
+
+  //   await xlpBalance.connect(user2).transferFrom(user1.address, user3.address, expandDecimals(2991, 17))
+
+  //   expect(await feeXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2991, 17))
+  //   expect(await feeXlpTracker.depositBalances(user1.address, xlp.address)).eq(expandDecimals(2991, 17))
+
+  //   expect(await stakedXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2991, 17))
+  //   expect(await stakedXlpTracker.depositBalances(user1.address, feeXlpTracker.address)).eq(expandDecimals(2991, 17))
+  //   expect(await stakedXlpTracker.balanceOf(user1.address)).eq(0)
+
+  //   expect(await feeXlpTracker.stakedAmounts(user3.address)).eq(0)
+  //   expect(await feeXlpTracker.depositBalances(user3.address, xlp.address)).eq(0)
+
+  //   expect(await stakedXlpTracker.stakedAmounts(user3.address)).eq(0)
+  //   expect(await stakedXlpTracker.depositBalances(user3.address, feeXlpTracker.address)).eq(0)
+  //   expect(await stakedXlpTracker.balanceOf(user3.address)).eq(expandDecimals(2991, 17))
+
+  //   await rewardRouter.connect(user1).unstakeAndRedeemXlp(
+  //     eth.address,
+  //     expandDecimals(2991, 17),
+  //     "0",
+  //     user1.address
+  //   )
+
+  //   // revertedWith("RewardTracker: burn amount exceeds balance")
+  //   await xOracle.fulfillRequest([
+  //     { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
+  //     { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
+  //     { tokenIndex: tokenIndexs.ETH, price: toXOraclePrice(300), lastUpdate: 0 }
+  //   ], 0)
+
+  //   await xlpBalance.connect(user3).approve(user2.address, expandDecimals(3000, 17))
+
+  //   await expect(xlpBalance.connect(user2).transferFrom(user3.address, user1.address, expandDecimals(2992, 17)))
+  //     .to.be.revertedWith("RewardTracker: transfer amount exceeds balance")
+
+  //   await xlpBalance.connect(user2).transferFrom(user3.address, user1.address, expandDecimals(2991, 17))
+
+  //   expect(await eth.balanceOf(user1.address)).eq(0)
+
+  //   await rewardRouter.connect(user1).unstakeAndRedeemXlp(
+  //     eth.address,
+  //     expandDecimals(2991, 17),
+  //     "0",
+  //     user1.address
+  //   )
+
+  //   await xOracle.fulfillRequest([
+  //     { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
+  //     { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
+  //     { tokenIndex: tokenIndexs.ETH, price: toXOraclePrice(300), lastUpdate: 0 }
+  //   ], 0)
+
+  //   expect(await eth.balanceOf(user1.address)).eq("994009000000000000")
+  // })
   
-  it("StakedXlp", async () => {
-    await eth.mint(feeXlpDistributor.address, expandDecimals(100, 18))
-    await feeXlpDistributor.setTokensPerInterval("41335970000000") // 0.00004133597 ETH per second
-
-    await bnb.mint(user1.address, expandDecimals(1, 18))
-    await bnb.connect(user1).approve(rewardRouter.address, expandDecimals(1, 18))
-
-    await rewardRouter.connect(user1).mintAndStakeXlp(
-      bnb.address,
-      expandDecimals(1, 18),
-      expandDecimals(299, 18),
-      expandDecimals(299, 18)
-    )
-
-    await xOracle.fulfillRequest([
-      { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
-      { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
-      { tokenIndex: tokenIndexs.ETH, price: toXOraclePrice(300), lastUpdate: 0 }
-    ], 0)
-
-    expect(await feeXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2991, 17))
-    expect(await feeXlpTracker.depositBalances(user1.address, xlp.address)).eq(expandDecimals(2991, 17))
-
-    expect(await stakedXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2991, 17))
-    expect(await stakedXlpTracker.depositBalances(user1.address, feeXlpTracker.address)).eq(expandDecimals(2991, 17))
-
-    const stakedXlp = await deployContract("StakedXlp", [xlp.address, xlpManager.address, stakedXlpTracker.address, feeXlpTracker.address])
-
-    await expect(stakedXlp.connect(user2).transferFrom(user1.address, user3.address, expandDecimals(2991, 17)))
-      .to.be.revertedWith("StakedXlp: transfer amount exceeds allowance")
-
-    await stakedXlp.connect(user1).approve(user2.address, expandDecimals(2991, 17))
-
-    await expect(stakedXlp.connect(user2).transferFrom(user1.address, user3.address, expandDecimals(2991, 17)))
-      .to.be.revertedWith("StakedXlp: cooldown duration not yet passed")
-
-    await increaseTime(provider, 24 * 60 * 60 + 10)
-    await mineBlock(provider)
-
-    await expect(stakedXlp.connect(user2).transferFrom(user1.address, user3.address, expandDecimals(2991, 17)))
-      .to.be.revertedWith("RewardTracker: forbidden")
-
-    await timelock.signalSetHandler(stakedXlpTracker.address, stakedXlp.address, true)
-    await increaseTime(provider, 20)
-    await mineBlock(provider)
-    await timelock.setHandler(stakedXlpTracker.address, stakedXlp.address, true)
-
-    await expect(stakedXlp.connect(user2).transferFrom(user1.address, user3.address, expandDecimals(2991, 17)))
-      .to.be.revertedWith("RewardTracker: forbidden")
-
-    await timelock.signalSetHandler(feeXlpTracker.address, stakedXlp.address, true)
-    await increaseTime(provider, 20)
-    await mineBlock(provider)
-    await timelock.setHandler(feeXlpTracker.address, stakedXlp.address, true)
-
-    expect(await feeXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2991, 17))
-    expect(await feeXlpTracker.depositBalances(user1.address, xlp.address)).eq(expandDecimals(2991, 17))
-
-    expect(await stakedXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2991, 17))
-    expect(await stakedXlpTracker.depositBalances(user1.address, feeXlpTracker.address)).eq(expandDecimals(2991, 17))
-
-    expect(await feeXlpTracker.stakedAmounts(user3.address)).eq(0)
-    expect(await feeXlpTracker.depositBalances(user3.address, xlp.address)).eq(0)
-
-    expect(await stakedXlpTracker.stakedAmounts(user3.address)).eq(0)
-    expect(await stakedXlpTracker.depositBalances(user3.address, feeXlpTracker.address)).eq(0)
-
-    await stakedXlp.connect(user2).transferFrom(user1.address, user3. address, expandDecimals(2991, 17))
-
-    expect(await feeXlpTracker.stakedAmounts(user1.address)).eq(0)
-    expect(await feeXlpTracker.depositBalances(user1.address, xlp.address)).eq(0)
-
-    expect(await stakedXlpTracker.stakedAmounts(user1.address)).eq(0)
-    expect(await stakedXlpTracker.depositBalances(user1.address, feeXlpTracker.address)).eq(0)
-
-    expect(await feeXlpTracker.stakedAmounts(user3.address)).eq(expandDecimals(2991, 17))
-    expect(await feeXlpTracker.depositBalances(user3.address, xlp.address)).eq(expandDecimals(2991, 17))
-
-    expect(await stakedXlpTracker.stakedAmounts(user3.address)).eq(expandDecimals(2991, 17))
-    expect(await stakedXlpTracker.depositBalances(user3.address, feeXlpTracker.address)).eq(expandDecimals(2991, 17))
-
-    await expect(stakedXlp.connect(user2).transferFrom(user3.address, user1.address, expandDecimals(3000, 17)))
-      .to.be.revertedWith("StakedXlp: transfer amount exceeds allowance")
-
-    await stakedXlp.connect(user3).approve(user2.address, expandDecimals(3000, 17))
-
-    await expect(stakedXlp.connect(user2).transferFrom(user3.address, user1.address, expandDecimals(3000, 17)))
-      .to.be.revertedWith("RewardTracker: _amount exceeds stakedAmount")
-
-    await stakedXlp.connect(user2).transferFrom(user3.address, user1.address, expandDecimals(1000, 17))
-
-    expect(await feeXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(1000, 17))
-    expect(await feeXlpTracker.depositBalances(user1.address, xlp.address)).eq(expandDecimals(1000, 17))
-
-    expect(await stakedXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(1000, 17))
-    expect(await stakedXlpTracker.depositBalances(user1.address, feeXlpTracker.address)).eq(expandDecimals(1000, 17))
-
-    expect(await feeXlpTracker.stakedAmounts(user3.address)).eq(expandDecimals(1991, 17))
-    expect(await feeXlpTracker.depositBalances(user3.address, xlp.address)).eq(expandDecimals(1991, 17))
-
-    expect(await stakedXlpTracker.stakedAmounts(user3.address)).eq(expandDecimals(1991, 17))
-    expect(await stakedXlpTracker.depositBalances(user3.address, feeXlpTracker.address)).eq(expandDecimals(1991, 17))
-
-    await stakedXlp.connect(user3).transfer(user1.address, expandDecimals(1500, 17))
-
-    expect(await feeXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2500, 17))
-    expect(await feeXlpTracker.depositBalances(user1.address, xlp.address)).eq(expandDecimals(2500, 17))
-
-    expect(await stakedXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2500, 17))
-    expect(await stakedXlpTracker.depositBalances(user1.address, feeXlpTracker.address)).eq(expandDecimals(2500, 17))
-
-    expect(await feeXlpTracker.stakedAmounts(user3.address)).eq(expandDecimals(491, 17))
-    expect(await feeXlpTracker.depositBalances(user3.address, xlp.address)).eq(expandDecimals(491, 17))
-
-    expect(await stakedXlpTracker.stakedAmounts(user3.address)).eq(expandDecimals(491, 17))
-    expect(await stakedXlpTracker.depositBalances(user3.address, feeXlpTracker.address)).eq(expandDecimals(491, 17))
-
-    await expect(stakedXlp.connect(user3).transfer(user1.address, expandDecimals(492, 17)))
-      .to.be.revertedWith("RewardTracker: _amount exceeds stakedAmount")
-
-    expect(await bnb.balanceOf(user1.address)).eq(0)
-
-    await rewardRouter.connect(user1).unstakeAndRedeemXlp(
-      bnb.address,
-      expandDecimals(2500, 17),
-      "830000000000000000", // 0.83
-      user1.address
-    )
-
-    await xOracle.fulfillRequest([
-      { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
-      { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
-      { tokenIndex: tokenIndexs.ETH, price: toXOraclePrice(300), lastUpdate: 0 }
-    ], 0)
-
-    expect(await bnb.balanceOf(user1.address)).eq("830833333333333333")
-
-    await usdx.addVault(xlpManager.address)
-
-    expect(await bnb.balanceOf(user3.address)).eq("0")
-
-    await rewardRouter.connect(user3).unstakeAndRedeemXlp(
-      bnb.address,
-      expandDecimals(491, 17),
-      "160000000000000000", // 0.16
-      user3.address
-    )
-
-    await xOracle.fulfillRequest([
-      { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
-      { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
-      { tokenIndex: tokenIndexs.ETH, price: toXOraclePrice(300), lastUpdate: 0 }
-    ], 0)
-
-    expect(await bnb.balanceOf(user3.address)).eq("163175666666666666")
-  })
-
-  it("FeeXlp", async () => {
-    await eth.mint(feeXlpDistributor.address, expandDecimals(100, 18))
-    await feeXlpDistributor.setTokensPerInterval("41335970000000") // 0.00004133597 ETH per second
-
-    await bnb.mint(user1.address, expandDecimals(1, 18))
-    await bnb.connect(user1).approve(rewardRouter.address, expandDecimals(1, 18))
-
-    await rewardRouter.connect(user1).mintAndStakeXlp(
-      bnb.address,
-      expandDecimals(1, 18),
-      expandDecimals(299, 18),
-      expandDecimals(299, 18)
-    )
-
-    await xOracle.fulfillRequest([
-      { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
-      { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
-      { tokenIndex: tokenIndexs.ETH, price: toXOraclePrice(300), lastUpdate: 0 }
-    ], 0)
-
-    expect(await feeXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2991, 17))
-    expect(await feeXlpTracker.depositBalances(user1.address, xlp.address)).eq(expandDecimals(2991, 17))
-
-    expect(await stakedXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2991, 17))
-    expect(await stakedXlpTracker.depositBalances(user1.address, feeXlpTracker.address)).eq(expandDecimals(2991, 17))
-
-    const xlpBalance = await deployContract("XlpBalance", [xlpManager.address, stakedXlpTracker.address])
-
-    await expect(xlpBalance.connect(user2).transferFrom(user1.address, user3.address, expandDecimals(2991, 17)))
-      .to.be.revertedWith("XlpBalance: transfer amount exceeds allowance")
-
-    await xlpBalance.connect(user1).approve(user2.address, expandDecimals(2991, 17))
-
-    await expect(xlpBalance.connect(user2).transferFrom(user1.address, user3.address, expandDecimals(2991, 17)))
-      .to.be.revertedWith("XlpBalance: cooldown duration not yet passed")
-
-    await increaseTime(provider, 24 * 60 * 60 + 10)
-    await mineBlock(provider)
-
-    await expect(xlpBalance.connect(user2).transferFrom(user1.address, user3.address, expandDecimals(2991, 17)))
-      .to.be.revertedWith("RewardTracker: transfer amount exceeds allowance")
-
-    await timelock.signalSetHandler(stakedXlpTracker.address, xlpBalance.address, true)
-    await increaseTime(provider, 20)
-    await mineBlock(provider)
-    await timelock.setHandler(stakedXlpTracker.address, xlpBalance.address, true)
-
-    expect(await feeXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2991, 17))
-    expect(await feeXlpTracker.depositBalances(user1.address, xlp.address)).eq(expandDecimals(2991, 17))
-
-    expect(await stakedXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2991, 17))
-    expect(await stakedXlpTracker.depositBalances(user1.address, feeXlpTracker.address)).eq(expandDecimals(2991, 17))
-    expect(await stakedXlpTracker.balanceOf(user1.address)).eq(expandDecimals(2991, 17))
-
-    expect(await feeXlpTracker.stakedAmounts(user3.address)).eq(0)
-    expect(await feeXlpTracker.depositBalances(user3.address, xlp.address)).eq(0)
-
-    expect(await stakedXlpTracker.stakedAmounts(user3.address)).eq(0)
-    expect(await stakedXlpTracker.depositBalances(user3.address, feeXlpTracker.address)).eq(0)
-    expect(await stakedXlpTracker.balanceOf(user3.address)).eq(0)
-
-    await xlpBalance.connect(user2).transferFrom(user1.address, user3.address, expandDecimals(2991, 17))
-
-    expect(await feeXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2991, 17))
-    expect(await feeXlpTracker.depositBalances(user1.address, xlp.address)).eq(expandDecimals(2991, 17))
-
-    expect(await stakedXlpTracker.stakedAmounts(user1.address)).eq(expandDecimals(2991, 17))
-    expect(await stakedXlpTracker.depositBalances(user1.address, feeXlpTracker.address)).eq(expandDecimals(2991, 17))
-    expect(await stakedXlpTracker.balanceOf(user1.address)).eq(0)
-
-    expect(await feeXlpTracker.stakedAmounts(user3.address)).eq(0)
-    expect(await feeXlpTracker.depositBalances(user3.address, xlp.address)).eq(0)
-
-    expect(await stakedXlpTracker.stakedAmounts(user3.address)).eq(0)
-    expect(await stakedXlpTracker.depositBalances(user3.address, feeXlpTracker.address)).eq(0)
-    expect(await stakedXlpTracker.balanceOf(user3.address)).eq(expandDecimals(2991, 17))
-
-    await rewardRouter.connect(user1).unstakeAndRedeemXlp(
-      bnb.address,
-      expandDecimals(2991, 17),
-      "0",
-      user1.address
-    )
-
-    // revertedWith("RewardTracker: burn amount exceeds balance")
-    await xOracle.fulfillRequest([
-      { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
-      { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
-      { tokenIndex: tokenIndexs.ETH, price: toXOraclePrice(300), lastUpdate: 0 }
-    ], 0)
-
-    await xlpBalance.connect(user3).approve(user2.address, expandDecimals(3000, 17))
-
-    await expect(xlpBalance.connect(user2).transferFrom(user3.address, user1.address, expandDecimals(2992, 17)))
-      .to.be.revertedWith("RewardTracker: transfer amount exceeds balance")
-
-    await xlpBalance.connect(user2).transferFrom(user3.address, user1.address, expandDecimals(2991, 17))
-
-    expect(await bnb.balanceOf(user1.address)).eq(0)
-
-    await rewardRouter.connect(user1).unstakeAndRedeemXlp(
-      bnb.address,
-      expandDecimals(2991, 17),
-      "0",
-      user1.address
-    )
-
-    await xOracle.fulfillRequest([
-      { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
-      { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
-      { tokenIndex: tokenIndexs.ETH, price: toXOraclePrice(300), lastUpdate: 0 }
-    ], 0)
-
-    expect(await bnb.balanceOf(user1.address)).eq("994009000000000000")
-  })
 })
