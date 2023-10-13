@@ -20,7 +20,7 @@ describe("OrderBookReader", function () {
   let dai;
   let bnb;
   let vault;
-  let usdg;
+  let usdx;
   let router;
   let vaultPriceFeed;
   let fulfillController
@@ -32,11 +32,11 @@ describe("OrderBookReader", function () {
 
     vault = await deployContract("Vault", [])
     vaultPositionController = await deployContract("VaultPositionController", [])
-    usdg = await deployContract("USDG", [vault.address])
-    router = await deployContract("Router", [vault.address, vaultPositionController.address, usdg.address, bnb.address])
+    usdx = await deployContract("USDX", [vault.address])
+    router = await deployContract("Router", [vault.address, vaultPositionController.address, usdx.address, bnb.address])
     vaultPriceFeed = await deployContract("VaultPriceFeed", [])
 
-    await initVault(vault, vaultPositionController, router, usdg, vaultPriceFeed);
+    await initVault(vault, vaultPositionController, router, usdx, vaultPriceFeed);
 
     // deploy xOracle
     xOracle = await deployXOracle(bnb);
@@ -63,7 +63,7 @@ describe("OrderBookReader", function () {
       vaultPositionController.address,
       orderBookOpenOrder.address,
       bnb.address,
-      usdg.address,
+      usdx.address,
       400000, 
       expandDecimals(5, 30) // minPurchseTokenAmountUsd
     );

@@ -43,20 +43,20 @@ describe("OrderBook, swap orders", function () {
 
         vault = await deployContract("Vault", [])
         vaultPositionController = await deployContract("VaultPositionController", [])
-        usdg = await deployContract("USDG", [vault.address])
-        router = await deployContract("Router", [vault.address, vaultPositionController.address, usdg.address, bnb.address])
+        usdx = await deployContract("USDX", [vault.address])
+        router = await deployContract("Router", [vault.address, vaultPositionController.address, usdx.address, bnb.address])
         vaultPriceFeed = await deployContract("VaultPriceFeed", [])
 
-        await initVault(vault, vaultPositionController, router, usdg, vaultPriceFeed)
+        await initVault(vault, vaultPositionController, router, usdx, vaultPriceFeed)
 
         distributor0 = await deployContract("TimeDistributor", [])
-        yieldTracker0 = await deployContract("YieldTracker", [usdg.address])
+        yieldTracker0 = await deployContract("YieldTracker", [usdx.address])
 
         await yieldTracker0.setDistributor(distributor0.address)
         await distributor0.setDistribution([yieldTracker0.address], [1000], [bnb.address])
 
         await bnb.mint(distributor0.address, 5000)
-        await usdg.setYieldTrackers([yieldTracker0.address])
+        await usdx.setYieldTrackers([yieldTracker0.address])
 
         reader = await deployContract("Reader", [])
 
@@ -87,7 +87,7 @@ describe("OrderBook, swap orders", function () {
         tokenDecimals = {
             [bnb.address]: 18,
             [dai.address]: 18,
-            [usdg.address]: 18,
+            [usdx.address]: 18,
             [btc.address]: 8
         };
 
@@ -113,7 +113,7 @@ describe("OrderBook, swap orders", function () {
             vaultPositionController.address,
             orderBookOpenOrder.address,
             bnb.address,
-            usdg.address,
+            usdx.address,
             minExecutionFee,
             expandDecimals(5, 30) // minPurchseTokenAmountUsd
         );
@@ -133,9 +133,9 @@ describe("OrderBook, swap orders", function () {
         await dai.connect(user0).transfer(vault.address, expandDecimals(2000000, 18))
         await vault.directPoolDeposit(dai.address);
 
-        // it's impossible to just mint usdg (?)
+        // it's impossible to just mint usdx (?)
         await router.connect(user0).swap(
-            [dai.address, usdg.address],
+            [dai.address, usdx.address],
             expandDecimals(10000, 18),
             expandDecimals(9900, 18),
             user0.address
@@ -146,7 +146,7 @@ describe("OrderBook, swap orders", function () {
             { tokenIndex: tokenIndexs.BNB, price: toXOraclePrice(BNB_PRICE), lastUpdate: 0 }
           ], 0)
 
-        await usdg.connect(user0).approve(router.address, expandDecimals(9900, 18));
+        await usdx.connect(user0).approve(router.address, expandDecimals(9900, 18));
         
         await btc.mint(user0.address, expandDecimals(1000, 8))
         await btc.connect(user0).transfer(vault.address, expandDecimals(100, 8))
@@ -739,10 +739,10 @@ describe("OrderBook, swap orders", function () {
         expect(order.account).to.be.equal(ZERO_ADDRESS);
     });
 
-    it("executeSwapOrder, triggerAboveThreshold == true, USDG -> BTC", async () => {
+    it("executeSwapOrder, triggerAboveThreshold == true, USDX -> BTC", async () => {
         const triggerRatio = getTriggerRatio(toUsd(1), toUsd(62000));
         const amountIn = expandDecimals(1000, 18);
-        const path = [usdg.address, btc.address];
+        const path = [usdx.address, btc.address];
         const value = defaults.executionFee;
 
         // minOut is not mandatory for such orders but with minOut it's possible to limit max price
@@ -810,10 +810,10 @@ describe("OrderBook, swap orders", function () {
         expect(order.account).to.be.equal(ZERO_ADDRESS);
     });
 
-    it("executeSwapOrder, triggerAboveThreshold == true, USDG -> DAI -> BTC", async () => {
+    it("executeSwapOrder, triggerAboveThreshold == true, USDX -> DAI -> BTC", async () => {
         const triggerRatio = getTriggerRatio(toUsd(1), toUsd(62000));
         const amountIn = expandDecimals(1000, 18);
-        const path = [usdg.address, dai.address, btc.address];
+        const path = [usdx.address, dai.address, btc.address];
         const value = defaults.executionFee;
 
         // minOut is not mandatory for such orders but with minOut it's possible to limit max price
@@ -885,10 +885,10 @@ describe("OrderBook, swap orders", function () {
         expect(order.account).to.be.equal(ZERO_ADDRESS);
     });
 
-    it("executeSwapOrder, triggerAboveThreshold == true, USDG -> BNB -> BTC", async () => {
+    it("executeSwapOrder, triggerAboveThreshold == true, USDX -> BNB -> BTC", async () => {
         const triggerRatio = getTriggerRatio(toUsd(1), toUsd(62000));
         const amountIn = expandDecimals(1000, 18);
-        const path = [usdg.address, bnb.address, btc.address];
+        const path = [usdx.address, bnb.address, btc.address];
         const value = defaults.executionFee;
 
         // minOut is not mandatory for such orders but with minOut it's possible to limit max price
@@ -958,10 +958,10 @@ describe("OrderBook, swap orders", function () {
         expect(order.account).to.be.equal(ZERO_ADDRESS);
     });
 
-    it("executeSwapOrder, triggerAboveThreshold == true, BTC -> USDG", async () => {
+    it("executeSwapOrder, triggerAboveThreshold == true, BTC -> USDX", async () => {
         const triggerRatio = getTriggerRatio(toUsd(62000), toUsd(1));
         const amountIn = expandDecimals(1, 6); // 0.01 BTC
-        const path = [btc.address, usdg.address];
+        const path = [btc.address, usdx.address];
         const value = defaults.executionFee;
 
         // minOut is not mandatory for such orders but with minOut it's possible to limit max price
@@ -1017,7 +1017,7 @@ describe("OrderBook, swap orders", function () {
           ], 0)
 
         const executorBalanceBefore = await executor.getBalance();
-        const userUsdgBalanceBefore = await usdg.balanceOf(defaults.user.address);
+        const userUsdxBalanceBefore = await usdx.balanceOf(defaults.user.address);
 
         const tx = await orderBook.executeSwapOrder(defaults.user.address, 0, executor.address);
         reportGasUsed(provider, tx, 'executeSwapOrder');
@@ -1025,8 +1025,8 @@ describe("OrderBook, swap orders", function () {
         const executorBalanceAfter = await user1.getBalance();
         expect(executorBalanceAfter, 'executorBalanceAfter').to.be.equal(executorBalanceBefore.add(defaults.executionFee));
 
-        const userUsdgBalanceAfter = await usdg.balanceOf(defaults.user.address);
-        expect(userUsdgBalanceAfter.gt(userUsdgBalanceBefore.add(minOut)), 'userUsdgBalanceAfter').to.be.true;
+        const userUsdxBalanceAfter = await usdx.balanceOf(defaults.user.address);
+        expect(userUsdxBalanceAfter.gt(userUsdxBalanceBefore.add(minOut)), 'userUsdxBalanceAfter').to.be.true;
 
         const order = await getCreatedSwapOrder(defaults.user.address, 0);
         expect(order.account).to.be.equal(ZERO_ADDRESS);

@@ -34,7 +34,7 @@ yarn deploy scripts/tfx_deploy/core/deployPositionRouter.js
 yarn deploy scripts/tfx_deploy/core/deployOrderBookPositionManager.js
 
 // stake
-yarn deploy scripts/tfx_deploy/staking/deployRewardRouterV2.js
+yarn deploy scripts/tfx_deploy/staking/deployRewardRouterV3.js
 
 // oracle
 yarn deploy scripts/tfx_deploy/oracle/deployFulfillController.js
@@ -47,7 +47,7 @@ yarn deploy scripts/tfx_deploy/peripherals/deployOrderBookReader.js
 yarn deploy scripts/tfx_deploy/peripherals/deployRewardReader.js
 yarn deploy scripts/tfx_deploy/peripherals/deployVaultReader.js
 yarn deploy scripts/tfx_deploy/peripherals/deployReader.js
-yarn deploy scripts/tfx_deploy/peripherals/deployGLPManagerReader.js
+yarn deploy scripts/tfx_deploy/peripherals/deployXLPManagerReader.js
 yarn deploy scripts/tfx_deploy/core/deployReferralReader.js
 
 // referral

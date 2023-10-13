@@ -12,39 +12,39 @@ contract RewardManager is Governable {
     ITimelock public timelock;
     address public rewardRouter;
 
-    address public glpManager;
+    address public xlpManager;
 
     // address public stakedGmxTracker;
     // address public bonusGmxTracker;
     // address public feeGmxTracker;
 
-    address public feeGlpTracker;
-    // address public stakedGlpTracker;
+    address public feeXlpTracker;
+    // address public stakedXlpTracker;
 
     // address public stakedGmxDistributor;
-    // address public stakedGlpDistributor;
+    // address public stakedXlpDistributor;
 
     // address public esGmx;
     // address public bnGmx;
 
     // address public gmxVester;
-    // address public glpVester;
+    // address public xlpVester;
 
     function initialize(
         ITimelock _timelock,
         address _rewardRouter,
-        address _glpManager,
+        address _xlpManager,
         // address _stakedGmxTracker,
         // address _bonusGmxTracker,
         // address _feeGmxTracker,
-        address _feeGlpTracker
-        // address _stakedGlpTracker,
+        address _feeXlpTracker
+        // address _stakedXlpTracker,
         // address _stakedGmxDistributor,
-        // address _stakedGlpDistributor,
+        // address _stakedXlpDistributor,
         // address _esGmx,
         // address _bnGmx,
         // address _gmxVester,
-        // address _glpVester
+        // address _xlpVester
     ) external onlyGov {
         require(!isInitialized, "RewardManager: already initialized");
         isInitialized = true;
@@ -52,59 +52,59 @@ contract RewardManager is Governable {
         timelock = _timelock;
         rewardRouter = _rewardRouter;
 
-        glpManager = _glpManager;
+        xlpManager = _xlpManager;
 
         // stakedGmxTracker = _stakedGmxTracker;
         // bonusGmxTracker = _bonusGmxTracker;
         // feeGmxTracker = _feeGmxTracker;
 
-        feeGlpTracker = _feeGlpTracker;
-        // stakedGlpTracker = _stakedGlpTracker;
+        feeXlpTracker = _feeXlpTracker;
+        // stakedXlpTracker = _stakedXlpTracker;
 
         // stakedGmxDistributor = _stakedGmxDistributor;
-        // stakedGlpDistributor = _stakedGlpDistributor;
+        // stakedXlpDistributor = _stakedXlpDistributor;
 
         // esGmx = _esGmx;
         // bnGmx = _bnGmx;
 
         // gmxVester = _gmxVester;
-        // glpVester = _glpVester;
+        // xlpVester = _xlpVester;
     }
 
     // function updateEsGmxHandlers() external onlyGov {
     //     timelock.managedSetHandler(esGmx, rewardRouter, true);
 
     //     timelock.managedSetHandler(esGmx, stakedGmxDistributor, true);
-    //     timelock.managedSetHandler(esGmx, stakedGlpDistributor, true);
+    //     timelock.managedSetHandler(esGmx, stakedXlpDistributor, true);
 
     //     timelock.managedSetHandler(esGmx, stakedGmxTracker, true);
-    //     timelock.managedSetHandler(esGmx, stakedGlpTracker, true);
+    //     timelock.managedSetHandler(esGmx, stakedXlpTracker, true);
 
     //     timelock.managedSetHandler(esGmx, gmxVester, true);
-    //     timelock.managedSetHandler(esGmx, glpVester, true);
+    //     timelock.managedSetHandler(esGmx, xlpVester, true);
     // }
 
     function enableRewardRouter() external onlyGov {
-        timelock.managedSetHandler(glpManager, rewardRouter, true);
+        timelock.managedSetHandler(xlpManager, rewardRouter, true);
 
         // timelock.managedSetHandler(stakedGmxTracker, rewardRouter, true);
         // timelock.managedSetHandler(bonusGmxTracker, rewardRouter, true);
         // timelock.managedSetHandler(feeGmxTracker, rewardRouter, true);
 
-        timelock.managedSetHandler(feeGlpTracker, rewardRouter, true);
-        // timelock.managedSetHandler(stakedGlpTracker, rewardRouter, true);
+        timelock.managedSetHandler(feeXlpTracker, rewardRouter, true);
+        // timelock.managedSetHandler(stakedXlpTracker, rewardRouter, true);
 
         // timelock.managedSetHandler(esGmx, rewardRouter, true);
 
         // timelock.managedSetMinter(bnGmx, rewardRouter, true);
 
         // timelock.managedSetMinter(esGmx, gmxVester, true);
-        // timelock.managedSetMinter(esGmx, glpVester, true);
+        // timelock.managedSetMinter(esGmx, xlpVester, true);
 
         // timelock.managedSetHandler(gmxVester, rewardRouter, true);
-        // timelock.managedSetHandler(glpVester, rewardRouter, true);
+        // timelock.managedSetHandler(xlpVester, rewardRouter, true);
 
         // timelock.managedSetHandler(feeGmxTracker, gmxVester, true);
-        // timelock.managedSetHandler(stakedGlpTracker, glpVester, true);
+        // timelock.managedSetHandler(stakedXlpTracker, xlpVester, true);
     }
 }

@@ -14,7 +14,7 @@ describe("Vault.getFeeBasisPoints", function () {
   const [wallet, user0, user1, user2, user3] = provider.getWallets()
   let vault
   let vaultPriceFeed
-  let usdg
+  let usdx
   let router
   let bnb
   let btc
@@ -30,20 +30,20 @@ describe("Vault.getFeeBasisPoints", function () {
 
     vault = await deployContract("Vault", [])
     vaultPositionController = await deployContract("VaultPositionController", [])
-    usdg = await deployContract("USDG", [vault.address])
-    router = await deployContract("Router", [vault.address, vaultPositionController.address, usdg.address, bnb.address])
+    usdx = await deployContract("USDX", [vault.address])
+    router = await deployContract("Router", [vault.address, vaultPositionController.address, usdx.address, bnb.address])
     vaultPriceFeed = await deployContract("VaultPriceFeed", [])
 
-    await initVault(vault, vaultPositionController, router, usdg, vaultPriceFeed)
+    await initVault(vault, vaultPositionController, router, usdx, vaultPriceFeed)
 
     distributor0 = await deployContract("TimeDistributor", [])
-    yieldTracker0 = await deployContract("YieldTracker", [usdg.address])
+    yieldTracker0 = await deployContract("YieldTracker", [usdx.address])
 
     await yieldTracker0.setDistributor(distributor0.address)
     await distributor0.setDistribution([yieldTracker0.address], [1000], [bnb.address])
 
     await bnb.mint(distributor0.address, 5000)
-    await usdg.setYieldTrackers([yieldTracker0.address])
+    await usdx.setYieldTrackers([yieldTracker0.address])
 
     // deploy xOracle
     xOracle = await deployXOracle(bnb);
@@ -81,15 +81,15 @@ describe("Vault.getFeeBasisPoints", function () {
         { tokenIndex: tokenIndexs.BNB, price: toXOraclePrice(300), lastUpdate: 0 } 
     ], 0)
     await vault.setTokenConfig(...getBnbConfig(bnb))
-    expect(await vault.getTargetUsdgAmount(bnb.address)).eq(0)
+    expect(await vault.getTargetUsdxAmount(bnb.address)).eq(0)
 
     await bnb.mint(vault.address, 100)
-    await vault.connect(user0).buyUSDG(bnb.address, wallet.address)
+    await vault.connect(user0).buyUSDX(bnb.address, wallet.address)
 
-    expect(await vault.usdgAmounts(bnb.address)).eq(29700)
-    expect(await vault.getTargetUsdgAmount(bnb.address)).eq(29700)
+    expect(await vault.usdxAmounts(bnb.address)).eq(29700)
+    expect(await vault.getTargetUsdxAmount(bnb.address)).eq(29700)
 
-    // usdgAmount(bnb) is 29700, targetAmount(bnb) is 29700
+    // usdxAmount(bnb) is 29700, targetAmount(bnb) is 29700
     expect(await vault.getFeeBasisPoints(bnb.address, 1000, 100, 50, true)).eq(100)
     expect(await vault.getFeeBasisPoints(bnb.address, 5000, 100, 50, true)).eq(104)
     expect(await vault.getFeeBasisPoints(bnb.address, 1000, 100, 50, false)).eq(100)
@@ -107,10 +107,10 @@ describe("Vault.getFeeBasisPoints", function () {
     ], 0)
 		await vault.setTokenConfig(...getDaiConfig(dai))
 
-    expect(await vault.getTargetUsdgAmount(bnb.address)).eq(14850)
-    expect(await vault.getTargetUsdgAmount(dai.address)).eq(14850)
+    expect(await vault.getTargetUsdxAmount(bnb.address)).eq(14850)
+    expect(await vault.getTargetUsdxAmount(dai.address)).eq(14850)
 
-    // usdgAmount(bnb) is 29700, targetAmount(bnb) is 14850
+    // usdxAmount(bnb) is 29700, targetAmount(bnb) is 14850
     // incrementing bnb has an increased fee, while reducing bnb has a decreased fee
     expect(await vault.getFeeBasisPoints(bnb.address, 1000, 100, 50, true)).eq(150)
     expect(await vault.getFeeBasisPoints(bnb.address, 5000, 100, 50, true)).eq(150)
@@ -124,21 +124,21 @@ describe("Vault.getFeeBasisPoints", function () {
     expect(await vault.getFeeBasisPoints(bnb.address, 100000, 100, 50, false)).eq(150)
 
     await dai.mint(vault.address, 20000)
-    await vault.connect(user0).buyUSDG(dai.address, wallet.address)
+    await vault.connect(user0).buyUSDX(dai.address, wallet.address)
 
-    expect(await vault.getTargetUsdgAmount(bnb.address)).eq(24850)
-    expect(await vault.getTargetUsdgAmount(dai.address)).eq(24850)
+    expect(await vault.getTargetUsdxAmount(bnb.address)).eq(24850)
+    expect(await vault.getTargetUsdxAmount(dai.address)).eq(24850)
 
     const bnbConfig = getBnbConfig(bnb)
     bnbConfig[2] = 30000
     await vault.setTokenConfig(...bnbConfig)
 
-    expect(await vault.getTargetUsdgAmount(bnb.address)).eq(37275)
-    expect(await vault.getTargetUsdgAmount(dai.address)).eq(12425)
+    expect(await vault.getTargetUsdxAmount(bnb.address)).eq(37275)
+    expect(await vault.getTargetUsdxAmount(dai.address)).eq(12425)
 
-    expect(await vault.usdgAmounts(bnb.address)).eq(29700)
+    expect(await vault.usdxAmounts(bnb.address)).eq(29700)
 
-    // usdgAmount(bnb) is 29700, targetAmount(bnb) is 37270
+    // usdxAmount(bnb) is 29700, targetAmount(bnb) is 37270
     // incrementing bnb has a decreased fee, while reducing bnb has an increased fee
     expect(await vault.getFeeBasisPoints(bnb.address, 1000, 100, 50, true)).eq(90)
     expect(await vault.getFeeBasisPoints(bnb.address, 5000, 100, 50, true)).eq(90)
@@ -151,13 +151,13 @@ describe("Vault.getFeeBasisPoints", function () {
     await vault.setTokenConfig(...bnbConfig)
 
     await bnb.mint(vault.address, 200)
-    await vault.connect(user0).buyUSDG(bnb.address, wallet.address)
+    await vault.connect(user0).buyUSDX(bnb.address, wallet.address)
 
-    expect(await vault.usdgAmounts(bnb.address)).eq(89100)
-    expect(await vault.getTargetUsdgAmount(bnb.address)).eq(36366)
-    expect(await vault.getTargetUsdgAmount(dai.address)).eq(72733)
+    expect(await vault.usdxAmounts(bnb.address)).eq(89100)
+    expect(await vault.getTargetUsdxAmount(bnb.address)).eq(36366)
+    expect(await vault.getTargetUsdxAmount(dai.address)).eq(72733)
 
-    // usdgAmount(bnb) is 88800, targetAmount(bnb) is 36266
+    // usdxAmount(bnb) is 88800, targetAmount(bnb) is 36266
     // incrementing bnb has an increased fee, while reducing bnb has a decreased fee
     expect(await vault.getFeeBasisPoints(bnb.address, 1000, 100, 50, true)).eq(150)
     expect(await vault.getFeeBasisPoints(bnb.address, 5000, 100, 50, true)).eq(150)

@@ -4,7 +4,7 @@ async function main() {
   const account = "0xcD4e87bc4c646214b688DCe5d7BBc85b66d2361E"
   const shouldApprove = true
   const migrationTokens = ["GMT"]
-  // const migrationTokens = ["GMT", "XGMT", "GMT_USDG", "XGMT_USDG"]
+  // const migrationTokens = ["GMT", "XGMT", "GMT_USDX", "XGMT_USDX"]
 
   const gmxMigrator = await contractAt("GmxMigrator", "0x0472F402EA8E301D7595545884Ad4C420E9865d6")
   const gmt = {
@@ -15,15 +15,15 @@ async function main() {
     name: "XGMT",
     contract: await contractAt("Token", "0xe304ff0983922787Fd84BC9170CD21bF78B16B10")
   }
-  const gmtUsdg = {
-    name: "GMT_USDG",
+  const gmtUsdx = {
+    name: "GMT_USDX",
     contract: await contractAt("Token", "0xa41e57459f09a126F358E118b693789d088eA8A0")
   }
-  const xgmtUsdg = {
-    name: "XGMT_USDG",
+  const xgmtUsdx = {
+    name: "XGMT_USDX",
     contract: await contractAt("Token", "0x0b622208fc0691C2486A3AE6B7C875b4A174b317")
   }
-  const tokens = [gmt, xgmt, gmtUsdg, xgmtUsdg]
+  const tokens = [gmt, xgmt, gmtUsdx, xgmtUsdx]
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i]

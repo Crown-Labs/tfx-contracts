@@ -27,22 +27,22 @@ describe("BuyGLP", function () {
     
         vault = await deployContract("Vault", [])
         vaultPositionController = await deployContract("VaultPositionController", [])
-        usdg = await deployContract("USDG", [vault.address])
-        router = await deployContract("Router", [vault.address, vaultPositionController.address, usdg.address, bnb.address])
+        usdx = await deployContract("USDX", [vault.address])
+        router = await deployContract("Router", [vault.address, vaultPositionController.address, usdx.address, bnb.address])
         vaultPriceFeed = await deployContract("VaultPriceFeed", [])
-        glp = await deployContract("GLP", [])
+        xlp = await deployContract("XLP", [])
 
-        await initVault(vault, vaultPositionController, router, usdg, vaultPriceFeed)
-        glpManager = await deployContract("GlpManager", [vault.address, usdg.address, glp.address, 24 * 60 * 60])
+        await initVault(vault, vaultPositionController, router, usdx, vaultPriceFeed)
+        xlpManager = await deployContract("XlpManager", [vault.address, usdx.address, xlp.address, 24 * 60 * 60])
 
         distributor0 = await deployContract("TimeDistributor", [])
-        yieldTracker0 = await deployContract("YieldTracker", [usdg.address])
+        yieldTracker0 = await deployContract("YieldTracker", [usdx.address])
 
         await yieldTracker0.setDistributor(distributor0.address)
         await distributor0.setDistribution([yieldTracker0.address], [1000], [bnb.address])
 
         await bnb.mint(distributor0.address, 5000)
-        await usdg.setYieldTrackers([yieldTracker0.address])
+        await usdx.setYieldTrackers([yieldTracker0.address])
         
         // deploy xOracle
         xOracle = await deployXOracle(bnb);
@@ -57,10 +57,10 @@ describe("BuyGLP", function () {
 
         // set fulfillController
         await fulfillController.setController(deployer.address, true)
-        await fulfillController.setHandler(glpManager.address, true)
+        await fulfillController.setHandler(xlpManager.address, true)
 
-        // set glpManager
-        await glpManager.setFulfillController(fulfillController.address);
+        // set xlpManager
+        await xlpManager.setFulfillController(fulfillController.address);
     
         // set vaultPriceFeed
         await vaultPriceFeed.setTokenConfig(btc.address, btcPriceFeed.address, 8, false)
@@ -75,19 +75,19 @@ describe("BuyGLP", function () {
         await vault.setTokenConfig(...getBtcConfig(btc))
         await vault.setTokenConfig(...getBnbConfig(bnb))
 
-        await glp.setInPrivateTransferMode(true)
-        await glp.setMinter(glpManager.address, true)
+        await xlp.setInPrivateTransferMode(true)
+        await xlp.setMinter(xlpManager.address, true)
 
         await vault.setInManagerMode(true)
     })
 
-    it("BuyGLP by glpManager", async () => {
+    it("BuyGLP by xlpManager", async () => {
 
-        await vault.setManager(glpManager.address, true)
+        await vault.setManager(xlpManager.address, true)
 
         for (let i = 0; i < 10; i++){
         await dai.mint(user0.address, expandDecimals(100, 18))
-        await dai.connect(user0).approve(glpManager.address, expandDecimals(100, 18))
+        await dai.connect(user0).approve(xlpManager.address, expandDecimals(100, 18))
         await fulfillController.requestUpdatePrices()
         await xOracle.fulfillRequest([
             { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
@@ -98,7 +98,7 @@ describe("BuyGLP", function () {
             { tokenIndex: tokenIndexs.BNB, price: toXOraclePrice(300), lastUpdate: 0 }
           ], 0)
 
-        const tx0 = await glpManager.connect(user0).addLiquidity(
+        const tx0 = await xlpManager.connect(user0).addLiquidity(
             dai.address,
             expandDecimals(100, 18),
             expandDecimals(99, 18),

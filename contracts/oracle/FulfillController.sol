@@ -46,14 +46,14 @@ interface IHandler {
     function fulfillExecuteOrders(address _executionFeeReceiver) external;
     function fulfillLiquidatePosition(address _account, address _collateralToken, address _indexToken, bool _isLong, address _feeReceiver) external;
 
-    // GlpManager
-    function handlerAddLiquidity(address _account, address _receiver, address _token, uint256 _amount, uint256 _minUsdg, uint256 _minGlp) external returns (uint256);
-    function handlerRemoveLiquidity(address _account, address _receiver, address _tokenOut, uint256 _glpAmount, uint256 _minOut) external returns (uint256);
+    // XlpManager
+    function handlerAddLiquidity(address _account, address _receiver, address _token, uint256 _amount, uint256 _minUsdx, uint256 _minXlp) external returns (uint256);
+    function handlerRemoveLiquidity(address _account, address _receiver, address _tokenOut, uint256 _xlpAmount, uint256 _minOut) external returns (uint256);
 
-    // RewardRouterV3
-    function fulfillMintAndStakeGlp(address _account, address _token, uint256 _amount, uint256 _minUsdg, uint256 _minGlp) external returns (uint256);
-    function fulfillUnstakeAndRedeemGlp(address _account, address _tokenOut, uint256 _glpAmount, uint256 _minOut, address _receiver) external returns (uint256);
-    function fulfillUnstakeAndRedeemGlpETH(address _account, uint256 _glpAmount, uint256 _minOut, address _receiver) external returns (uint256);
+    // RewardRouter
+    function fulfillMintAndStakeXlp(address _account, address _token, uint256 _amount, uint256 _minUsdx, uint256 _minXlp) external returns (uint256);
+    function fulfillUnstakeAndRedeemXlp(address _account, address _tokenOut, uint256 _xlpAmount, uint256 _minOut, address _receiver) external returns (uint256);
+    function fulfillUnstakeAndRedeemXlpETH(address _account, uint256 _xlpAmount, uint256 _minOut, address _receiver) external returns (uint256);
     function fulfillCompound(address _account) external;
 }
 
@@ -321,32 +321,32 @@ contract FulfillController is Ownable {
             (address _account, address _collateralToken, address _indexToken, bool _isLong, address _feeReceiver) = abi.decode(_data[4:], (address, address, address, bool, address));
             IHandler(_to).fulfillLiquidatePosition(_account, _collateralToken, _indexToken, _isLong, _feeReceiver);
         }
-        // [GlpManager]
+        // [XlpManager]
         // - handlerAddLiquidity(address,address,address,uint256,uint256,uint256)
         else if (sig == 0xb0aeb400) {  
-            (address _account, address _receiver, address _token, uint256 _amount, uint256 _minUsdg, uint256 _minGlp) = abi.decode(_data[4:], (address, address, address, uint256, uint256, uint256));
-            IHandler(_to).handlerAddLiquidity(_account, _receiver, _token, _amount, _minUsdg, _minGlp);
+            (address _account, address _receiver, address _token, uint256 _amount, uint256 _minUsdx, uint256 _minXlp) = abi.decode(_data[4:], (address, address, address, uint256, uint256, uint256));
+            IHandler(_to).handlerAddLiquidity(_account, _receiver, _token, _amount, _minUsdx, _minXlp);
         }
         // - handlerRemoveLiquidity(address,address,address,uint256,uint256)
         else if (sig == 0x3b971a9e) { 
-            (address _account, address _receiver, address _tokenOut, uint256 _glpAmount, uint256 _minOut) = abi.decode(_data[4:], (address, address, address, uint256, uint256));
-            IHandler(_to).handlerRemoveLiquidity(_account, _receiver, _tokenOut, _glpAmount, _minOut);
+            (address _account, address _receiver, address _tokenOut, uint256 _xlpAmount, uint256 _minOut) = abi.decode(_data[4:], (address, address, address, uint256, uint256));
+            IHandler(_to).handlerRemoveLiquidity(_account, _receiver, _tokenOut, _xlpAmount, _minOut);
         }
-        // [RewardRouterV2]
-        // - fulfillMintAndStakeGlp(address,address,uint256,uint256,uint256)
-        else if (sig == 0xbac3bbc2) {
-            (address _account, address _token, uint256 _amount, uint256 _minUsdg, uint256 _minGlp) = abi.decode(_data[4:], (address, address, uint256, uint256, uint256));
-            IHandler(_to).fulfillMintAndStakeGlp(_account, _token, _amount, _minUsdg, _minGlp);
+        // [RewardRouter]
+        // - fulfillMintAndStakeXlp(address,address,uint256,uint256,uint256)
+        else if (sig == 0x32f89f7b) {
+            (address _account, address _token, uint256 _amount, uint256 _minUsdx, uint256 _minXlp) = abi.decode(_data[4:], (address, address, uint256, uint256, uint256));
+            IHandler(_to).fulfillMintAndStakeXlp(_account, _token, _amount, _minUsdx, _minXlp);
         }
-        // - fulfillUnstakeAndRedeemGlp(address,address,uint256,uint256,address)
-        else if (sig == 0x4eb2ca24) {
-            (address _account, address _tokenOut, uint256 _glpAmount, uint256 _minOut, address _receiver) = abi.decode(_data[4:], (address, address, uint256, uint256, address));
-            IHandler(_to).fulfillUnstakeAndRedeemGlp(_account, _tokenOut, _glpAmount, _minOut, _receiver);
+        // - fulfillUnstakeAndRedeemXlp(address,address,uint256,uint256,address)
+        else if (sig == 0x72b57547) {
+            (address _account, address _tokenOut, uint256 _xlpAmount, uint256 _minOut, address _receiver) = abi.decode(_data[4:], (address, address, uint256, uint256, address));
+            IHandler(_to).fulfillUnstakeAndRedeemXlp(_account, _tokenOut, _xlpAmount, _minOut, _receiver);
         }
-        // - fulfillUnstakeAndRedeemGlpETH(address,uint256,uint256,address)
-        else if (sig == 0xe39474e9) {
-            (address _account, uint256 _glpAmount, uint256 _minOut, address _receiver) = abi.decode(_data[4:], (address, uint256, uint256, address));
-            IHandler(_to).fulfillUnstakeAndRedeemGlpETH(_account, _glpAmount, _minOut, _receiver);
+        // - fulfillUnstakeAndRedeemXlpETH(address,uint256,uint256,address)
+        else if (sig == 0xc1b5dab8) {
+            (address _account, uint256 _xlpAmount, uint256 _minOut, address _receiver) = abi.decode(_data[4:], (address, uint256, uint256, address));
+            IHandler(_to).fulfillUnstakeAndRedeemXlpETH(_account, _xlpAmount, _minOut, _receiver);
         } 
         // - fulfillCompound(address)
         else if (sig == 0xadf13488) {

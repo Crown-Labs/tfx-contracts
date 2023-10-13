@@ -1,5 +1,5 @@
 {
-  "name": "gmx-contracts",
+  "name": "tfx-contracts",
   "version": "1.0.0",
   "description": "",
   "files": [
@@ -9,9 +9,9 @@
     "test": "npx hardhat test",
     "compile": "hardhat compile",
     "typechain": "hardhat typechain",
-    "deploy": "npx hardhat run --network lineaTestnet",
-    "verify": "npx hardhat verify --network opbnbTestnet",
-    "verifyAll": "npx hardhat run scripts/tfx_deploy/verifyAll.js --network opbnbTestnet"
+    "deploy": "npx hardhat run --network develop",
+    "verify": "npx hardhat verify --network develop",
+    "verifyAll": "npx hardhat run scripts/tfx_deploy/verifyAll.js --network develop"
   },
   "author": "",
   "license": "ISC",

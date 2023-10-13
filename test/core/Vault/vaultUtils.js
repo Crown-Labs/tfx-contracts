@@ -12,7 +12,7 @@ describe("VaultUtils", function () {
   let vault
   let vaultUtils
   let vaultPriceFeed
-  let usdg
+  let usdx
   let router
   let bnb
 
@@ -21,11 +21,11 @@ describe("VaultUtils", function () {
 
     vault = await deployContract("Vault", [])
     vaultPositionController = await deployContract("VaultPositionController", [])
-    usdg = await deployContract("USDG", [vault.address])
-    router = await deployContract("Router", [vault.address, vaultPositionController.address, usdg.address, bnb.address])
+    usdx = await deployContract("USDX", [vault.address])
+    router = await deployContract("Router", [vault.address, vaultPositionController.address, usdx.address, bnb.address])
     vaultPriceFeed = await deployContract("VaultPriceFeed", [])
 
-    const _ = await initVault(vault, vaultPositionController, router, usdg, vaultPriceFeed)
+    const _ = await initVault(vault, vaultPositionController, router, usdx, vaultPriceFeed)
     vaultUtils = _.vaultUtils
   })
 })

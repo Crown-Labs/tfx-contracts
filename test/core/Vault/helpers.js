@@ -21,9 +21,9 @@ const errors = [
   "Vault: invalid tokenAmount",
   "Vault: _token not whitelisted",
   "Vault: invalid tokenAmount",
-  "Vault: invalid usdgAmount",
+  "Vault: invalid usdxAmount",
   "Vault: _token not whitelisted",
-  "Vault: invalid usdgAmount",
+  "Vault: invalid usdxAmount",
   "Vault: invalid redemptionAmount",
   "Vault: invalid amountOut",
   "Vault: swaps not enabled",
@@ -54,7 +54,7 @@ const errors = [
   "Vault: _indexToken not shortable",
   "Vault: invalid increase",
   "Vault: reserve exceeds pool",
-  "Vault: max USDG exceeded",
+  "Vault: max USDX exceeded",
   "Vault: reserve exceeds pool",
   "Vault: forbidden",
   "Vault: forbidden",
@@ -78,11 +78,11 @@ async function initVaultErrors(vault) {
   return vaultErrorController
 }
 
-async function initVault(vault, vaultPositionController, router, usdg, priceFeed) {
+async function initVault(vault, vaultPositionController, router, usdx, priceFeed) {
   await vault.initialize(
     vaultPositionController.address, // vaultPositionController
     router.address, // router
-    usdg.address, // usdg
+    usdx.address, // usdx
     priceFeed.address, // priceFeed
     toUsd(5), // liquidationFeeUsd
     600, // fundingRateFactor
@@ -112,7 +112,7 @@ function getBnbConfig(bnb) {
     18, // _tokenDecimals
     10000, // _tokenWeight
     75, // _minProfitBps,
-    0, // _maxUsdgAmount
+    0, // _maxUsdxAmount
     false, // _isStable
     true // _isShortable
   ]
@@ -124,7 +124,7 @@ function getEthConfig(eth) {
     18, // _tokenDecimals
     10000, // _tokenWeight
     75, // _minProfitBps
-    0, // _maxUsdgAmount
+    0, // _maxUsdxAmount
     false, // _isStable
     true // _isShortable
   ]
@@ -136,7 +136,7 @@ function getBtcConfig(btc) {
     8, // _tokenDecimals
     10000, // _tokenWeight
     75, // _minProfitBps
-    0, // _maxUsdgAmount
+    0, // _maxUsdxAmount
     false, // _isStable
     true // _isShortable
   ]
@@ -148,7 +148,7 @@ function getDaiConfig(dai) {
     18, // _tokenDecimals
     10000, // _tokenWeight
     75, // _minProfitBps
-    0, // _maxUsdgAmount
+    0, // _maxUsdxAmount
     true, // _isStable
     false // _isShortable
   ]

@@ -9,10 +9,10 @@ async function getArbValues() {
   const esGmxGov = await contractAt("Timelock", await esGmx.gov(), signer)
   const gmxVester = await contractAt("Vester", "0x199070DDfd1CFb69173aa2F7e20906F26B363004")
   const gmxVesterGov = await contractAt("Timelock", await gmxVester.gov(), signer)
-  const glpVester = await contractAt("Vester", "0xA75287d2f8b217273E7FCD7E86eF07D33972042E")
-  const glpVesterGov = await contractAt("Timelock", await glpVester.gov(), signer)
+  const xlpVester = await contractAt("Vester", "0xA75287d2f8b217273E7FCD7E86eF07D33972042E")
+  const xlpVesterGov = await contractAt("Timelock", await xlpVester.gov(), signer)
 
-  return { esGmx, esGmxGov, gmxVester, gmxVesterGov, glpVester, glpVesterGov }
+  return { esGmx, esGmxGov, gmxVester, gmxVesterGov, xlpVester, xlpVesterGov }
 }
 
 async function getAvaxValues() {
@@ -22,15 +22,15 @@ async function getAvaxValues() {
   const esGmxGov = await contractAt("Timelock", await esGmx.gov(), signer)
   const gmxVester = await contractAt("Vester", "0x472361d3cA5F49c8E633FB50385BfaD1e018b445")
   const gmxVesterGov = await contractAt("Timelock", await gmxVester.gov(), signer)
-  const glpVester = await contractAt("Vester", "0x62331A7Bd1dfB3A7642B7db50B5509E57CA3154A")
-  const glpVesterGov = await contractAt("Timelock", await glpVester.gov(), signer)
+  const xlpVester = await contractAt("Vester", "0x62331A7Bd1dfB3A7642B7db50B5509E57CA3154A")
+  const xlpVesterGov = await contractAt("Timelock", await xlpVester.gov(), signer)
 
-  return { esGmx, esGmxGov, gmxVester, gmxVesterGov, glpVester, glpVesterGov }
+  return { esGmx, esGmxGov, gmxVester, gmxVesterGov, xlpVester, xlpVesterGov }
 }
 
 async function main() {
   const method = network === "arbitrum" ? getArbValues : getAvaxValues
-  const { esGmx, esGmxGov, gmxVester, gmxVesterGov, glpVester, glpVesterGov } = await method()
+  const { esGmx, esGmxGov, gmxVester, gmxVesterGov, xlpVester, xlpVesterGov } = await method()
 
   const esGmxBatchSender = await deployContract("EsGmxBatchSender", [esGmx.address])
 
@@ -38,12 +38,12 @@ async function main() {
   console.log("esGmxGov", esGmxGov.address)
   console.log("gmxVester", gmxVester.address)
   console.log("gmxVesterGov", gmxVesterGov.address)
-  console.log("glpVester", glpVester.address)
-  console.log("glpVesterGov", glpVesterGov.address)
+  console.log("xlpVester", xlpVester.address)
+  console.log("xlpVesterGov", xlpVesterGov.address)
 
   await sendTxn(esGmxGov.signalSetHandler(esGmx.address, esGmxBatchSender.address, true), "esGmxGov.signalSetHandler")
   await sendTxn(gmxVesterGov.signalSetHandler(gmxVester.address, esGmxBatchSender.address, true), "gmxVesterGov.signalSetHandler")
-  await sendTxn(glpVesterGov.signalSetHandler(glpVester.address, esGmxBatchSender.address, true), "glpVesterGov.signalSetHandler")
+  await sendTxn(xlpVesterGov.signalSetHandler(xlpVester.address, esGmxBatchSender.address, true), "xlpVesterGov.signalSetHandler")
 }
 
 main()

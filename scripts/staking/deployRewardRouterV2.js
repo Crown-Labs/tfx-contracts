@@ -9,8 +9,8 @@ async function main() {
 
   const vestingDuration = 365 * 24 * 60 * 60
 
-  const glpManager = await contractAt("GlpManager", getContractAddress("glpManager"), signer)
-  const glp = await contractAt("GLP", getContractAddress("glp"), signer)
+  const xlpManager = await contractAt("XlpManager", getContractAddress("xlpManager"), signer)
+  const xlp = await contractAt("XLP", getContractAddress("xlp"), signer)
 
   /*const gmx = await contractAt("GMX", "0x62edc0692BD897D2295872a9FFCac5425011c661");
   const esGmx = await contractAt("EsGMX", "0xFf1489227BbAAC61a9209A08929E4c2a526DdD17");*/
@@ -19,7 +19,7 @@ async function main() {
   const bnGmx = await deployContract("MintableBaseToken", ["Bonus GMX", "bnGMX", 0], "bnGmx", signer);
 
   await sendTxn(esGmx.setInPrivateTransferMode(true), "esGmx.setInPrivateTransferMode")
-  await sendTxn(glp.setInPrivateTransferMode(true), "glp.setInPrivateTransferMode")
+  await sendTxn(xlp.setInPrivateTransferMode(true), "xlp.setInPrivateTransferMode")
 
   const stakedGmxTracker = await deployContract("RewardTracker", ["Staked GMX", "sGMX"], "1. sGMX (Staked GMX)", signer)
   const stakedGmxDistributor = await deployContract("RewardDistributor", [esGmx.address, stakedGmxTracker.address], "1. stakedGmxDistributor", signer)
@@ -36,15 +36,15 @@ async function main() {
   await sendTxn(feeGmxTracker.initialize([bonusGmxTracker.address, bnGmx.address], feeGmxDistributor.address), "feeGmxTracker.initialize")
   await sendTxn(feeGmxDistributor.updateLastDistributionTime(), "feeGmxDistributor.updateLastDistributionTime")
 
-  const feeGlpTracker = await deployContract("RewardTracker", ["Fee GLP", "fGLP"], "4. fGLP (Fee GLP)", signer)
-  const feeGlpDistributor = await deployContract("RewardDistributor", [nativeToken.address, feeGlpTracker.address], "4. feeGlpDistributor", signer)
-  await sendTxn(feeGlpTracker.initialize([glp.address], feeGlpDistributor.address), "feeGlpTracker.initialize")
-  await sendTxn(feeGlpDistributor.updateLastDistributionTime(), "feeGlpDistributor.updateLastDistributionTime")
+  const feeXlpTracker = await deployContract("RewardTracker", ["Fee GLP", "fGLP"], "4. fGLP (Fee GLP)", signer)
+  const feeXlpDistributor = await deployContract("RewardDistributor", [nativeToken.address, feeXlpTracker.address], "4. feeXlpDistributor", signer)
+  await sendTxn(feeXlpTracker.initialize([xlp.address], feeXlpDistributor.address), "feeXlpTracker.initialize")
+  await sendTxn(feeXlpDistributor.updateLastDistributionTime(), "feeXlpDistributor.updateLastDistributionTime")
 
-  const stakedGlpTracker = await deployContract("RewardTracker", ["Fee + Staked GLP", "fsGLP"], "5. fsGLP (Fee + Staked GLP)", signer)
-  const stakedGlpDistributor = await deployContract("RewardDistributor", [esGmx.address, stakedGlpTracker.address], "5. stakedGlpDistributor", signer)
-  await sendTxn(stakedGlpTracker.initialize([feeGlpTracker.address], stakedGlpDistributor.address), "stakedGlpTracker.initialize")
-  await sendTxn(stakedGlpDistributor.updateLastDistributionTime(), "stakedGlpDistributor.updateLastDistributionTime")
+  const stakedXlpTracker = await deployContract("RewardTracker", ["Fee + Staked GLP", "fsGLP"], "5. fsGLP (Fee + Staked GLP)", signer)
+  const stakedXlpDistributor = await deployContract("RewardDistributor", [esGmx.address, stakedXlpTracker.address], "5. stakedXlpDistributor", signer)
+  await sendTxn(stakedXlpTracker.initialize([feeXlpTracker.address], stakedXlpDistributor.address), "stakedXlpTracker.initialize")
+  await sendTxn(stakedXlpDistributor.updateLastDistributionTime(), "stakedXlpDistributor.updateLastDistributionTime")
 
   await sendTxn(stakedGmxTracker.setInPrivateTransferMode(true), "stakedGmxTracker.setInPrivateTransferMode")
   await sendTxn(stakedGmxTracker.setInPrivateStakingMode(true), "stakedGmxTracker.setInPrivateStakingMode")
@@ -54,10 +54,10 @@ async function main() {
   await sendTxn(feeGmxTracker.setInPrivateTransferMode(true), "feeGmxTracker.setInPrivateTransferMode")
   await sendTxn(feeGmxTracker.setInPrivateStakingMode(true), "feeGmxTracker.setInPrivateStakingMode")
 
-  await sendTxn(feeGlpTracker.setInPrivateTransferMode(true), "feeGlpTracker.setInPrivateTransferMode")
-  await sendTxn(feeGlpTracker.setInPrivateStakingMode(true), "feeGlpTracker.setInPrivateStakingMode")
-  await sendTxn(stakedGlpTracker.setInPrivateTransferMode(true), "stakedGlpTracker.setInPrivateTransferMode")
-  await sendTxn(stakedGlpTracker.setInPrivateStakingMode(true), "stakedGlpTracker.setInPrivateStakingMode")
+  await sendTxn(feeXlpTracker.setInPrivateTransferMode(true), "feeXlpTracker.setInPrivateTransferMode")
+  await sendTxn(feeXlpTracker.setInPrivateStakingMode(true), "feeXlpTracker.setInPrivateStakingMode")
+  await sendTxn(stakedXlpTracker.setInPrivateTransferMode(true), "stakedXlpTracker.setInPrivateTransferMode")
+  await sendTxn(stakedXlpTracker.setInPrivateStakingMode(true), "stakedXlpTracker.setInPrivateStakingMode")
 
   const gmxVester = await deployContract("Vester", [
     "Vested GMX", // _name
@@ -69,14 +69,14 @@ async function main() {
     stakedGmxTracker.address, // _rewardTracker
   ], "vestedGMX", signer)
 
-  const glpVester = await deployContract("Vester", [
+  const xlpVester = await deployContract("Vester", [
     "Vested GLP", // _name
     "vGLP", // _symbol
     vestingDuration, // _vestingDuration
     esGmx.address, // _esToken
-    stakedGlpTracker.address, // _pairToken
+    stakedXlpTracker.address, // _pairToken
     gmx.address, // _claimableToken
-    stakedGlpTracker.address, // _rewardTracker
+    stakedXlpTracker.address, // _rewardTracker
   ], "vestedGLP", signer)
 
   const rewardRouter = await deployContract("RewardRouterV2", [], "", signer)
@@ -85,19 +85,19 @@ async function main() {
     gmx.address,
     esGmx.address,
     bnGmx.address,
-    glp.address,
+    xlp.address,
     stakedGmxTracker.address,
     bonusGmxTracker.address,
     feeGmxTracker.address,
-    feeGlpTracker.address,
-    stakedGlpTracker.address,
-    glpManager.address,
+    feeXlpTracker.address,
+    stakedXlpTracker.address,
+    xlpManager.address,
     gmxVester.address,
-    glpVester.address
+    xlpVester.address
   ), "rewardRouter.initialize")
 
-  //await sendTxn(glpManager.setHandler(rewardRouter.address), "glpManager.setHandler(rewardRouter)")
-  await sendTxn(glpManager.setHandler(rewardRouter.address, true), "glpManager.setHandler(rewardRouter)")
+  //await sendTxn(xlpManager.setHandler(rewardRouter.address), "xlpManager.setHandler(rewardRouter)")
+  await sendTxn(xlpManager.setHandler(rewardRouter.address, true), "xlpManager.setHandler(rewardRouter)")
 
   // allow rewardRouter to stake in stakedGmxTracker
   await sendTxn(stakedGmxTracker.setHandler(rewardRouter.address, true), "stakedGmxTracker.setHandler(rewardRouter)")
@@ -117,31 +117,31 @@ async function main() {
   // allow rewardRouter to burn bnGmx
   await sendTxn(bnGmx.setMinter(rewardRouter.address, true), "bnGmx.setMinter(rewardRouter")
 
-  // allow stakedGlpTracker to stake feeGlpTracker
-  await sendTxn(feeGlpTracker.setHandler(stakedGlpTracker.address, true), "feeGlpTracker.setHandler(stakedGlpTracker)")
-  // allow feeGlpTracker to stake glp
-  await sendTxn(glp.setHandler(feeGlpTracker.address, true), "glp.setHandler(feeGlpTracker)")
+  // allow stakedXlpTracker to stake feeXlpTracker
+  await sendTxn(feeXlpTracker.setHandler(stakedXlpTracker.address, true), "feeXlpTracker.setHandler(stakedXlpTracker)")
+  // allow feeXlpTracker to stake xlp
+  await sendTxn(xlp.setHandler(feeXlpTracker.address, true), "xlp.setHandler(feeXlpTracker)")
 
-  // allow rewardRouter to stake in feeGlpTracker
-  await sendTxn(feeGlpTracker.setHandler(rewardRouter.address, true), "feeGlpTracker.setHandler(rewardRouter)")
-  // allow rewardRouter to stake in stakedGlpTracker
-  await sendTxn(stakedGlpTracker.setHandler(rewardRouter.address, true), "stakedGlpTracker.setHandler(rewardRouter)")
+  // allow rewardRouter to stake in feeXlpTracker
+  await sendTxn(feeXlpTracker.setHandler(rewardRouter.address, true), "feeXlpTracker.setHandler(rewardRouter)")
+  // allow rewardRouter to stake in stakedXlpTracker
+  await sendTxn(stakedXlpTracker.setHandler(rewardRouter.address, true), "stakedXlpTracker.setHandler(rewardRouter)")
 
   await sendTxn(esGmx.setHandler(rewardRouter.address, true), "esGmx.setHandler(rewardRouter)")
   await sendTxn(esGmx.setHandler(stakedGmxDistributor.address, true), "esGmx.setHandler(stakedGmxDistributor)")
-  await sendTxn(esGmx.setHandler(stakedGlpDistributor.address, true), "esGmx.setHandler(stakedGlpDistributor)")
-  await sendTxn(esGmx.setHandler(stakedGlpTracker.address, true), "esGmx.setHandler(stakedGlpTracker)")
+  await sendTxn(esGmx.setHandler(stakedXlpDistributor.address, true), "esGmx.setHandler(stakedXlpDistributor)")
+  await sendTxn(esGmx.setHandler(stakedXlpTracker.address, true), "esGmx.setHandler(stakedXlpTracker)")
   await sendTxn(esGmx.setHandler(gmxVester.address, true), "esGmx.setHandler(gmxVester)")
-  await sendTxn(esGmx.setHandler(glpVester.address, true), "esGmx.setHandler(glpVester)")
+  await sendTxn(esGmx.setHandler(xlpVester.address, true), "esGmx.setHandler(xlpVester)")
 
   await sendTxn(esGmx.setMinter(gmxVester.address, true), "esGmx.setMinter(gmxVester)")
-  await sendTxn(esGmx.setMinter(glpVester.address, true), "esGmx.setMinter(glpVester)")
+  await sendTxn(esGmx.setMinter(xlpVester.address, true), "esGmx.setMinter(xlpVester)")
 
   await sendTxn(gmxVester.setHandler(rewardRouter.address, true), "gmxVester.setHandler(rewardRouter)")
-  await sendTxn(glpVester.setHandler(rewardRouter.address, true), "glpVester.setHandler(rewardRouter)")
+  await sendTxn(xlpVester.setHandler(rewardRouter.address, true), "xlpVester.setHandler(rewardRouter)")
 
   await sendTxn(feeGmxTracker.setHandler(gmxVester.address, true), "feeGmxTracker.setHandler(gmxVester)")
-  await sendTxn(stakedGlpTracker.setHandler(glpVester.address, true), "stakedGlpTracker.setHandler(glpVester)")
+  await sendTxn(stakedXlpTracker.setHandler(xlpVester.address, true), "stakedXlpTracker.setHandler(xlpVester)")
 }
 
 main()

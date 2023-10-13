@@ -22,7 +22,7 @@ async function printToken(token, label) {
   console.log(label, "gov", await token.gov())
 }
 
-async function printUsdg(token, label) {
+async function printUsdx(token, label) {
   console.log(label, "isVault", await token.vaults(wallet.address))
   console.log(label, "gov", await token.gov())
 }
@@ -52,24 +52,24 @@ async function main() {
   const bonusGmxTracker = await contractAt("RewardTracker", "0x908C4D94D34924765f1eDc22A1DD098397c59dD4")
   const feeGmxTracker = await contractAt("RewardTracker", "0x4d268a7d4C16ceB5a606c173Bd974984343fea13")
 
-  const stakedGlpTracker = await contractAt("RewardTracker", "0x9e295B5B976a184B14aD8cd72413aD846C299660")
-  const feeGlpTracker = await contractAt("RewardTracker", "0xd2D1162512F927a7e282Ef43a362659E4F2a728F")
+  const stakedXlpTracker = await contractAt("RewardTracker", "0x9e295B5B976a184B14aD8cd72413aD846C299660")
+  const feeXlpTracker = await contractAt("RewardTracker", "0xd2D1162512F927a7e282Ef43a362659E4F2a728F")
 
   await printRewardTracker(stakedGmxTracker, "stakedGmxTracker")
   await printRewardTracker(bonusGmxTracker, "bonusGmxTracker")
   await printRewardTracker(feeGmxTracker, "feeGmxTracker")
 
-  await printRewardTracker(stakedGlpTracker, "stakedGlpTracker")
-  await printRewardTracker(feeGlpTracker, "feeGlpTracker")
+  await printRewardTracker(stakedXlpTracker, "stakedXlpTracker")
+  await printRewardTracker(feeXlpTracker, "feeXlpTracker")
 
-  const glp = await contractAt("MintableBaseToken", "0x01234181085565ed162a948b6a5e88758CD7c7b8")
-  const usdg = await contractAt("USDG", "0xc0253c3cC6aa5Ab407b5795a04c28fB063273894")
+  const xlp = await contractAt("MintableBaseToken", "0x01234181085565ed162a948b6a5e88758CD7c7b8")
+  const usdx = await contractAt("USDX", "0xc0253c3cC6aa5Ab407b5795a04c28fB063273894")
   // const gmx = await contractAt("MintableBaseToken", "0x62edc0692BD897D2295872a9FFCac5425011c661")
   // const esGmx = await contractAt("MintableBaseToken", "0xFf1489227BbAAC61a9209A08929E4c2a526DdD17")
   const bnGmx = await contractAt("MintableBaseToken", "0x8087a341D32D445d9aC8aCc9c14F5781E04A26d2")
 
-  await printToken(glp, "glp")
-  await printUsdg(usdg, "usdg")
+  await printToken(xlp, "xlp")
+  await printUsdx(usdx, "usdx")
   // await printToken(gmx, "gmx")
   // await printToken(esGmx, "esGmx")
   await printToken(bnGmx, "bnGmx")
@@ -77,7 +77,7 @@ async function main() {
   // const prevGov = await contractAt("Timelock", "0x4a3930b629f899fe19c1f280c73a376382d61a78")
   // const nextGov = await contractAt("Timelock", "0x09214C0A3594fbcad59A58099b0A63E2B29b15B8")
 
-  // await signalGov(prevGov, glp, nextGov, "glp")
+  // await signalGov(prevGov, xlp, nextGov, "xlp")
   // await signalGov(prevGov, gmx, nextGov, "gmx")
   // await signalGov(prevGov, esGmx, nextGov, "esGmx")
   // await signalGov(prevGov, bnGmx, nextGov, "bnGmx")
@@ -89,18 +89,18 @@ async function main() {
   await updateHandler(stakedGmxTracker, "stakedGmxTracker")
   await updateHandler(bonusGmxTracker, "bonusGmxTracker")
   await updateHandler(feeGmxTracker, "feeGmxTracker")
-  await updateHandler(stakedGlpTracker, "stakedGlpTracker")
-  await updateHandler(feeGlpTracker, "feeGlpTracker")
+  await updateHandler(stakedXlpTracker, "stakedXlpTracker")
+  await updateHandler(feeXlpTracker, "feeXlpTracker")
 
   await updateRewardTrackerGov(stakedGmxTracker, "stakedGmxTracker")
 
   await updateRewardTrackerGov(bonusGmxTracker, "bonusGmxTracker")
   await updateRewardTrackerGov(feeGmxTracker, "feeGmxTracker")
-  await updateRewardTrackerGov(stakedGlpTracker, "stakedGlpTracker")
-  await updateRewardTrackerGov(feeGlpTracker, "feeGlpTracker")
+  await updateRewardTrackerGov(stakedXlpTracker, "stakedXlpTracker")
+  await updateRewardTrackerGov(feeXlpTracker, "feeXlpTracker")
 
-  await updateGov(glp, "glp")
-  await updateGov(usdg, "usdg")
+  await updateGov(xlp, "xlp")
+  await updateGov(usdx, "usdx")
   // await updateGov(gmx, "gmx")
   // await updateGov(esGmx, "esGmx")
   await updateGov(bnGmx, "bnGmx")
@@ -108,12 +108,12 @@ async function main() {
   const vault = await contractAt("Vault", "0x9ab2De34A33fB459b538c43f251eB825645e8595")
   const vaultPriceFeedAddress = await vault.priceFeed()
   const vaultPriceFeed = await contractAt("VaultPriceFeed", vaultPriceFeedAddress)
-  const glpManager = await contractAt("GlpManager", "0xe1ae4d4b06A5Fe1fc288f6B4CD72f9F8323B107F")
+  const xlpManager = await contractAt("XlpManager", "0xe1ae4d4b06A5Fe1fc288f6B4CD72f9F8323B107F")
   const router = await contractAt("Router", "0x5F719c2F1095F7B9fc68a68e35B51194f4b6abe8")
 
   await updateGov(vault, "vault")
   await updateGov(vaultPriceFeed, "vaultPriceFeed")
-  await updateGov(glpManager, "glpManager")
+  await updateGov(xlpManager, "xlpManager")
   await updateGov(router, "router")
 }
 

@@ -18,11 +18,11 @@ async function getTestnetValues() {
   const orderKeeper = { address: getContractAddress("keeper") }
   const liquidator = { address: getContractAddress("liquidator") }
   const executionFeeReceiver = { address: getContractAddress("feeReceiver") }
-  const usdg = { address: getContractAddress("usdg") }
+  const usdx = { address: getContractAddress("usdx") }
 
   const partnerContracts = []
 
-  return { vault, vaultPositionController, router, weth, depositFee, orderKeeper, liquidator, executionFeeReceiver, usdg, partnerContracts }
+  return { vault, vaultPositionController, router, weth, depositFee, orderKeeper, liquidator, executionFeeReceiver, usdx, partnerContracts }
 }
 
 async function getValues() {
@@ -41,7 +41,7 @@ async function getValues() {
 
 async function main() {
   const { nativeToken } = tokens
-  const { vault, vaultPositionController, router, weth, depositFee, orderKeeper, liquidator, executionFeeReceiver, usdg, partnerContracts } = await getValues()
+  const { vault, vaultPositionController, router, weth, depositFee, orderKeeper, liquidator, executionFeeReceiver, usdx, partnerContracts } = await getValues()
 
   // deploy orderbook
   const orderBook = await deployContract("OrderBookMeta", [], "OrderBook", signer);
@@ -51,7 +51,7 @@ async function main() {
     vault.address,
     vaultPositionController.address,
     nativeToken.address, // weth
-    usdg.address, // usdg
+    usdx.address, // usdx
     "300000000000000", // 0.0003 BNB
     expandDecimals(10, 30) // min purchase token amount usd
   ), "orderBook.initialize");

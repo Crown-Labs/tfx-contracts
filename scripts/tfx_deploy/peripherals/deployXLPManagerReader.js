@@ -2,7 +2,7 @@ const { deployContract, contractAt, writeTmpAddresses, sendTxn, getFrameSigner }
 
 async function main() {
   const signer = await getFrameSigner()
-  const glpManagerReader = await deployContract("GLPManagerReader", [], "GLPManagerReader", signer)
+  const xlpManagerReader = await deployContract("XLPManagerReader", [], "XLPManagerReader", signer)
 }
 
 main()

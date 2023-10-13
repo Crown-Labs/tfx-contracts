@@ -17,7 +17,7 @@ describe("\n📌 ### Test fulfillController ###\n", function () {
     let vaultUtils
     let vaultPriceFeed
     let positionManager
-    let usdg
+    let usdx
     let router
     let xOracle
     let fulfillController
@@ -36,11 +36,11 @@ describe("\n📌 ### Test fulfillController ###\n", function () {
         vault = await deployContract("Vault", [])
         vaultPositionController = await deployContract("VaultPositionController", [])
         await vault.setIsLeverageEnabled(false)
-        usdg = await deployContract("USDG", [vault.address])
-        router = await deployContract("Router", [vault.address, vaultPositionController.address, usdg.address, bnb.address])
+        usdx = await deployContract("USDX", [vault.address])
+        router = await deployContract("Router", [vault.address, vaultPositionController.address, usdx.address, bnb.address])
         vaultPriceFeed = await deployContract("VaultPriceFeed", [])
 
-        const initVaultResult = await initVault(vault, vaultPositionController, router, usdg, vaultPriceFeed)
+        const initVaultResult = await initVault(vault, vaultPositionController, router, usdx, vaultPriceFeed)
         vaultUtils = initVaultResult.vaultUtils
 
         // deploy xOracle
@@ -74,7 +74,7 @@ describe("\n📌 ### Test fulfillController ###\n", function () {
             vaultPositionController.address,
             orderBookOpenOrder.address,
             bnb.address,
-            usdg.address,
+            usdx.address,
             minExecutionFee,
             expandDecimals(5, 30) // minPurchseTokenAmountUsd
         );
@@ -271,7 +271,7 @@ describe("\n📌 ### Test fulfillController ###\n", function () {
 
         await bnb.mint(user1.address, expandDecimals(1000, 18))
         await bnb.connect(user1).approve(router.address, expandDecimals(1000, 18))
-        await router.connect(user1).swap([bnb.address, usdg.address], expandDecimals(1000, 18), expandDecimals(29000, 18), user1.address)
+        await router.connect(user1).swap([bnb.address, usdx.address], expandDecimals(1000, 18), expandDecimals(29000, 18), user1.address)
         await xOracle.fulfillRequest([
         { tokenIndex: tokenIndexs.BUSD, price: toXOraclePrice(1), lastUpdate: 0 },
         { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
@@ -280,7 +280,7 @@ describe("\n📌 ### Test fulfillController ###\n", function () {
     
         await busd.mint(user1.address, expandDecimals(30000, 18))
         await busd.connect(user1).approve(router.address, expandDecimals(30000, 18))
-        await router.connect(user1).swap([busd.address, usdg.address], expandDecimals(30000, 18), expandDecimals(29000, 18), user1.address)
+        await router.connect(user1).swap([busd.address, usdx.address], expandDecimals(30000, 18), expandDecimals(29000, 18), user1.address)
         await xOracle.fulfillRequest([
         { tokenIndex: tokenIndexs.BUSD, price: toXOraclePrice(1), lastUpdate: 0 },
         { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
@@ -289,7 +289,7 @@ describe("\n📌 ### Test fulfillController ###\n", function () {
     
         await btc.mint(user1.address, expandDecimals(10, 8))
         await btc.connect(user1).approve(router.address, expandDecimals(10, 8))
-        await router.connect(user1).swap([btc.address, usdg.address], expandDecimals(10, 8), expandDecimals(59000, 18), user1.address)
+        await router.connect(user1).swap([btc.address, usdx.address], expandDecimals(10, 8), expandDecimals(59000, 18), user1.address)
         await xOracle.fulfillRequest([
         { tokenIndex: tokenIndexs.BUSD, price: toXOraclePrice(1), lastUpdate: 0 },
         { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },

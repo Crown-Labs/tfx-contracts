@@ -17,7 +17,7 @@ const tokenIndexs = {
   BTC: 0,
   ETH: 1,
   BNB: 2,
-  BUSD: 4,
+  USDT: 3,
   USDC: 5,
   MATIC: 21,
   OP: 28,
@@ -41,53 +41,43 @@ const tokenIndexs = {
   
     // token address
     btc: deployedAddress["BTC"],
-    /* opbnbTestnet
-    eth: deployedAddress["ETH"],
-    wbnb: "0x617d91847b74b70a3d3e3745445cb0d1b3c8560e",*/
-    // lineaTestnet
-    weth: "0x2C1b868d6596a18e32E61B901E4060C872647b6C",
+    weth: "0x078c04b8cfC949101905fdd5912D31Aad0a244Cb",
     bnb: deployedAddress["BNB"],
-    busd: deployedAddress["BUSD"],
+    usdt: deployedAddress["USDT"],
     usdc: deployedAddress["USDC"],
-    // usdt: deployedAddress["USDT"],
     matic: deployedAddress["MATIC"],
     op: deployedAddress["OP"],
     arb: deployedAddress["ARB"],
   
     // xOracle price feed
-    btcPriceFeed: "0x3432dD444774c4A88D330EdB127D837072e5cc9e",
-    ethPriceFeed: "0xe767d64F9b37fe809232a7f20304d28F03EED2B1",
-    bnbPriceFeed: "0x0c8b54e305E8CBb9958671a9C02467328EF4c95C",
-    busdPriceFeed: "0x4926B8803db627a3a77687cB9160725c0845Aabb",
-    usdcPriceFeed: "0xA23902465EC47904b4b53dCD95f2395b45F33E4F",
-    maticPriceFeed: "0xE41CEc959C332968226B2a07f6252Bc57964de1d",
-    opPriceFeed: "0x81E12991821d0bFdFC7D1a79D49056bcFa0Eaf75",
-    arbPriceFeed: "0x9b5C82a57AcF5569e10fe1f1783ab57230B18ab9",
+    btcPriceFeed: "0x382799dc4Fc3d8c9Eb89c236552Ca1b7bA3369C8",
+    ethPriceFeed: "0xC9BbBB15657eCAbAD46a440230e761dFC9cfeE35",
+    bnbPriceFeed: "0x4e9223B617C00EcF67aBA43E9a4Bd641E194056F",
+    usdtPriceFeed: "0xb27915032DE3285A3e785bD49091781D2C2e4a11",
+    usdcPriceFeed: "0xA3E25fa12881c78FB70Bb8bF8DAb39EA1ecE637b",
+    maticPriceFeed: "0x117cb3f6Ec0C8A9e39Ee234d49D09BEd532CDf14",
+    opPriceFeed: "0x99475a0A04D601FBC94D26893A150d0bA9f2f7ae",
+    arbPriceFeed: "0x1F608722A909F396A2626150FbA1C151fa55d56b",
   
     // deployed contract
-    xOracle: "0xB1CBd1d5A394E6B4BDaA687468266Caf533D9035", // update 2023-09-13
+    xOracle: "0xCaa766A36Ea93c581299719934404D099E65478f", // update 2023-10-13
     fulfillController: deployedAddress["FulfillController"],
     tokenManager: deployedAddress["TokenManager"],
     vault: deployedAddress["Vault"],
     vaultPositionController: deployedAddress["VaultPositionController"],
     vaultPriceFeed: deployedAddress["VaultPriceFeed"],
     router: deployedAddress["Router"],
-    usdg: deployedAddress["USDG"],
-    glp: deployedAddress["GLP"],
-    glpManager: deployedAddress["GlpManager"],
+    usdx: deployedAddress["USDX"],
+    xlp: deployedAddress["XLP"],
+    xlpManager: deployedAddress["XlpManager"],
     referralStorage: deployedAddress["ReferralStorage"],
     positionRouter: deployedAddress["PositionRouter"],
     orderBook: deployedAddress["OrderBook"],
     positionManager: deployedAddress["PositionManager"],
-    rewardRouterV2: deployedAddress["RewardRouterV2"],
+    rewardRouterV3: deployedAddress["RewardRouterV3"],
     timelock: deployedAddress["Timelock"],
-    stakedGmxDistributor: deployedAddress["1. stakedGmxDistributor"],
-    bonusDistributor: deployedAddress["2. BonusDistributor"],
-    feeGmxDistributor: deployedAddress["3. feeGmxDistributor"],
-    feeGlpDistributor: deployedAddress["4. feeGlpDistributor"],
-    stakedGlpDistributor: deployedAddress["5. stakedGlpDistributor"],
-    rewardTracker: deployedAddress["5. fsGLP (Fee + Staked GLP)"],
-    
+    fXLP: deployedAddress["fXLP (Fee XLP)"],
+    feeXlpDistributor: deployedAddress["feeXlpDistributor"],
   };
 
 
@@ -115,16 +105,12 @@ const readCsv = async (file) => {
 };
 
 function getChainId(network) {
-  if (network === "opbnbTestnet") {
-    return 5611;
-  }
-
   if (network === "lineaTestnet") {
     return 59140;
   }
 
-  if (network === "bscTestnet") {
-    return 97;
+  if (network === "develop") {
+    return 1112;
   }
 
   throw new Error("Unsupported network");

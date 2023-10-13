@@ -14,20 +14,20 @@ interface IVault {
     function reservedAmounts(address _token) external view returns (uint256);
 }
 
-interface IGlpManager {
+interface IXlpManager {
     function aumAddition() external view returns(uint256);
     function aumDeduction() external view returns(uint256);
 }
 
-contract GLPManagerReader {
+contract XLPManagerReader {
     struct LastPrice {
         address token;
         uint256 price;
     }
 
-    function getAum(address glpManager, address vault, LastPrice[] memory lastPrice) external view returns (uint256) {
+    function getAum(address xlpManager, address vault, LastPrice[] memory lastPrice) external view returns (uint256) {
         uint256 length = IVault(vault).allWhitelistedTokensLength();
-        uint256 aum = IGlpManager(glpManager).aumAddition();
+        uint256 aum = IXlpManager(xlpManager).aumAddition();
         uint256 shortProfits = 0;
 
         for (uint256 i = 0; i < length; i++) {
@@ -67,7 +67,7 @@ contract GLPManagerReader {
         }
 
         aum = shortProfits > aum ? 0 : aum - shortProfits;
-        return IGlpManager(glpManager).aumDeduction() > aum ? 0 : aum - IGlpManager(glpManager).aumDeduction();
+        return IXlpManager(xlpManager).aumDeduction() > aum ? 0 : aum - IXlpManager(xlpManager).aumDeduction();
     }
 
     function getPrice(LastPrice[] memory lastPrice, address token) private pure returns(uint256) {

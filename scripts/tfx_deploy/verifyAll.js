@@ -30,26 +30,13 @@ function getContract() {
     vaultPositionController: {
       address: deployedAddress["VaultPositionController"],
     },
-    usdg: { address: deployedAddress["USDG"] },
+    usdx: { address: deployedAddress["USDX"] },
     nativeToken: { address: tokens.nativeToken.address },
-    glp: { address: deployedAddress["GLP"] },
+    xlp: { address: deployedAddress["XLP"] },
     router: { address: deployedAddress["Router"] },
     weth: { address: tokens.nativeToken.address },
     orderBook: { address: deployedAddress["OrderBook"] },
-    esGmx: { address: deployedAddress["esGmx"] },
-    stakedGmxTracker: { address: deployedAddress["1. sGMX (Staked GMX)"] },
-    bnGmx: { address: deployedAddress["bnGmx"] },
-    bonusGmxTracker: {
-      address: deployedAddress["2. sbGMX (Staked + Bonus GMX)"],
-    },
-    feeGmxTracker: {
-      address: deployedAddress["3. sbfGMX (Staked + Bonus + Fee GMX)"],
-    },
-    feeGlpTracker: { address: deployedAddress["4. fGLP (Fee GLP)"] },
-    stakedGlpTracker: {
-      address: deployedAddress["5. fsGLP (Fee + Staked GLP)"],
-    },
-    gmx: { address: deployedAddress["GMX"] },
+    feeXlpTracker: { address: deployedAddress["fXLP (Fee XLP)"] },
     xOracle: { address: getContractAddress("xOracle") },
     vaultPriceFeed: { address: deployedAddress["VaultPriceFeed"] },
     tokenManager: { address: deployedAddress["TokenManager"] },
@@ -72,20 +59,20 @@ function makeParameter(name) {
     param = ["Binance USD", "BUSD", 18, expandDecimals(1000, 18)];
   } else if (name == "TokenManager") {
     param = [2];
-  } else if (name == "USDG") {
+  } else if (name == "USDX") {
     const { vault } = getContract();
     param = [vault.address];
   } else if (name == "Router") {
-    const { vault, vaultPositionController, usdg, nativeToken } = getContract();
+    const { vault, vaultPositionController, usdx, nativeToken } = getContract();
     param = [
       vault.address,
       vaultPositionController.address,
-      usdg.address,
+      usdx.address,
       nativeToken.address,
     ];
-  } else if (name == "GlpManager") {
-    const { vault, usdg, glp } = getContract();
-    param = [vault.address, usdg.address, glp.address, 15 * 60];
+  } else if (name == "XlpManager") {
+    const { vault, usdx, xlp } = getContract();
+    param = [vault.address, usdx.address, xlp.address, 15 * 60];
   } else if (name == "PositionRouter") {
     const depositFee = "30"; // 0.3%
     const minExecutionFee = "300000000000000"; // 0.0003 ETH
@@ -110,60 +97,15 @@ function makeParameter(name) {
       depositFee,
       orderBook.address,
     ];
-  } else if (name == "bnGmx") {
-    param = ["Bonus GMX", "bnGMX", 0];
-  } else if (name == "1. sGMX (Staked GMX)") {
-    param = ["Staked GMX", "sGMX"];
-  } else if (name == "1. stakedGmxDistributor") {
-    const { esGmx, stakedGmxTracker } = getContract();
-    param = [esGmx.address, stakedGmxTracker.address];
-  } else if (name == "2. sbGMX (Staked + Bonus GMX)") {
-    param = ["Staked + Bonus GMX", "sbGMX"];
-  } else if (name == "2. BonusDistributor") {
-    const { bnGmx, bonusGmxTracker } = getContract();
-    param = [bnGmx.address, bonusGmxTracker.address];
-  } else if (name == "3. sbfGMX (Staked + Bonus + Fee GMX)") {
-    param = ["Staked + Bonus + Fee GMX", "sbfGMX"];
-  } else if (name == "3. feeGmxDistributor") {
-    const { nativeToken, feeGmxTracker } = getContract();
-    param = [nativeToken.address, feeGmxTracker.address];
-  } else if (name == "4. fGLP (Fee GLP)") {
-    param = ["Fee GLP", "fGLP"];
-  } else if (name == "4. feeGlpDistributor") {
-    const { nativeToken, feeGlpTracker } = getContract();
-    param = [nativeToken.address, feeGlpTracker.address];
-  } else if (name == "5. fsGLP (Fee + Staked GLP)") {
-    param = ["Fee + Staked GLP", "fsGLP"];
-  } else if (name == "5. stakedGlpDistributor") {
-    const { esGmx, stakedGlpTracker } = getContract();
-    param = [esGmx.address, stakedGlpTracker.address];
-  } else if (name == "vestedGMX") {
-    const vestingDuration = 365 * 24 * 60 * 60;
-    const { esGmx, feeGmxTracker, gmx, stakedGmxTracker } = getContract();
-    param = [
-      "Vested GMX", // _name
-      "vGMX", // _symbol
-      vestingDuration, // _vestingDuration
-      esGmx.address, // _esToken
-      feeGmxTracker.address, // _pairToken
-      gmx.address, // _claimableToken
-      stakedGmxTracker.address, // _rewardTracker
-    ];
-  } else if (name == "vestedGLP") {
-    const vestingDuration = 365 * 24 * 60 * 60;
-    const { esGmx, stakedGlpTracker, gmx } = getContract();
-    param = [
-      "Vested GLP", // _name
-      "vGLP", // _symbol
-      vestingDuration, // _vestingDuration
-      esGmx.address, // _esToken
-      stakedGlpTracker.address, // _pairToken
-      gmx.address, // _claimableToken
-      stakedGlpTracker.address, // _rewardTracker
-    ];
+  } else if (name == "fXLP (Fee XLP)") {
+    param = ["Fee XLP", "fXLP"];
+  } else if (name == "feeXlpDistributor") {
+    const { nativeToken, feeXlpTracker } = getContract();
+    param = [nativeToken.address, feeXlpTracker.address];
   } else if (name == "FulfillController") {
     const { xOracle, weth } = getContract();
-    param = [xOracle.address, weth.address];
+    const lastTaskId = 0;
+    param = [xOracle.address, weth.address, lastTaskId];
   } else if (name == "OrderBookOpenOrder") {
     const { orderBook, vaultPositionController } = getContract();
     param = [orderBook.address, vaultPositionController.address];

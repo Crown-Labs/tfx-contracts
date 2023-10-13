@@ -6,7 +6,7 @@ import "../libraries/math/SafeMath.sol";
 import "../libraries/utils/IterableMapping.sol";
 
 interface IVault {
-    function usdg() external view returns (address);
+    function usdx() external view returns (address);
     function adjustForDecimals(uint256 _amount, address _tokenDiv, address _tokenMul) external view returns (uint256);
     function tokenDecimals(address _token) external view returns (uint256);
     function minProfitTime() external view returns (uint256);
@@ -78,7 +78,7 @@ contract PositionManagerReader {
     using IterableMapping for itmap;
 
     uint256 public constant PRICE_PRECISION = 1e30;
-    uint256 public constant USDG_PRECISION = 1e18;
+    uint256 public constant USDX_PRECISION = 1e18;
     uint256 public constant BASIS_POINTS_DIVISOR = 10000;
 
     struct LastPrice {
@@ -332,19 +332,19 @@ contract PositionManagerReader {
         uint256 tokenAPrice;
         uint256 tokenBPrice;
 
-        // 1. USDG doesn't have a price feed so we need to calculate it based on redepmtion amount of a specific token
-        // That's why USDG price in USD can vary depending on the redepmtion token
-        // 2. In complex scenarios with path=[USDG, BNB, BTC] we need to know how much BNB we'll get for provided USDG
+        // 1. USDX doesn't have a price feed so we need to calculate it based on redepmtion amount of a specific token
+        // That's why USDX price in USD can vary depending on the redepmtion token
+        // 2. In complex scenarios with path=[USDX, BNB, BTC] we need to know how much BNB we'll get for provided USDX
         // to know how much BTC will be received
-        // That's why in such scenario BNB should be used to determine price of USDG
-        if (tokenA == IVault(vault).usdg()) {
-            // with both _path.length == 2 or 3 we need usdg price against _path[1]
-            tokenAPrice = getUsdgMinPrice(_path[1], vault, lastPrice);
+        // That's why in such scenario BNB should be used to determine price of USDX
+        if (tokenA == IVault(vault).usdx()) {
+            // with both _path.length == 2 or 3 we need usdx price against _path[1]
+            tokenAPrice = getUsdxMinPrice(_path[1], vault, lastPrice);
         } else {
             tokenAPrice = getPrice(lastPrice, tokenA);
         }
 
-        if (tokenB == IVault(vault).usdg()) {
+        if (tokenB == IVault(vault).usdx()) {
             tokenBPrice = PRICE_PRECISION;
         } else {
             tokenBPrice = getPrice(lastPrice, tokenB);
@@ -373,16 +373,16 @@ contract PositionManagerReader {
         return (currentPrice, isPriceValid);
     }
 
-    function getUsdgMinPrice(address _otherToken, address vault, LastPrice[] memory lastPrice) private view returns (uint256) {
+    function getUsdxMinPrice(address _otherToken, address vault, LastPrice[] memory lastPrice) private view returns (uint256) {
         uint256 otherTokenPrice = getPrice(lastPrice, _otherToken); 
-        uint256 redemptionAmount = getRedemptionAmount(_otherToken, USDG_PRECISION, vault, otherTokenPrice);
+        uint256 redemptionAmount = getRedemptionAmount(_otherToken, USDX_PRECISION, vault, otherTokenPrice);
         uint256 otherTokenDecimals = IVault(vault).tokenDecimals(_otherToken);
         return redemptionAmount.mul(otherTokenPrice).div(10**otherTokenDecimals);
     }
 
-    function getRedemptionAmount(address _token, uint256 _usdgAmount, address vault, uint256 price) private view returns (uint256) {
-        uint256 redemptionAmount = _usdgAmount.mul(PRICE_PRECISION).div(price);
-        return IVault(vault).adjustForDecimals(redemptionAmount, IVault(vault).usdg(), _token);
+    function getRedemptionAmount(address _token, uint256 _usdxAmount, address vault, uint256 price) private view returns (uint256) {
+        uint256 redemptionAmount = _usdxAmount.mul(PRICE_PRECISION).div(price);
+        return IVault(vault).adjustForDecimals(redemptionAmount, IVault(vault).usdx(), _token);
     }
 
     function getPrice(LastPrice[] memory lastPrice, address token) private pure returns(uint256) {

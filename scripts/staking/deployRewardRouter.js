@@ -18,13 +18,13 @@ async function main() {
   const bonusGmxTracker = await contractAt("RewardTracker", "0x4d268a7d4C16ceB5a606c173Bd974984343fea13")
   const feeGmxTracker = await contractAt("RewardTracker", "0xd2D1162512F927a7e282Ef43a362659E4F2a728F")
 
-  const feeGlpTracker = await contractAt("RewardTracker", "0x4e971a87900b931fF39d1Aad67697F49835400b6")
-  const stakedGlpTracker = await contractAt("RewardTracker", "0x1aDDD80E6039594eE970E5872D247bf0414C8903")
+  const feeXlpTracker = await contractAt("RewardTracker", "0x4e971a87900b931fF39d1Aad67697F49835400b6")
+  const stakedXlpTracker = await contractAt("RewardTracker", "0x1aDDD80E6039594eE970E5872D247bf0414C8903")
 
-  const glp = await contractAt("GLP", "0x4277f8F2c384827B5273592FF7CeBd9f2C1ac258")
-  const glpManager = await contractAt("GlpManager", "0x321F653eED006AD1C29D174e17d96351BDe22649")
+  const xlp = await contractAt("XLP", "0x4277f8F2c384827B5273592FF7CeBd9f2C1ac258")
+  const xlpManager = await contractAt("XlpManager", "0x321F653eED006AD1C29D174e17d96351BDe22649")
 
-  console.log("glpManager", glpManager.address)
+  console.log("xlpManager", xlpManager.address)
 
   const rewardRouter = await deployContract("RewardRouter", [])
 
@@ -33,13 +33,13 @@ async function main() {
     gmx.address,
     esGmx.address,
     bnGmx.address,
-    glp.address,
+    xlp.address,
     stakedGmxTracker.address,
     bonusGmxTracker.address,
     feeGmxTracker.address,
-    feeGlpTracker.address,
-    stakedGlpTracker.address,
-    glpManager.address
+    feeXlpTracker.address,
+    stakedXlpTracker.address,
+    xlpManager.address
   ), "rewardRouter.initialize")
 
   // allow rewardRouter to stake in stakedGmxTracker
@@ -51,12 +51,12 @@ async function main() {
   // allow rewardRouter to burn bnGmx
   await sendTxn(bnGmx.setMinter(rewardRouter.address, true), "bnGmx.setMinter(rewardRouter)")
 
-  // allow rewardRouter to mint in glpManager
-  await sendTxn(glpManager.setHandler(rewardRouter.address, true), "glpManager.setHandler(rewardRouter)")
-  // allow rewardRouter to stake in feeGlpTracker
-  await sendTxn(feeGlpTracker.setHandler(rewardRouter.address, true), "feeGlpTracker.setHandler(rewardRouter)")
-  // allow rewardRouter to stake in stakedGlpTracker
-  await sendTxn(stakedGlpTracker.setHandler(rewardRouter.address, true), "stakedGlpTracker.setHandler(rewardRouter)")
+  // allow rewardRouter to mint in xlpManager
+  await sendTxn(xlpManager.setHandler(rewardRouter.address, true), "xlpManager.setHandler(rewardRouter)")
+  // allow rewardRouter to stake in feeXlpTracker
+  await sendTxn(feeXlpTracker.setHandler(rewardRouter.address, true), "feeXlpTracker.setHandler(rewardRouter)")
+  // allow rewardRouter to stake in stakedXlpTracker
+  await sendTxn(stakedXlpTracker.setHandler(rewardRouter.address, true), "stakedXlpTracker.setHandler(rewardRouter)")
 }
 
 main()

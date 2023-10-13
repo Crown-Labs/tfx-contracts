@@ -13,7 +13,7 @@ import "../core/interfaces/IRouter.sol";
 import "../tokens/interfaces/IYieldToken.sol";
 import "../tokens/interfaces/IBaseToken.sol";
 import "../tokens/interfaces/IMintable.sol";
-import "../tokens/interfaces/IUSDG.sol";
+import "../tokens/interfaces/IUSDX.sol";
 import "../staking/interfaces/IVester.sol";
 
 import "../libraries/math/SafeMath.sol";
@@ -49,14 +49,14 @@ contract GmxTimelock is IGmxTimelock {
     event SignalSetGov(address target, address gov, bytes32 action);
     event SignalSetPriceFeed(address vault, address priceFeed, bytes32 action);
     event SignalAddPlugin(address router, address plugin, bytes32 action);
-    event SignalRedeemUsdg(address vault, address token, uint256 amount);
+    event SignalRedeemUsdx(address vault, address token, uint256 amount);
     event SignalVaultSetTokenConfig(
         address vault,
         address token,
         uint256 tokenDecimals,
         uint256 tokenWeight,
         uint256 minProfitBps,
-        uint256 maxUsdgAmount,
+        uint256 maxUsdxAmount,
         bool isStable,
         bool isShortable
     );
@@ -177,9 +177,9 @@ contract GmxTimelock is IGmxTimelock {
         address _token,
         uint256 _tokenWeight,
         uint256 _minProfitBps,
-        uint256 _maxUsdgAmount,
+        uint256 _maxUsdxAmount,
         uint256 _bufferAmount,
-        uint256 _usdgAmount
+        uint256 _usdxAmount
     ) external onlyAdmin {
         require(_minProfitBps <= 500, "GmxTimelock: invalid _minProfitBps");
 
@@ -195,14 +195,14 @@ contract GmxTimelock is IGmxTimelock {
             tokenDecimals,
             _tokenWeight,
             _minProfitBps,
-            _maxUsdgAmount,
+            _maxUsdxAmount,
             isStable,
             isShortable
         );
 
         IVault(_vault).setBufferAmount(_token, _bufferAmount);
 
-        IVault(_vault).setUsdgAmount(_token, _usdgAmount);
+        IVault(_vault).setUsdxAmount(_token, _usdxAmount);
     }
 
     function setMaxGlobalShortSize(address _vault, address _token, uint256 _amount) external onlyAdmin {
@@ -375,28 +375,28 @@ contract GmxTimelock is IGmxTimelock {
         IRouter(_router).addPlugin(_plugin);
     }
 
-    function signalRedeemUsdg(address _vault, address _token, uint256 _amount) external onlyAdmin {
-        bytes32 action = keccak256(abi.encodePacked("redeemUsdg", _vault, _token, _amount));
+    function signalRedeemUsdx(address _vault, address _token, uint256 _amount) external onlyAdmin {
+        bytes32 action = keccak256(abi.encodePacked("redeemUsdx", _vault, _token, _amount));
         _setPendingAction(action);
-        emit SignalRedeemUsdg(_vault, _token, _amount);
+        emit SignalRedeemUsdx(_vault, _token, _amount);
     }
 
-    function redeemUsdg(address _vault, address _token, uint256 _amount) external onlyAdmin {
-        bytes32 action = keccak256(abi.encodePacked("redeemUsdg", _vault, _token, _amount));
+    function redeemUsdx(address _vault, address _token, uint256 _amount) external onlyAdmin {
+        bytes32 action = keccak256(abi.encodePacked("redeemUsdx", _vault, _token, _amount));
         _validateAction(action);
         _clearAction(action);
 
-        address usdg = IVault(_vault).usdg();
+        address usdx = IVault(_vault).usdx();
         IVault(_vault).setManager(address(this), true);
-        IUSDG(usdg).addVault(address(this));
+        IUSDX(usdx).addVault(address(this));
 
-        IUSDG(usdg).mint(address(this), _amount);
-        IERC20(usdg).transfer(address(_vault), _amount);
+        IUSDX(usdx).mint(address(this), _amount);
+        IERC20(usdx).transfer(address(_vault), _amount);
 
-        IVault(_vault).sellUSDG(_token, mintReceiver);
+        IVault(_vault).sellUSDX(_token, mintReceiver);
 
         IVault(_vault).setManager(address(this), false);
-        IUSDG(usdg).removeVault(address(this));
+        IUSDX(usdx).removeVault(address(this));
     }
 
     function signalVaultSetTokenConfig(
@@ -405,7 +405,7 @@ contract GmxTimelock is IGmxTimelock {
         uint256 _tokenDecimals,
         uint256 _tokenWeight,
         uint256 _minProfitBps,
-        uint256 _maxUsdgAmount,
+        uint256 _maxUsdxAmount,
         bool _isStable,
         bool _isShortable
     ) external onlyAdmin {
@@ -416,7 +416,7 @@ contract GmxTimelock is IGmxTimelock {
             _tokenDecimals,
             _tokenWeight,
             _minProfitBps,
-            _maxUsdgAmount,
+            _maxUsdxAmount,
             _isStable,
             _isShortable
         ));
@@ -429,7 +429,7 @@ contract GmxTimelock is IGmxTimelock {
             _tokenDecimals,
             _tokenWeight,
             _minProfitBps,
-            _maxUsdgAmount,
+            _maxUsdxAmount,
             _isStable,
             _isShortable
         );
@@ -441,7 +441,7 @@ contract GmxTimelock is IGmxTimelock {
         uint256 _tokenDecimals,
         uint256 _tokenWeight,
         uint256 _minProfitBps,
-        uint256 _maxUsdgAmount,
+        uint256 _maxUsdxAmount,
         bool _isStable,
         bool _isShortable
     ) external onlyAdmin {
@@ -452,7 +452,7 @@ contract GmxTimelock is IGmxTimelock {
             _tokenDecimals,
             _tokenWeight,
             _minProfitBps,
-            _maxUsdgAmount,
+            _maxUsdxAmount,
             _isStable,
             _isShortable
         ));
@@ -465,7 +465,7 @@ contract GmxTimelock is IGmxTimelock {
             _tokenDecimals,
             _tokenWeight,
             _minProfitBps,
-            _maxUsdgAmount,
+            _maxUsdxAmount,
             _isStable,
             _isShortable
         );

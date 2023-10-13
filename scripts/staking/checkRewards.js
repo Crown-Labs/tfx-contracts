@@ -33,17 +33,17 @@ async function main() {
   const feeGmxTracker = await contractAt("RewardTracker", "0xd2D1162512F927a7e282Ef43a362659E4F2a728F")
   const feeGmxDistributor = await getDistributor(feeGmxTracker)
 
-  const stakedGlpTracker = await contractAt("RewardTracker", "0x1aDDD80E6039594eE970E5872D247bf0414C8903")
-  const stakedGlpDistributor = await getDistributor(stakedGlpTracker)
+  const stakedXlpTracker = await contractAt("RewardTracker", "0x1aDDD80E6039594eE970E5872D247bf0414C8903")
+  const stakedXlpDistributor = await getDistributor(stakedXlpTracker)
 
-  const feeGlpTracker = await contractAt("RewardTracker", "0x4e971a87900b931fF39d1Aad67697F49835400b6")
-  const feeGlpDistributor = await getDistributor(feeGlpTracker)
+  const feeXlpTracker = await contractAt("RewardTracker", "0x4e971a87900b931fF39d1Aad67697F49835400b6")
+  const feeXlpDistributor = await getDistributor(feeXlpTracker)
 
   await printDistributorBalance(esGmx, stakedGmxDistributor, "esGmx in stakedGmxDistributor:")
   await printDistributorBalance(bnGmx, bonusGmxDistributor, "bnGmx in bonusGmxDistributor:")
   await printDistributorBalance(weth, feeGmxDistributor, "weth in feeGmxDistributor:")
-  await printDistributorBalance(esGmx, stakedGlpDistributor, "esGmx in stakedGlpDistributor:")
-  await printDistributorBalance(weth, feeGlpDistributor, "esGmx in feeGlpDistributor:")
+  await printDistributorBalance(esGmx, stakedXlpDistributor, "esGmx in stakedXlpDistributor:")
+  await printDistributorBalance(weth, feeXlpDistributor, "esGmx in feeXlpDistributor:")
 }
 
 main()

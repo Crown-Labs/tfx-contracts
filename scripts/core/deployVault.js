@@ -16,9 +16,9 @@ async function main() {
   const vaultPositionController = await deployContract("VaultPositionController", [], "", signer)
   await vaultPositionController.initialize(vault.address)
 
-  const usdg = await deployContract("USDG", [vault.address], "", signer)
-  // const usdg = await contractAt("USDG", "0x45096e7aA921f27590f8F19e457794EB09678141")
-  const router = await deployContract("Router", [vault.address, vaultPositionController.address, usdg.address, nativeToken.address], "", signer)
+  const usdx = await deployContract("USDX", [vault.address], "", signer)
+  // const usdx = await contractAt("USDX", "0x45096e7aA921f27590f8F19e457794EB09678141")
+  const router = await deployContract("Router", [vault.address, vaultPositionController.address, usdx.address, nativeToken.address], "", signer)
   // const router = await contractAt("Router", "0xaBBc5F99639c9B6bCb58544ddf04EFA6802F4064")
   // const vaultPriceFeed = await contractAt("VaultPriceFeed", "0x30333ce00ac3025276927672aaefd80f22e89e54")
   // const secondaryPriceFeed = await deployContract("FastPriceFeed", [5 * 60])
@@ -29,19 +29,19 @@ async function main() {
   await sendTxn(vaultPriceFeed.setPriceSampleSpace(1), "vaultPriceFeed.setPriceSampleSpace")
   await sendTxn(vaultPriceFeed.setIsAmmEnabled(false), "vaultPriceFeed.setIsAmmEnabled")
 
-  const glp = await deployContract("GLP", [], "", signer)
-  await sendTxn(glp.setInPrivateTransferMode(true), "glp.setInPrivateTransferMode")
-  // const glp = await contractAt("GLP", "0x4277f8F2c384827B5273592FF7CeBd9f2C1ac258")
-  const glpManager = await deployContract("GlpManager", [vault.address, usdg.address, glp.address, 15 * 60], "", signer)
-  await sendTxn(glpManager.setInPrivateMode(true), "glpManager.setInPrivateMode")
+  const xlp = await deployContract("XLP", [], "", signer)
+  await sendTxn(xlp.setInPrivateTransferMode(true), "xlp.setInPrivateTransferMode")
+  // const xlp = await contractAt("XLP", "0x4277f8F2c384827B5273592FF7CeBd9f2C1ac258")
+  const xlpManager = await deployContract("XlpManager", [vault.address, usdx.address, xlp.address, 15 * 60], "", signer)
+  await sendTxn(xlpManager.setInPrivateMode(true), "xlpManager.setInPrivateMode")
 
-  await sendTxn(glp.setMinter(glpManager.address, true), "glp.setMinter")
-  await sendTxn(usdg.addVault(glpManager.address), "usdg.addVault(glpManager)")
+  await sendTxn(xlp.setMinter(xlpManager.address, true), "xlp.setMinter")
+  await sendTxn(usdx.addVault(xlpManager.address), "usdx.addVault(xlpManager)")
 
   await sendTxn(vault.initialize(
     vaultPositionController.address, // vaultPositionController
     router.address, // router
-    usdg.address, // usdg
+    usdx.address, // usdx
     vaultPriceFeed.address, // priceFeed
     toUsd(2), // liquidationFeeUsd
     100, // fundingRateFactor
@@ -51,7 +51,7 @@ async function main() {
   await sendTxn(vault.setFundingRate(60 * 60, 100, 100), "vault.setFundingRate")
 
   await sendTxn(vault.setInManagerMode(true), "vault.setInManagerMode")
-  await sendTxn(vault.setManager(glpManager.address, true), "vault.setManager")
+  await sendTxn(vault.setManager(xlpManager.address, true), "vault.setManager")
 
   await sendTxn(vault.setFees(
     10, // _taxBasisPoints

@@ -13,7 +13,7 @@ interface IVault {
     function setError(uint256 _errorCode, string calldata _error) external;
 
     function router() external view returns (address);
-    function usdg() external view returns (address);
+    function usdx() external view returns (address);
     function gov() external view returns (address);
     function vaultPositionController() external view returns (address);
 
@@ -24,7 +24,7 @@ interface IVault {
     function hasDynamicFees() external view returns (bool);
     function fundingInterval() external view returns (uint256);
     function totalTokenWeights() external view returns (uint256);
-    function getTargetUsdgAmount(address _token) external view returns (uint256);
+    function getTargetUsdxAmount(address _token) external view returns (uint256);
 
     function inManagerMode() external view returns (bool);
     function inPrivateLiquidationMode() external view returns (bool);
@@ -45,7 +45,7 @@ interface IVault {
     function setIsSwapEnabled(bool _isSwapEnabled) external;
     function setIsLeverageEnabled(bool _isLeverageEnabled) external;
     function setMaxGasPrice(uint256 _maxGasPrice) external;
-    function setUsdgAmount(address _token, uint256 _amount) external;
+    function setUsdxAmount(address _token, uint256 _amount) external;
     function setBufferAmount(address _token, uint256 _amount) external;
     function setMaxGlobalShortSize(address _token, uint256 _amount) external;
     function setInPrivateLiquidationMode(bool _inPrivateLiquidationMode) external;
@@ -70,7 +70,7 @@ interface IVault {
         uint256 _tokenDecimals,
         uint256 _redemptionBps,
         uint256 _minProfitBps,
-        uint256 _maxUsdgAmount,
+        uint256 _maxUsdxAmount,
         bool _isStable,
         bool _isShortable
     ) external;
@@ -79,8 +79,8 @@ interface IVault {
     function withdrawFees(address _token, address _receiver) external returns (uint256);
 
     function directPoolDeposit(address _token) external;
-    function buyUSDG(address _token, address _receiver) external returns (uint256);
-    function sellUSDG(address _token, address _receiver) external returns (uint256);
+    function buyUSDX(address _token, address _receiver) external returns (uint256);
+    function sellUSDX(address _token, address _receiver) external returns (uint256);
     function swap(address _tokenIn, address _tokenOut, address _receiver) external returns (uint256);
     // function increasePosition(address _account, address _collateralToken, address _indexToken, uint256 _sizeDelta, bool _isLong) external;
     // function decreasePosition(address _account, address _collateralToken, address _indexToken, uint256 _collateralDelta, uint256 _sizeDelta, bool _isLong, address _receiver) external returns (uint256);
@@ -98,8 +98,8 @@ interface IVault {
     function getEntryFundingRate(address _collateralToken, address _indexToken, bool _isLong) external view returns (uint256);
     function getFundingFee(address _account, address _collateralToken, address _indexToken, bool _isLong, uint256 _size, uint256 _entryFundingRate) external view returns (uint256);
     function getPositionFee(address _account, address _collateralToken, address _indexToken, bool _isLong, uint256 _sizeDelta) external view returns (uint256);
-    function getSwapFeeBasisPoints(address _tokenIn, address _tokenOut, uint256 _usdgAmount) external view returns (uint256);
-    function getFeeBasisPoints(address _token, uint256 _usdgDelta, uint256 _feeBasisPoints, uint256 _taxBasisPoints, bool _increment) external view returns (uint256);
+    function getSwapFeeBasisPoints(address _tokenIn, address _tokenOut, uint256 _usdxAmount) external view returns (uint256);
+    function getFeeBasisPoints(address _token, uint256 _usdxDelta, uint256 _feeBasisPoints, uint256 _taxBasisPoints, bool _increment) external view returns (uint256);
 
     function liquidationFeeUsd() external view returns (uint256);
     function taxBasisPoints() external view returns (uint256);
@@ -125,9 +125,9 @@ interface IVault {
     function poolAmounts(address _token) external view returns (uint256);
     function bufferAmounts(address _token) external view returns (uint256);
     function reservedAmounts(address _token) external view returns (uint256);
-    function usdgAmounts(address _token) external view returns (uint256);
-    function maxUsdgAmounts(address _token) external view returns (uint256);
-    function getRedemptionAmount(address _token, uint256 _usdgAmount, bool _validatePrice) external view returns (uint256);
+    function usdxAmounts(address _token) external view returns (uint256);
+    function maxUsdxAmounts(address _token) external view returns (uint256);
+    function getRedemptionAmount(address _token, uint256 _usdxAmount, bool _validatePrice) external view returns (uint256);
     function getMaxPrice(address _token, bool _validate) external view returns (uint256);
     function getMinPrice(address _token, bool _validate) external view returns (uint256);
 
@@ -148,8 +148,8 @@ interface IVault {
 
     function increasePoolAmount(address _token, uint256 _amount) external;
     function decreasePoolAmount(address _token, uint256 _amount) external;
-    function increaseUsdgAmount(address _token, uint256 _amount) external;
-    function decreaseUsdgAmount(address _token, uint256 _amount) external;
+    function increaseUsdxAmount(address _token, uint256 _amount) external;
+    function decreaseUsdxAmount(address _token, uint256 _amount) external;
     function increaseReservedAmount(address _token, uint256 _amount) external;
     function decreaseReservedAmount(address _token, uint256 _amount) external;
     function increaseGuaranteedUsd(address _token, uint256 _usdAmount) external;

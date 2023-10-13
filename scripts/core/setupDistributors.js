@@ -2,13 +2,13 @@ const { deployContract, contractAt, sendTxn } = require("../shared/helpers")
 const { expandDecimals } = require("../../test/shared/utilities")
 
 async function main() {
-  const usdg = await contractAt("YieldToken", "0x85E76cbf4893c1fbcB34dCF1239A91CE2A4CF5a7")
+  const usdx = await contractAt("YieldToken", "0x85E76cbf4893c1fbcB34dCF1239A91CE2A4CF5a7")
   const tokenDecimals = 18
   const wbnb = await contractAt("YieldToken", "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c")
 
   const farms = [
     {
-      farm: usdg,
+      farm: usdx,
       yieldTrackerIndex: 0,
       transferAmount: "35.0",
       shouldClaim: true

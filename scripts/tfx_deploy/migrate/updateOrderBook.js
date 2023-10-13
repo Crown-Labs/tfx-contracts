@@ -13,7 +13,7 @@ async function main() {
   const depositFee = 30 // 0.3%
   const orderKeeper = { address: getContractAddress("keeper") }
   const liquidator = { address: getContractAddress("liquidator") }
-  const usdg = { address: getContractAddress("usdg") }
+  const usdx = { address: getContractAddress("usdx") }
   const prevOrderBook = await contractAt("OrderBook", getContractAddress("orderBook"))
   const prevPositionManager = await contractAt("PositionManager", getContractAddress("positionManager"))
   const fulfillController = await contractAt("FulfillController", getContractAddress("fulfillController"), signer)
@@ -50,7 +50,7 @@ async function main() {
     vaultPositionController.address,
     orderBookOpenOrder.address,
     tokens.nativeToken.address, // weth
-    usdg.address, // usdg
+    usdx.address, // usdx
     "300000000000000", // 0.0003 BNB
     expandDecimals(10, 30) // min purchase token amount usd
   ), "orderBook.initialize");

@@ -4,8 +4,8 @@ const { expandDecimals } = require("../../test/shared/utilities")
 async function main() {
   // const signer = await getFrameSigner()
 
-  // const glpManager = await contractAt("GlpManager", "0x14fB4767dc9E10F96faaF37Ad24DE3E498cC344B")
-  // await sendTxn(glpManager.setCooldownDuration(10 * 60), "glpManager.setCooldownDuration")
+  // const xlpManager = await contractAt("XlpManager", "0x14fB4767dc9E10F96faaF37Ad24DE3E498cC344B")
+  // await sendTxn(xlpManager.setCooldownDuration(10 * 60), "xlpManager.setCooldownDuration")
   // const gmx = await contractAt("GMX", "0xfc5A1A6EB076a2C7aD06eD22C90d7E710E35ad0a", signer)
   // const esGmx = await contractAt("EsGMX", "0xf42Ae1D54fd613C9bb14810b0588FaAa09a426cA")
 

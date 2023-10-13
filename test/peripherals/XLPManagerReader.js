@@ -9,17 +9,17 @@ const { initVault, getBnbConfig, getEthConfig, getBtcConfig, getDaiConfig, token
 
 use(solidity)
 
-describe("GLPManagerReader", function () {
+describe("XLPManagerReader", function () {
   const provider = waffle.provider
   const [wallet, user0, user1, user2, user3] = provider.getWallets()
   let vault
-  let usdg
+  let usdx
   let router
   let btc
   let eth
   let bnb
   let busd
-  let glpManagerReader
+  let xlpManagerReader
   let xOracle
   let fulfillController
 
@@ -31,15 +31,15 @@ describe("GLPManagerReader", function () {
 
     vault = await deployContract("Vault", [])
     vaultPositionController = await deployContract("VaultPositionController", [])
-    usdg = await deployContract("USDG", [vault.address])
-    router = await deployContract("Router", [vault.address, vaultPositionController.address, usdg.address, bnb.address])
+    usdx = await deployContract("USDX", [vault.address])
+    router = await deployContract("Router", [vault.address, vaultPositionController.address, usdx.address, bnb.address])
     vaultPriceFeed = await deployContract("VaultPriceFeed", [])
-    glp = await deployContract("GLP", [])
+    xlp = await deployContract("XLP", [])
 
-    await initVault(vault, vaultPositionController, router, usdg, vaultPriceFeed)
-    glpManager = await deployContract("GlpManager", [vault.address, usdg.address, glp.address, 24 * 60 * 60])
+    await initVault(vault, vaultPositionController, router, usdx, vaultPriceFeed)
+    xlpManager = await deployContract("XlpManager", [vault.address, usdx.address, xlp.address, 24 * 60 * 60])
 
-    await usdg.addVault(glpManager.address)
+    await usdx.addVault(xlpManager.address)
 
     // deploy xOracle
     xOracle = await deployXOracle(bnb);
@@ -59,12 +59,12 @@ describe("GLPManagerReader", function () {
 
     // set fulfillController
     await fulfillController.setController(wallet.address, true)
-    await fulfillController.setHandler(glpManager.address, true)
+    await fulfillController.setHandler(xlpManager.address, true)
 
-    // set glpManager
-    await glpManager.setFulfillController(fulfillController.address);
+    // set xlpManager
+    await xlpManager.setFulfillController(fulfillController.address);
 
-    glpManagerReader = await deployContract("GLPManagerReader", [])
+    xlpManagerReader = await deployContract("XLPManagerReader", [])
 
     // set vault
     await vault.setTokenConfig(...getDaiConfig(busd))
@@ -80,18 +80,18 @@ describe("GLPManagerReader", function () {
       { tokenIndex: tokenIndexs.BUSD, price: toXOraclePrice(1), lastUpdate: 0 }
     ], 0)
 
-    await glp.setInPrivateTransferMode(true)
-    await glp.setMinter(glpManager.address, true)
+    await xlp.setInPrivateTransferMode(true)
+    await xlp.setMinter(xlpManager.address, true)
 
-    await vault.setManager(glpManager.address, true)
+    await vault.setManager(xlpManager.address, true)
     await vault.setInManagerMode(true)
   })
 
   it("getAum", async () => {
     await btc.mint(user2.address, "100000000") // 1 BTC
-    await btc.connect(user2).approve(glpManager.address,"100000000")
+    await btc.connect(user2).approve(xlpManager.address,"100000000")
 
-    await glpManager.connect(user2).addLiquidity(
+    await xlpManager.connect(user2).addLiquidity(
         btc.address,
         "100000000",
         0,
@@ -107,14 +107,14 @@ describe("GLPManagerReader", function () {
         { tokenIndex: tokenIndexs.BUSD, price: toXOraclePrice(1), lastUpdate: 0 }
     ], 0)
 
-    const result1 = await glpManager.getAum(true, false)
+    const result1 = await xlpManager.getAum(true, false)
 
-    console.log(`glpManager.getAum: ${result1}`)
+    console.log(`xlpManager.getAum: ${result1}`)
     expect(result1).eq("59820000000000000000000000000000000") // 59,820 = (1 BTC * 60,000) - fee
 
-    // function getAum(address glpManager, address vault, LastPrice[] memory lastPrice) external view returns (uint256)
-    const result2 = await glpManagerReader.getAum(
-        glpManager.address, 
+    // function getAum(address xlpManager, address vault, LastPrice[] memory lastPrice) external view returns (uint256)
+    const result2 = await xlpManagerReader.getAum(
+        xlpManager.address, 
         vault.address, 
         [
             [ btc.address, "60000000000000000000000000000000000" ],
@@ -123,7 +123,7 @@ describe("GLPManagerReader", function () {
             [ busd.address, "1000000000000000000000000000000" ]
         ]
     );
-    console.log(`glpManagerReader.getAum: ${result2}`)
+    console.log(`xlpManagerReader.getAum: ${result2}`)
     expect(result2).eq(result1) 
   })
 })

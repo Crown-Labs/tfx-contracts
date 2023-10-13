@@ -61,16 +61,16 @@ async function main() {
       isRewardNativeToken: true,
     },
     {
-      name: "FeeGlpDistributor",
-      address: getContractAddress("feeGlpDistributor"),
+      name: "FeeXlpDistributor",
+      address: getContractAddress("feeXlpDistributor"),
       transferAmount: "0.1", // 0.1
       rewardCName: "MintableBaseToken",  // WBNB
       isRewardsPerInterval: true,
       isRewardNativeToken: true,
     },
     {
-      name: "StakedGlpDistributor",
-      address: getContractAddress("stakedGlpDistributor"),
+      name: "StakedXlpDistributor",
+      address: getContractAddress("stakedXlpDistributor"),
       transferAmount: "10", // 1000
       rewardCName: "MintableBaseToken",  // EsGMX
       isRewardsPerInterval: true,
@@ -213,7 +213,7 @@ main()
 //       transferAmount: "197",
 //     },
 //     {
-//       name: "feeGlpTracker",
+//       name: "feeXlpTracker",
 //       address: "0x4e971a87900b931fF39d1Aad67697F49835400b6",
 //       transferAmount: "173",
 //     },
@@ -237,7 +237,7 @@ main()
 //       transferAmount: "197",
 //     },
 //     {
-//       name: "feeGlpTracker",
+//       name: "feeXlpTracker",
 //       address: "0x4e971a87900b931fF39d1Aad67697F49835400b6",
 //       transferAmount: "173",
 //     },
@@ -261,7 +261,7 @@ main()
 //       transferAmount: "962",
 //     },
 //     {
-//       name: "feeGlpTracker",
+//       name: "feeXlpTracker",
 //       address: "0xd2D1162512F927a7e282Ef43a362659E4F2a728F",
 //       transferAmount: "23130",
 //     },

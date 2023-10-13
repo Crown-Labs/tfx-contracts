@@ -13,7 +13,7 @@ import "../core/interfaces/IVault.sol";
 contract MigrationHandler is ReentrancyGuard {
     using SafeMath for uint256;
 
-    uint256 public constant USDG_PRECISION = 10 ** 18;
+    uint256 public constant USDX_PRECISION = 10 ** 18;
 
     bool public isInitialized;
 
@@ -25,7 +25,7 @@ contract MigrationHandler is ReentrancyGuard {
 
     address public gmt;
     address public xgmt;
-    address public usdg;
+    address public usdx;
     address public bnb;
     address public busd;
 
@@ -46,7 +46,7 @@ contract MigrationHandler is ReentrancyGuard {
         address _vault,
         address _gmt,
         address _xgmt,
-        address _usdg,
+        address _usdx,
         address _bnb,
         address _busd
     ) public onlyAdmin {
@@ -60,18 +60,18 @@ contract MigrationHandler is ReentrancyGuard {
 
         gmt = _gmt;
         xgmt = _xgmt;
-        usdg = _usdg;
+        usdx = _usdx;
         bnb = _bnb;
         busd = _busd;
     }
 
-    function redeemUsdg(
+    function redeemUsdx(
         address _migrator,
         address _redemptionToken,
-        uint256 _usdgAmount
+        uint256 _usdxAmount
     ) external onlyAdmin nonReentrant {
-        IERC20(usdg).transferFrom(_migrator, vault, _usdgAmount);
-        uint256 amount = IVault(vault).sellUSDG(_redemptionToken, address(this));
+        IERC20(usdx).transferFrom(_migrator, vault, _usdxAmount);
+        uint256 amount = IVault(vault).sellUSDX(_redemptionToken, address(this));
 
         address[] memory path = new address[](2);
         path[0] = bnb;
@@ -96,18 +96,18 @@ contract MigrationHandler is ReentrancyGuard {
 
     function swap(
         address _migrator,
-        uint256 _gmtAmountForUsdg,
-        uint256 _xgmtAmountForUsdg,
+        uint256 _gmtAmountForUsdx,
+        uint256 _xgmtAmountForUsdx,
         uint256 _gmtAmountForBusd
     ) external onlyAdmin nonReentrant {
         address[] memory path = new address[](2);
 
         path[0] = gmt;
-        path[1] = usdg;
-        IERC20(gmt).transferFrom(_migrator, address(this), _gmtAmountForUsdg);
-        IERC20(gmt).approve(ammRouterV2, _gmtAmountForUsdg);
+        path[1] = usdx;
+        IERC20(gmt).transferFrom(_migrator, address(this), _gmtAmountForUsdx);
+        IERC20(gmt).approve(ammRouterV2, _gmtAmountForUsdx);
         IAmmRouter(ammRouterV2).swapExactTokensForTokens(
-            _gmtAmountForUsdg,
+            _gmtAmountForUsdx,
             0,
             path,
             _migrator,
@@ -115,11 +115,11 @@ contract MigrationHandler is ReentrancyGuard {
         );
 
         path[0] = xgmt;
-        path[1] = usdg;
-        IERC20(xgmt).transferFrom(_migrator, address(this), _xgmtAmountForUsdg);
-        IERC20(xgmt).approve(ammRouterV2, _xgmtAmountForUsdg);
+        path[1] = usdx;
+        IERC20(xgmt).transferFrom(_migrator, address(this), _xgmtAmountForUsdx);
+        IERC20(xgmt).approve(ammRouterV2, _xgmtAmountForUsdx);
         IAmmRouter(ammRouterV2).swapExactTokensForTokens(
-            _xgmtAmountForUsdg,
+            _xgmtAmountForUsdx,
             0,
             path,
             _migrator,
@@ -143,17 +143,17 @@ contract MigrationHandler is ReentrancyGuard {
         address _migrator,
         address _account,
         address _token,
-        uint256 _usdgAmount
+        uint256 _usdxAmount
     ) external onlyAdmin nonReentrant {
         address iouToken = IGmxMigrator(_migrator).iouTokens(_token);
         uint256 iouBalance = IERC20(iouToken).balanceOf(_account);
-        uint256 iouTokenAmount = _usdgAmount.div(2); // each GMX is priced at $2
+        uint256 iouTokenAmount = _usdxAmount.div(2); // each GMX is priced at $2
 
         uint256 refunded = refundedAmounts[_account][iouToken];
         refundedAmounts[_account][iouToken] = refunded.add(iouTokenAmount);
 
         require(refundedAmounts[_account][iouToken] <= iouBalance, "MigrationHandler: refundable amount exceeded");
 
-        IERC20(usdg).transferFrom(_migrator, _account, _usdgAmount);
+        IERC20(usdx).transferFrom(_migrator, _account, _usdxAmount);
     }
 }

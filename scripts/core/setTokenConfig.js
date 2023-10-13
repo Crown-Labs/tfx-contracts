@@ -51,18 +51,18 @@ async function main() {
 
   const shouldSendTxn = true
 
-  let totalUsdgAmount = bigNumberify(0)
+  let totalUsdxAmount = bigNumberify(0)
 
   for (const [i, tokenItem] of tokenArr.entries()) {
     const token = {}
     token.poolAmount = vaultTokenInfo[i * vaultPropsLength]
     token.reservedAmount = vaultTokenInfo[i * vaultPropsLength + 1]
     token.availableAmount = token.poolAmount.sub(token.reservedAmount)
-    token.usdgAmount = vaultTokenInfo[i * vaultPropsLength + 2]
+    token.usdxAmount = vaultTokenInfo[i * vaultPropsLength + 2]
     token.redemptionAmount = vaultTokenInfo[i * vaultPropsLength + 3]
     token.weight = vaultTokenInfo[i * vaultPropsLength + 4]
     token.bufferAmount = vaultTokenInfo[i * vaultPropsLength + 5]
-    token.maxUsdgAmount = vaultTokenInfo[i * vaultPropsLength + 6]
+    token.maxUsdxAmount = vaultTokenInfo[i * vaultPropsLength + 6]
     token.globalShortSize = vaultTokenInfo[i * vaultPropsLength + 7]
     token.maxGlobalShortSize = vaultTokenInfo[i * vaultPropsLength + 8]
     token.minPrice = vaultTokenInfo[i * vaultPropsLength + 9]
@@ -82,8 +82,8 @@ async function main() {
       .mul(expandDecimals(1, tokenItem.decimals))
       .div(token.minPrice);
 
-    const usdgAmount = token.managedUsd.div(expandDecimals(1, 30 - 18))
-    totalUsdgAmount = totalUsdgAmount.add(usdgAmount)
+    const usdxAmount = token.managedUsd.div(expandDecimals(1, 30 - 18))
+    totalUsdxAmount = totalUsdxAmount.add(usdxAmount)
 
     if (shouldSendTxn) {
       await sendTxn(timelock.setTokenConfig(
@@ -91,14 +91,14 @@ async function main() {
         tokenItem.address, // _token
         tokenItem.tokenWeight, // _tokenWeight
         tokenItem.minProfitBps, // _minProfitBps
-        expandDecimals(tokenItem.maxUsdgAmount, 18), // _maxUsdgAmount
+        expandDecimals(tokenItem.maxUsdxAmount, 18), // _maxUsdxAmount
         expandDecimals(tokenItem.bufferAmount, tokenItem.decimals), // _bufferAmount
-        usdgAmount
+        usdxAmount
       ), `vault.setTokenConfig(${tokenItem.name}) ${tokenItem.address}`)
     }
   }
 
-  console.log("totalUsdgAmount", totalUsdgAmount.toString())
+  console.log("totalUsdxAmount", totalUsdxAmount.toString())
 }
 
 main()

@@ -4,16 +4,16 @@ const network = (process.env.HARDHAT_NETWORK || 'mainnet');
 const tokens = require('../core/tokens')[network];
 
 async function main() {
-  const { btc, eth, bnb, busd, usdc, matic, op, arb, nativeToken } = tokens
-  const tokenArr = [btc, eth, bnb, busd, usdc, matic, op, arb]
+  const { btc, eth, bnb, usdt, usdc, matic, op, arb, nativeToken } = tokens
+  const tokenArr = [btc, eth, bnb, usdt, usdc, matic, op, arb]
 
   const signer = await getFrameSigner()
 
   const weth = await contractAt("Token", nativeToken.address, signer)
   const vault = await contractAt("Vault", getContractAddress("vault"), signer)
   const vaultPriceFeed = await contractAt("VaultPriceFeed", getContractAddress("vaultPriceFeed"), signer)
-  const glpManager = await contractAt("GlpManager", getContractAddress("glpManager"), signer)
-  const rewardRouterV2 = await contractAt("RewardRouterV2", getContractAddress("rewardRouterV2"), signer)
+  const xlpManager = await contractAt("XlpManager", getContractAddress("xlpManager"), signer)
+  const rewardRouterV3 = await contractAt("RewardRouterV3", getContractAddress("rewardRouterV3"), signer)
   const router = await contractAt("Router", getContractAddress("router"), signer)
   const positionManager = await contractAt("PositionManager", getContractAddress("positionManager"), signer)
   const positionRouter = await contractAt("PositionRouter", getContractAddress("positionRouter"), signer)
@@ -48,16 +48,16 @@ async function main() {
   }
 
   // setFulfillController
-  await sendTxn(glpManager.setFulfillController(fulfillController.address), `glpManager.setFulfillController`);
-  await sendTxn(rewardRouterV2.setFulfillController(fulfillController.address), `rewardRouterV2.setFulfillController`);
+  await sendTxn(xlpManager.setFulfillController(fulfillController.address), `xlpManager.setFulfillController`);
+  await sendTxn(rewardRouterV3.setFulfillController(fulfillController.address), `rewardRouterV3.setFulfillController`);
   await sendTxn(router.setFulfillController(fulfillController.address), `router.setFulfillController`);
   await sendTxn(positionManager.setFulfillController(fulfillController.address), `positionManager.setFulfillController`);
   await sendTxn(positionRouter.setFulfillController(fulfillController.address, getContractAddress("feeReceiver")), `positionRouter.setFulfillController`);
   await sendTxn(orderBook.setFulfillController(fulfillController.address), `orderBook.setFulfillController`);
 
   // setHandler
-  await sendTxn(fulfillController.setHandler(glpManager.address, true), `fulfillController.setHandler(${glpManager.address})`);
-  await sendTxn(fulfillController.setHandler(rewardRouterV2.address, true), `fulfillController.setHandler(${rewardRouterV2.address})`);
+  await sendTxn(fulfillController.setHandler(xlpManager.address, true), `fulfillController.setHandler(${xlpManager.address})`);
+  await sendTxn(fulfillController.setHandler(rewardRouterV3.address, true), `fulfillController.setHandler(${rewardRouterV3.address})`);
   await sendTxn(fulfillController.setHandler(router.address, true), `fulfillController.setHandler(${router.address})`);
   await sendTxn(fulfillController.setHandler(positionManager.address, true), `fulfillController.setHandler(${positionManager.address})`);
   await sendTxn(fulfillController.setHandler(positionRouter.address, true), `fulfillController.setHandler(${positionRouter.address})`);
@@ -87,7 +87,7 @@ async function main() {
         token.decimals, // _tokenDecimals
         token.tokenWeight, // _tokenWeight
         token.minProfitBps, // _minProfitBps
-        expandDecimals(token.maxUsdgAmount, 18), // _maxUsdgAmount
+        expandDecimals(token.maxUsdxAmount, 18), // _maxUsdxAmount
         token.isStable, // _isStable
         token.isShortable // _isShortable
       ), `vault.setTokenConfig(${token.name}) ${token.address}`)
