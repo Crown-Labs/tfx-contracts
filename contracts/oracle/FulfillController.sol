@@ -50,10 +50,11 @@ interface IHandler {
     function handlerAddLiquidity(address _account, address _receiver, address _token, uint256 _amount, uint256 _minUsdg, uint256 _minGlp) external returns (uint256);
     function handlerRemoveLiquidity(address _account, address _receiver, address _tokenOut, uint256 _glpAmount, uint256 _minOut) external returns (uint256);
 
-    // RewardRouterV2
+    // RewardRouterV3
     function fulfillMintAndStakeGlp(address _account, address _token, uint256 _amount, uint256 _minUsdg, uint256 _minGlp) external returns (uint256);
     function fulfillUnstakeAndRedeemGlp(address _account, address _tokenOut, uint256 _glpAmount, uint256 _minOut, address _receiver) external returns (uint256);
     function fulfillUnstakeAndRedeemGlpETH(address _account, uint256 _glpAmount, uint256 _minOut, address _receiver) external returns (uint256);
+    function fulfillCompound(address _account) external;
 }
 
 contract FulfillController is Ownable {
@@ -347,6 +348,11 @@ contract FulfillController is Ownable {
             (address _account, uint256 _glpAmount, uint256 _minOut, address _receiver) = abi.decode(_data[4:], (address, uint256, uint256, address));
             IHandler(_to).fulfillUnstakeAndRedeemGlpETH(_account, _glpAmount, _minOut, _receiver);
         } 
+        // - fulfillCompound(address)
+        else if (sig == 0x3b3b57de) {
+            (address _account) = abi.decode(_data[4:], (address));
+            IHandler(_to).fulfillCompound(_account);
+        }
         else {
             // low-level call
             (bool success, ) = _to.call{value: 0}(_data);
