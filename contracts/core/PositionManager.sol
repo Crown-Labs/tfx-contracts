@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity ^0.8.18;
 
 import "./interfaces/IRouter.sol";
 import "./interfaces/IVault.sol";
@@ -16,6 +16,9 @@ interface IFulfillController {
 }
 
 contract PositionManager is BasePositionManager {
+    using SafeMath for uint256;
+    using SafeERC20 for IERC20;
+
     address public orderBook;
     bool public inLegacyMode;
     bool public shouldValidateIncreaseOrder = true;
@@ -59,7 +62,7 @@ contract PositionManager is BasePositionManager {
         address _weth,
         uint256 _depositFee,
         address _orderBook
-    ) public BasePositionManager(_vault, _vaultPositionController, _router, _weth, _depositFee) {
+    ) BasePositionManager(_vault, _vaultPositionController, _router, _weth, _depositFee) {
         orderBook = _orderBook;
     }
 

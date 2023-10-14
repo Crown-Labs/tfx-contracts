@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity ^0.8.18;
 
 import "../libraries/token/IERC20.sol";
 import "../libraries/math/SafeMath.sol";
@@ -59,16 +59,16 @@ contract FaucetToken is IERC20 {
      * construction.
      */
     constructor(
-        string memory name,
-        string memory symbol,
-        uint8 decimals,
-        uint256 dropletAmount
-    ) public {
-        _name = name;
-        _symbol = symbol;
-        _decimals = decimals;
+        string memory name_,
+        string memory symbol_,
+        uint8 decimals_,
+        uint256 dropletAmount_
+    ) {
+        _name = name_;
+        _symbol = symbol_;
+        _decimals = decimals_;
         _gov = msg.sender;
-        _dropletAmount = dropletAmount;
+        _dropletAmount = dropletAmount_;
     }
 
     function mint(address account, uint256 amount) public {
@@ -344,7 +344,7 @@ contract FaucetToken is IERC20 {
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { }
 
-    function _msgSender() internal view virtual returns (address payable) {
+    function _msgSender() internal view virtual returns (address) {
         return msg.sender;
     }
 }

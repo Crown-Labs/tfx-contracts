@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity ^0.8.18;
 
 import "../libraries/math/SafeMath.sol";
 import "../libraries/token/IERC20.sol";
@@ -48,7 +48,7 @@ contract RewardTracker is IERC20, ReentrancyGuard, IRewardTracker, Governable {
 
     event Claim(address receiver, uint256 amount);
 
-    constructor(string memory _name, string memory _symbol) public {
+    constructor(string memory _name, string memory _symbol) {
         name = _name;
         symbol = _symbol;
     }

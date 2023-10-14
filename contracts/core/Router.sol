@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity ^0.8.18;
 
 import "../libraries/math/SafeMath.sol";
 import "../libraries/token/IERC20.sol";
@@ -45,7 +45,7 @@ contract Router is IRouter {
         _;
     }
 
-    constructor(address _vault, address _vaultPositionController, address _usdx, address _weth) public {
+    constructor(address _vault, address _vaultPositionController, address _usdx, address _weth) {
         vault = _vault;
         vaultPositionController = _vaultPositionController;
         usdx = _usdx;

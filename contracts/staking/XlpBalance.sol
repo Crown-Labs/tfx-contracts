@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity ^0.8.18;
 
 import "../libraries/math/SafeMath.sol";
 import "../libraries/token/IERC20.sol";
@@ -19,7 +19,7 @@ contract XlpBalance {
     constructor(
         IXlpManager _xlpManager,
         address _stakedXlpTracker
-    ) public {
+    ) {
         xlpManager = _xlpManager;
         stakedXlpTracker = _stakedXlpTracker;
     }

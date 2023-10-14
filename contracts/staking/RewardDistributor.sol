@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity ^0.8.18;
 
 import "../libraries/math/SafeMath.sol";
 import "../libraries/token/IERC20.sol";
@@ -30,7 +30,7 @@ contract RewardDistributor is IRewardDistributor, ReentrancyGuard, Governable {
         _;
     }
 
-    constructor(address _rewardToken, address _rewardTracker) public {
+    constructor(address _rewardToken, address _rewardTracker) {
         rewardToken = _rewardToken;
         rewardTracker = _rewardTracker;
         admin = msg.sender;

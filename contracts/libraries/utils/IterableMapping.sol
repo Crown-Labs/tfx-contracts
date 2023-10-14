@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.6.12;
-
-// enum OrderType{ SWAP, INCREASE, DECREASE }
+pragma solidity ^0.8.18;
 
 struct Orders {
     address account;
     uint256 orderIndex;
     uint8 orderType; // 0 = SWAP, 1 = INCREASE, 2 = DECREASE
-    // OrderType orderType;
 }
 
 struct IndexValue { uint256 keyIndex; Orders value; }
@@ -49,7 +46,7 @@ library IterableMapping {
     }
 
     function iterate_start(itmap storage self) internal view returns (uint256 keyIndex) {
-        return iterate_next(self, uint256(-1));
+        return iterate_next(self, type(uint256).max);
     }
 
     function iterate_valid(itmap storage self, uint256 keyIndex) internal view returns (bool) {

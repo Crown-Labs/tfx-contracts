@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity ^0.8.18;
 
 import "../libraries/math/SafeMath.sol";
 import "../libraries/token/IERC20.sol";
@@ -42,7 +42,7 @@ contract YieldToken is IERC20, IYieldToken {
         _;
     }
 
-    constructor(string memory _name, string memory _symbol, uint256 _initialSupply) public {
+    constructor(string memory _name, string memory _symbol, uint256 _initialSupply) {
         name = _name;
         symbol = _symbol;
         gov = msg.sender;

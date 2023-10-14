@@ -16,7 +16,7 @@ interface IFulfillController {
     function requestOracleWithToken(bytes memory _data, address _account, address _token, uint256 _amount, bool _transferETH, bytes memory _revertHandler) external;
 }
 
-pragma solidity 0.6.12;
+pragma solidity ^0.8.18;
 
 contract XlpManager is ReentrancyGuard, Governable, IXlpManager {
     using SafeMath for uint256;
@@ -60,7 +60,7 @@ contract XlpManager is ReentrancyGuard, Governable, IXlpManager {
         uint256 amountOut
     );
 
-    constructor(address _vault, address _usdx, address _xlp, uint256 _cooldownDuration) public {
+    constructor(address _vault, address _usdx, address _xlp, uint256 _cooldownDuration) {
         gov = msg.sender;
         vault = IVault(_vault);
         usdx = _usdx;
@@ -94,7 +94,7 @@ contract XlpManager is ReentrancyGuard, Governable, IXlpManager {
         aumDeduction = _aumDeduction;
     }
 
-    function addLiquidity(address _token, uint256 _amount, uint256 _minUsdx, uint256 _minXlp) external override nonReentrant returns (uint256) {
+    function addLiquidity(address _token, uint256 _amount, uint256 _minUsdx, uint256 _minXlp) external override nonReentrant {
         if (inPrivateMode) { revert("XlpManager: action not enabled"); }
 
         require(_amount > 0, "XlpManager: invalid _amount");
@@ -106,7 +106,7 @@ contract XlpManager is ReentrancyGuard, Governable, IXlpManager {
         IFulfillController(fulfillController).requestOracleWithToken(data, msg.sender, _token, _amount, false, "");
     }
 
-    function removeLiquidity(address _tokenOut, uint256 _xlpAmount, uint256 _minOut, address _receiver) external override nonReentrant returns (uint256) {
+    function removeLiquidity(address _tokenOut, uint256 _xlpAmount, uint256 _minOut, address _receiver) external override nonReentrant {
         if (inPrivateMode) { revert("XlpManager: action not enabled"); }
 
         require(_xlpAmount > 0, "XlpManager: invalid _xlpAmount");

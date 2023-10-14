@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity ^0.8.18;
 
 import "../libraries/math/SafeMath.sol";
 import "../libraries/token/IERC20.sol";
@@ -144,7 +144,7 @@ contract Vault is ReentrancyGuard, IVault {
 
     // once the parameters are verified to be working correctly,
     // gov should be set to a timelock contract or a governance contract
-    constructor() public {
+    constructor() {
         gov = msg.sender;
     }
 
@@ -485,12 +485,12 @@ contract Vault is ReentrancyGuard, IVault {
         return amountOutAfterFees;
     }
 
-    function getMaxPrice(address _token, bool _validate) public override view returns (uint256) {
-        return IVaultPriceFeed(priceFeed).getPrice(_token, true, _validate);
+    function getMaxPrice(address _token, bool _validate_) public override view returns (uint256) {
+        return IVaultPriceFeed(priceFeed).getPrice(_token, true, _validate_);
     }
 
-    function getMinPrice(address _token, bool _validate) public override view returns (uint256) {
-        return IVaultPriceFeed(priceFeed).getPrice(_token, false, _validate);
+    function getMinPrice(address _token, bool _validate_) public override view returns (uint256) {
+        return IVaultPriceFeed(priceFeed).getPrice(_token, false, _validate_);
     }
 
     function getRedemptionAmount(address _token, uint256 _usdxAmount, bool _validatePrice) public override view returns (uint256) {

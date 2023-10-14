@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity ^0.8.18;
 
 import "../libraries/math/SafeMath.sol";
 import "../libraries/token/IERC20.sol";
@@ -87,7 +87,7 @@ contract BasePositionManager is IBasePositionManager, ReentrancyGuard, Governabl
         address _router,
         address _weth,
         uint256 _depositFee
-    ) public {
+    ) {
         vault = _vault;
         vaultPositionController = _vaultPositionController;
         router = _router;

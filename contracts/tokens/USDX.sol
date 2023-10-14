@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity ^0.8.18;
 
 import "./interfaces/IUSDX.sol";
 import "./YieldToken.sol";
@@ -14,7 +14,7 @@ contract USDX is YieldToken, IUSDX {
         _;
     }
 
-    constructor(address _vault) public YieldToken("USD Gambit", "USDX", 0) {
+    constructor(address _vault) YieldToken("USD Gambit", "USDX", 0) {
         vaults[_vault] = true;
     }
 

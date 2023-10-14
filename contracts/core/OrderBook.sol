@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.12;
+pragma solidity ^0.8.18;
 
 import "../libraries/math/SafeMath.sol";
 import "../libraries/token/IERC20.sol";
@@ -234,7 +234,7 @@ contract OrderBook is ReentrancyGuard, IOrderBook {
     event UpdateMinPurchaseTokenAmountUsd(uint256 minPurchaseTokenAmountUsd);
     event UpdateGov(address gov);
 
-    constructor() public {
+    constructor() {
         gov = msg.sender;
     }
 
@@ -412,10 +412,10 @@ contract OrderBook is ReentrancyGuard, IOrderBook {
         IOrderBookOpenOrder(orderBookOpenOrder).removeFromOpenOrders(msg.sender, _orderIndex, 0); // SWAP
 
         if (order.path[0] == weth) {
-            _transferOutETH(order.executionFee.add(order.amountIn), msg.sender);
+            _transferOutETH(order.executionFee.add(order.amountIn), payable(msg.sender));
         } else {
             IERC20(order.path[0]).safeTransfer(msg.sender, order.amountIn);
-            _transferOutETH(order.executionFee, msg.sender);
+            _transferOutETH(order.executionFee, payable(msg.sender));
         }
 
         emit CancelSwapOrder(
@@ -758,10 +758,10 @@ contract OrderBook is ReentrancyGuard, IOrderBook {
         IOrderBookOpenOrder(orderBookOpenOrder).removeFromOpenOrders(msg.sender, _orderIndex, 1); // INCREASE
 
         if (order.purchaseToken == weth) {
-            _transferOutETH(order.executionFee.add(order.purchaseTokenAmount), msg.sender);
+            _transferOutETH(order.executionFee.add(order.purchaseTokenAmount), payable(msg.sender));
         } else {
             IERC20(order.purchaseToken).safeTransfer(msg.sender, order.purchaseTokenAmount);
-            _transferOutETH(order.executionFee, msg.sender);
+            _transferOutETH(order.executionFee, payable(msg.sender));
         }
 
         emit CancelIncreaseOrder(
@@ -929,7 +929,7 @@ contract OrderBook is ReentrancyGuard, IOrderBook {
 
         delete decreaseOrders[msg.sender][_orderIndex];
         IOrderBookOpenOrder(orderBookOpenOrder).removeFromOpenOrders(msg.sender, _orderIndex, 2); // DECREASE
-        _transferOutETH(order.executionFee, msg.sender);
+        _transferOutETH(order.executionFee, payable(msg.sender));
 
         emit CancelDecreaseOrder(
             order.account,

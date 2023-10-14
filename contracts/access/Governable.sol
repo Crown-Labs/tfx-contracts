@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity ^0.8.18;
 
 contract Governable {
     address public gov;
 
-    constructor() public {
+    constructor() {
         gov = msg.sender;
     }
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity ^0.8.18;
 
 import "../libraries/token/IERC20.sol";
 import "../libraries/math/SafeMath.sol";
@@ -10,9 +10,7 @@ import "../core/interfaces/IVaultPositionController.sol";
 import "../core/interfaces/IVaultPriceFeed.sol";
 import "../tokens/interfaces/IYieldTracker.sol";
 import "../tokens/interfaces/IYieldToken.sol";
-import "../amm/interfaces/IPancakeFactory.sol";
 
-import "../staking/interfaces/IVester.sol";
 import "../access/Governable.sol";
 
 contract Reader is Governable {
@@ -141,37 +139,6 @@ contract Reader is Governable {
             IYieldTracker yieldTracker = IYieldTracker(_yieldTrackers[i]);
             amounts[i * propsLength] = yieldTracker.claimable(_account);
             amounts[i * propsLength + 1] = yieldTracker.getTokensPerInterval();
-        }
-        return amounts;
-    }
-
-    function getVestingInfo(address _account, address[] memory _vesters) public view returns (uint256[] memory) {
-        uint256 propsLength = 7;
-        uint256[] memory amounts = new uint256[](_vesters.length * propsLength);
-        for (uint256 i = 0; i < _vesters.length; i++) {
-            IVester vester = IVester(_vesters[i]);
-            amounts[i * propsLength] = vester.pairAmounts(_account);
-            amounts[i * propsLength + 1] = vester.getVestedAmount(_account);
-            amounts[i * propsLength + 2] = IERC20(_vesters[i]).balanceOf(_account);
-            amounts[i * propsLength + 3] = vester.claimedAmounts(_account);
-            amounts[i * propsLength + 4] = vester.claimable(_account);
-            amounts[i * propsLength + 5] = vester.getMaxVestableAmount(_account);
-            amounts[i * propsLength + 6] = vester.getCombinedAverageStakedAmount(_account);
-        }
-        return amounts;
-    }
-
-    function getPairInfo(address _factory, address[] memory _tokens) public view returns (uint256[] memory) {
-        uint256 inputLength = 2;
-        uint256 propsLength = 2;
-        uint256[] memory amounts = new uint256[](_tokens.length / inputLength * propsLength);
-        for (uint256 i = 0; i < _tokens.length / inputLength; i++) {
-            address token0 = _tokens[i * inputLength];
-            address token1 = _tokens[i * inputLength + 1];
-            address pair = IPancakeFactory(_factory).getPair(token0, token1);
-
-            amounts[i * propsLength] = IERC20(token0).balanceOf(pair);
-            amounts[i * propsLength + 1] = IERC20(token1).balanceOf(pair);
         }
         return amounts;
     }
@@ -366,22 +333,22 @@ contract Reader is Governable {
 
         for (uint256 i = 0; i < _collateralTokens.length; i++) {
             {
-            (uint256 size,
-             uint256 collateral,
-             uint256 averagePrice,
-             uint256 entryFundingRate,
+            (uint256 size_,
+             uint256 collateral_,
+             uint256 averagePrice_,
+             uint256 entryFundingRate_,
              /* reserveAmount */,
-             uint256 realisedPnl,
-             bool hasRealisedProfit,
-             uint256 lastIncreasedTime) = IVaultPositionController(_vaultPositionController).getPosition(_account, _collateralTokens[i], _indexTokens[i], _isLong[i]);
+             uint256 realisedPnl_,
+             bool hasRealisedProfit_,
+             uint256 lastIncreasedTime_) = IVaultPositionController(_vaultPositionController).getPosition(_account, _collateralTokens[i], _indexTokens[i], _isLong[i]);
 
-            amounts[i * POSITION_PROPS_LENGTH] = size;
-            amounts[i * POSITION_PROPS_LENGTH + 1] = collateral;
-            amounts[i * POSITION_PROPS_LENGTH + 2] = averagePrice;
-            amounts[i * POSITION_PROPS_LENGTH + 3] = entryFundingRate;
-            amounts[i * POSITION_PROPS_LENGTH + 4] = hasRealisedProfit ? 1 : 0;
-            amounts[i * POSITION_PROPS_LENGTH + 5] = realisedPnl;
-            amounts[i * POSITION_PROPS_LENGTH + 6] = lastIncreasedTime;
+            amounts[i * POSITION_PROPS_LENGTH] = size_;
+            amounts[i * POSITION_PROPS_LENGTH + 1] = collateral_;
+            amounts[i * POSITION_PROPS_LENGTH + 2] = averagePrice_;
+            amounts[i * POSITION_PROPS_LENGTH + 3] = entryFundingRate_;
+            amounts[i * POSITION_PROPS_LENGTH + 4] = hasRealisedProfit_ ? 1 : 0;
+            amounts[i * POSITION_PROPS_LENGTH + 5] = realisedPnl_;
+            amounts[i * POSITION_PROPS_LENGTH + 6] = lastIncreasedTime_;
             }
 
             uint256 size = amounts[i * POSITION_PROPS_LENGTH];

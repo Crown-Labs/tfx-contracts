@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity ^0.8.18;
 
 interface IRewardTracker {
     function depositBalances(address _account, address _depositToken) external view returns (uint256);
