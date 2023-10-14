@@ -68,7 +68,9 @@ describe("RewardRouterV3", function () {
     ])
 
     // bnb = await deployContract("Token", [])
+
     btc = await deployContract("Token", [])
+
     eth = await deployContract("Token", [])
     dai = await deployContract("Token", [])
     busd = await deployContract("Token", [])
@@ -275,6 +277,7 @@ describe("RewardRouterV3", function () {
   })
 
   it("inits", async () => {
+
     expect(await rewardRouter.isInitialized()).eq(true)
 
     expect(await rewardRouter.weth()).eq(eth.address)

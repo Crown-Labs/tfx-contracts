@@ -6,7 +6,7 @@ const { toXOraclePrice } = require("../shared/chainlink")
 const { toUsd, toNormalizedPrice } = require("../shared/units")
 const { initVault, getBnbConfig, getEthConfig, getBtcConfig, getDaiConfig, validateVaultBalance, tokenIndexs } = require("../core/Vault/helpers")
 const { deployXOracle, getPriceFeed } = require("../shared/xOracle")
-const { sleep } = require("../../scripts/tfx_deploy/shared/helpers")
+const { sleep } = require("../../scripts/shared/helpers")
 
 use(solidity)
 

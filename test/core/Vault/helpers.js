@@ -1,6 +1,7 @@
 const { expandDecimals } = require("../../shared/utilities")
 const { toUsd } = require("../../shared/units")
 const { deployContract } = require("../../shared/fixtures")
+const { errors } = require("../../../scripts/shared/errorCodes")
 
 const tokenIndexs = {
   BTC: 0,
