@@ -2,10 +2,9 @@ const fs = require("fs");
 const path = require("path");
 const dotenv = require("dotenv").config();
 const { exec } = require("child_process");
-const { expandDecimals } = require("../../test/shared/utilities");
-const { getContractAddress } = require("./shared/helpers");
+const { getContractAddress, expandDecimals } = require("./shared/helpers");
 const network = process.env.HARDHAT_NETWORK || "mainnet";
-const tokens = require("./core/tokens")[network];
+const tokens = require("./shared/tokens")[network];
 
 const tmpAddressesFilepath = path.join(
   __dirname,

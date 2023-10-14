@@ -1,5 +1,4 @@
-const { contractAt, sendTxn, getContractAddress, getFrameSigner } = require("../shared/helpers")
-const { expandDecimals } = require("../../../test/shared/utilities")
+const { contractAt, sendTxn, getContractAddress, getFrameSigner, expandDecimals } = require("../shared/helpers")
 
 async function main() {
 

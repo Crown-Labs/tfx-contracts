@@ -256,6 +256,19 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function bigNumberify(n) {
+  return ethers.BigNumber.from(n)
+}
+
+function expandDecimals(n, decimals) {
+  return bigNumberify(n).mul(bigNumberify(10).pow(decimals))
+}
+
+function toUsd(value) {
+  const normalizedValue = parseInt(value * Math.pow(10, 10))
+  return ethers.BigNumber.from(normalizedValue).mul(ethers.BigNumber.from(10).pow(20))
+}
+
 module.exports = {
   getContractAddress,
   readCsv,
@@ -269,4 +282,6 @@ module.exports = {
   processBatch,
   tokenIndexs,
   sleep,
+  expandDecimals,
+  toUsd,
 };

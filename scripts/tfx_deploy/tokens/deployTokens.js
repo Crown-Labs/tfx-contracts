@@ -1,5 +1,4 @@
-const { deployContract, getFrameSigner } = require("../shared/helpers")
-const { expandDecimals } = require("../../../test/shared/utilities")
+const { deployContract, getFrameSigner, expandDecimals } = require("../shared/helpers")
 
 async function main() {
   const signer = await getFrameSigner()
