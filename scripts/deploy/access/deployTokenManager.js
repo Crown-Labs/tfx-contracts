@@ -1,4 +1,4 @@
-const { deployContract, contractAt, writeTmpAddresses, sendTxn, getFrameSigner, getContractAddress } = require("../shared/helpers")
+const { deployContract, contractAt, writeTmpAddresses, sendTxn, getFrameSigner, getContractAddress } = require("../../shared/helpers")
 
 async function main() {
   const signer = await getFrameSigner()

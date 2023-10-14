@@ -9,7 +9,7 @@
     "test": "npx hardhat test",
     "compile": "hardhat compile",
     "typechain": "hardhat typechain",
-    "deploy": "npx hardhat run --network develop",
+    "deploy": "npx hardhat run --network hardhat",
     "verify": "npx hardhat verify --network develop",
     "verifyAll": "npx hardhat run scripts/tfx_deploy/verifyAll.js --network develop"
   },

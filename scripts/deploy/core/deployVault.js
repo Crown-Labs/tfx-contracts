@@ -1,5 +1,5 @@
-const { deployContract, contractAt , sendTxn, getFrameSigner, expandDecimals, toUsd } = require("../shared/helpers")
-const { errors } = require("../shared/errorCodes")
+const { deployContract, contractAt , sendTxn, getFrameSigner, expandDecimals, toUsd } = require("../../shared/helpers")
+const { errors } = require("../../shared/errorCodes")
 
 const network = (process.env.HARDHAT_NETWORK || 'mainnet');
 const tokens = require('../shared/tokens')[network];

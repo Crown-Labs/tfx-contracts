@@ -1,4 +1,4 @@
-const { deployContract, contractAt, writeTmpAddresses, sendTxn, getFrameSigner } = require("../shared/helpers")
+const { deployContract, contractAt, writeTmpAddresses, sendTxn, getFrameSigner } = require("../../shared/helpers")
 
 const network = (process.env.HARDHAT_NETWORK || 'mainnet');
 

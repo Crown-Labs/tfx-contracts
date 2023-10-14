@@ -75,15 +75,6 @@ module.exports = {
           },
         },
       },
-      {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 1,
-          },
-        },
-      },
     ],
   },
   typechain: {

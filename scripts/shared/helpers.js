@@ -81,9 +81,13 @@ const tokenIndexs = {
   };
 
 
-function getContractAddress(name) {
+function getContractAddress(name, allowEmpty = false) {
   const addr = contactAddress[name];
   if (!addr) {
+    if (allowEmpty) {
+      return "";
+    }
+    
     throw new Error("not found " + name + " address");
   }
 
@@ -117,7 +121,7 @@ function getChainId(network) {
 }
 
 async function getFrameSigner() {
- if (process.env.USE_FRAME_SIGNER == "true") {
+  if (process.env.USE_FRAME_SIGNER == "true") {
     try {
       const frame = new ethers.providers.JsonRpcProvider("http://127.0.0.1:1248");
       const signer = frame.getSigner();
@@ -133,13 +137,24 @@ async function getFrameSigner() {
     } catch (e) {
       throw new Error(`getFrameSigner error: ${e.toString()}`);
     }
- } else {
+  } else {
     const [ signer ] = await hre.ethers.getSigners();
     console.log(`📝 use deployer from PRIVATE_KEY in .env`);
     console.log(`signer: ${signer.address}`);
     return signer;
- }
+  }
 }
+
+const impersonateAddress = async (address) => {
+  const hre = require('hardhat');
+  await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [address],
+  });
+  const signer = await ethers.provider.getSigner(address);
+  signer.address = signer._address;
+  return signer;
+};  
 
 async function sendTxn(txnPromise, label) {
   const txn = await txnPromise;
