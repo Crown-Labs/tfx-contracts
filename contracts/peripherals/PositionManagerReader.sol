@@ -99,14 +99,13 @@ contract PositionManagerReader {
     function validateLiquidation(address account, address collateralToken, address indexToken, bool isLong, /* bool _raise, */ address vault, LastPrice[] memory lastPrice) external view returns (uint256, uint256) {
         Position memory position = getPosition(account, collateralToken, indexToken, isLong, vault);
         if (position.size == 0) {
-            // position is colsed
+            // position is closed
             return (3, 0);
         }
 
         (bool hasProfit, uint256 delta, uint256 marginFees) = getPositionDelta(position, account, collateralToken, indexToken, isLong, vault, lastPrice);
 
         if (!hasProfit && position.collateral < delta) {
-            // if (_raise) { revert("Vault: losses exceed collateral"); }
             return (1, marginFees);
         }
 
@@ -116,18 +115,14 @@ contract PositionManagerReader {
         }
 
         if (remainingCollateral < marginFees) {
-            // if (_raise) { revert("Vault: fees exceed collateral"); }
-            // cap the fees to the remainingCollateral
             return (1, remainingCollateral);
         }
 
         if (remainingCollateral < marginFees.add(IVault(vault).liquidationFeeUsd())) {
-            // if (_raise) { revert("Vault: liquidation fees exceed collateral"); }
             return (1, marginFees);
         }
 
         if (remainingCollateral.mul(IVault(vault).maxLeverage()) < position.size.mul(BASIS_POINTS_DIVISOR)) {
-            // if (_raise) { revert("Vault: maxLeverage exceeded"); }
             return (2, marginFees);
         }
 
@@ -136,8 +131,16 @@ contract PositionManagerReader {
 
     function getPosition(address account, address collateralToken, address indexToken, bool isLong, address vault) private view returns(Position memory position) {
         address vaultPositionController = IVault(vault).vaultPositionController();
-        (uint256 size, uint256 collateral, uint256 averagePrice, uint256 entryFundingRate, /* reserveAmount */, /* realisedPnl */, /* hasProfit */, uint256 lastIncreasedTime) = 
-        IVaultPositionController(vaultPositionController).getPosition(account, collateralToken, indexToken, isLong);
+        (
+            uint256 size, 
+            uint256 collateral, 
+            uint256 averagePrice, 
+            uint256 entryFundingRate, 
+            /* reserveAmount */, 
+            /* realisedPnl */,
+            /* hasProfit */, 
+            uint256 lastIncreasedTime
+        ) = IVaultPositionController(vaultPositionController).getPosition(account, collateralToken, indexToken, isLong);
         position.size = size;
         position.collateral = collateral;
         position.averagePrice = averagePrice;
@@ -157,8 +160,7 @@ contract PositionManagerReader {
     }
 
     function getDelta(address _indexToken, uint256 _size, uint256 _averagePrice, bool _isLong, uint256 _lastIncreasedTime, /* bool _validatePrice, */ address vault, LastPrice[] memory lastPrice) private view returns (bool, uint256) {
-        // _validate(_averagePrice > 0, 38);
-        uint256 price = getPrice(lastPrice, _indexToken); // _isLong ? vault.getMinPrice(_indexToken, _validatePrice) : vault.getMaxPrice(_indexToken, _validatePrice);
+        uint256 price = getPrice(lastPrice, _indexToken); 
         uint256 priceDelta = _averagePrice > price ? _averagePrice.sub(price) : price.sub(_averagePrice);
         uint256 delta = _size.mul(priceDelta).div(_averagePrice);
 
@@ -367,9 +369,6 @@ contract PositionManagerReader {
     ) private pure returns (uint256, bool) {
         uint256 currentPrice = getPrice(lastPrice, _indexToken);
         bool isPriceValid = _triggerAboveThreshold ? currentPrice > _triggerPrice : currentPrice < _triggerPrice;
-        // if (_raise) {
-        //     require(isPriceValid, "OrderBook: invalid price for execution");
-        // }
         return (currentPrice, isPriceValid);
     }
 

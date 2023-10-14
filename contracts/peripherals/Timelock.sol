@@ -2,23 +2,20 @@
 
 pragma solidity ^0.8.18;
 
+import "../libraries/math/SafeMath.sol";
+import "../libraries/token/IERC20.sol";
 import "./interfaces/ITimelockTarget.sol";
 import "./interfaces/ITimelock.sol";
 import "./interfaces/IHandlerTarget.sol";
 import "../access/interfaces/IAdmin.sol";
 import "../core/interfaces/IVault.sol";
 import "../core/interfaces/IVaultPriceFeed.sol";
-import "../oracle/interfaces/IFastPriceFeed.sol";
 import "../core/interfaces/IRouter.sol";
 import "../referrals/interfaces/IReferralStorage.sol";
 import "../tokens/interfaces/IYieldToken.sol";
 import "../tokens/interfaces/IBaseToken.sol";
 import "../tokens/interfaces/IMintable.sol";
 import "../tokens/interfaces/IUSDX.sol";
-import "../staking/interfaces/IVester.sol";
-
-import "../libraries/math/SafeMath.sol";
-import "../libraries/token/IERC20.sol";
 
 contract Timelock is ITimelock {
     using SafeMath for uint256;
@@ -367,20 +364,6 @@ contract Timelock is ITimelock {
         IMintable(_target).setMinter(_minter, _isActive);
     }
 
-    function batchSetBonusRewards(address _vester, address[] memory _accounts, uint256[] memory _amounts) external onlyAdmin {
-        require(_accounts.length == _amounts.length, "Timelock: invalid lengths");
-
-        if (!IHandlerTarget(_vester).isHandler(address(this))) {
-            IHandlerTarget(_vester).setHandler(address(this), true);
-        }
-
-        for (uint256 i = 0; i < _accounts.length; i++) {
-            address account = _accounts[i];
-            uint256 amount = _amounts[i];
-            IVester(_vester).setBonusRewards(account, amount);
-        }
-    }
-
     function transferIn(address _sender, address _token, uint256 _amount) external onlyAdmin {
         IERC20(_token).transferFrom(_sender, address(this), _amount);
     }
@@ -475,19 +458,6 @@ contract Timelock is ITimelock {
         _validateAction(action);
         _clearAction(action);
         IRouter(_router).addPlugin(_plugin);
-    }
-
-    function signalSetPriceFeedWatcher(address _fastPriceFeed, address _account, bool _isActive) external onlyAdmin {
-        bytes32 action = keccak256(abi.encodePacked("setPriceFeedWatcher", _fastPriceFeed, _account, _isActive));
-        _setPendingAction(action);
-        emit SignalSetPriceFeedWatcher(_fastPriceFeed, _account, _isActive);
-    }
-
-    function setPriceFeedWatcher(address _fastPriceFeed, address _account, bool _isActive) external onlyAdmin {
-        bytes32 action = keccak256(abi.encodePacked("setPriceFeedWatcher", _fastPriceFeed, _account, _isActive));
-        _validateAction(action);
-        _clearAction(action);
-        IFastPriceFeed(_fastPriceFeed).setSigner(_account, _isActive);
     }
 
     function signalRedeemUsdx(address _vault, address _token, uint256 _amount) external onlyAdmin {

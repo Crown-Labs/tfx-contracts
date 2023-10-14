@@ -4,7 +4,6 @@ pragma solidity ^0.8.18;
 
 import "../libraries/token/IERC20.sol";
 import "../libraries/math/SafeMath.sol";
-
 import "../access/Governable.sol";
 
 contract BatchSender is Governable {

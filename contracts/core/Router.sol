@@ -6,7 +6,6 @@ import "../libraries/math/SafeMath.sol";
 import "../libraries/token/IERC20.sol";
 import "../libraries/token/SafeERC20.sol";
 import "../libraries/utils/Address.sol";
-
 import "../tokens/interfaces/IWETH.sol";
 import "./interfaces/IVault.sol";
 import "./interfaces/IVaultPositionController.sol";
@@ -22,8 +21,6 @@ contract Router is IRouter {
     using Address for address payable;
 
     address public gov;
-
-    // wrapped BNB / ETH
     address public weth;
     address public usdx;
     address public vault;

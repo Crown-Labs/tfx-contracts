@@ -41,7 +41,6 @@ interface IOrderBook {
     function executeSwapOrder(address, uint256, address payable) external;
     function executeDecreaseOrder(address, uint256, address payable) external;
     function executeIncreaseOrder(address, uint256, address payable) external;
-    // function getShouldExecuteOrderList(bool) external view returns (bool, uint160[] memory); 
 
     function validateSwapOrderPriceWithTriggerAboveThreshold(address[] memory _path, uint256 _triggerRatio) external view returns (bool);
 

@@ -1,18 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
 
-interface IVault {
-    function allWhitelistedTokensLength() external view returns (uint256);
-    function allWhitelistedTokens(uint256) external view returns (address);
-    function whitelistedTokens(address _token) external view returns (bool);
-    function poolAmounts(address _token) external view returns (uint256);
-    function tokenDecimals(address _token) external view returns (uint256);
-    function stableTokens(address _token) external view returns (bool);
-    function globalShortSizes(address _token) external view returns (uint256);
-    function globalShortAveragePrices(address _token) external view returns (uint256);
-    function guaranteedUsd(address _token) external view returns (uint256);
-    function reservedAmounts(address _token) external view returns (uint256);
-}
+pragma solidity ^0.8.18;
+
+import "../core/interfaces/IVault.sol";
 
 interface IXlpManager {
     function aumAddition() external view returns(uint256);

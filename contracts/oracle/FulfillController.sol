@@ -40,7 +40,8 @@ interface IHandler {
         bool _isLong,
         uint256 _triggerPrice,
         bool _triggerAboveThreshold,
-        uint256 _executionFee) external;
+        uint256 _executionFee
+    ) external;
 
     // PositionManager
     function fulfillExecuteOrders(address _executionFeeReceiver) external;

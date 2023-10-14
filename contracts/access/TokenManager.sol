@@ -5,7 +5,6 @@ pragma solidity ^0.8.18;
 import "../libraries/math/SafeMath.sol";
 import "../libraries/token/IERC20.sol";
 import "../libraries/utils/ReentrancyGuard.sol";
-
 import "../peripherals/interfaces/ITimelock.sol";
 
 contract TokenManager is ReentrancyGuard {

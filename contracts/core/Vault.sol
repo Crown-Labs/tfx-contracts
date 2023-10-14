@@ -6,7 +6,6 @@ import "../libraries/math/SafeMath.sol";
 import "../libraries/token/IERC20.sol";
 import "../libraries/token/SafeERC20.sol";
 import "../libraries/utils/ReentrancyGuard.sol";
-
 import "../tokens/interfaces/IUSDX.sol";
 import "./interfaces/IVault.sol";
 import "./interfaces/IVaultPriceFeed.sol";

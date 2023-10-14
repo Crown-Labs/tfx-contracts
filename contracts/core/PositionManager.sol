@@ -7,7 +7,6 @@ import "./interfaces/IVault.sol";
 import "./interfaces/IVaultPositionController.sol";
 import "./interfaces/IOrderBook.sol";
 import "./interfaces/IOrderBookOpenOrder.sol";
-
 import "../peripherals/interfaces/ITimelock.sol";
 import "./BasePositionManager.sol";
 

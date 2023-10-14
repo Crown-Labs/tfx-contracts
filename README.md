@@ -1,6 +1,6 @@
-# GMX Contracts
+# TFX Contracts
 
-Contracts for GMX.
+Contracts for TFX.
 
 Docs at https://gmxio.gitbook.io/gmx/contracts.
 

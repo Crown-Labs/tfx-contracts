@@ -3,7 +3,6 @@
 pragma solidity ^0.8.18;
 
 import "../libraries/math/SafeMath.sol";
-
 import "../core/interfaces/IOrderBook.sol";
 
 contract OrderBookReader {

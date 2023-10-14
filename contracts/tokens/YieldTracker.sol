@@ -6,7 +6,6 @@ import "../libraries/math/SafeMath.sol";
 import "../libraries/token/IERC20.sol";
 import "../libraries/token/SafeERC20.sol";
 import "../libraries/utils/ReentrancyGuard.sol";
-
 import "./interfaces/IDistributor.sol";
 import "./interfaces/IYieldTracker.sol";
 import "./interfaces/IYieldToken.sol";

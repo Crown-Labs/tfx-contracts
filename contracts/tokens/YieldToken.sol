@@ -5,7 +5,6 @@ pragma solidity ^0.8.18;
 import "../libraries/math/SafeMath.sol";
 import "../libraries/token/IERC20.sol";
 import "../libraries/token/SafeERC20.sol";
-
 import "./interfaces/IYieldTracker.sol";
 import "./interfaces/IYieldToken.sol";
 

@@ -2,14 +2,11 @@
 
 pragma solidity ^0.8.18;
 
-// import "./IVaultUtils.sol";
-
 interface IVault {
     function isInitialized() external view returns (bool);
     function isSwapEnabled() external view returns (bool);
     function isLeverageEnabled() external view returns (bool);
 
-    // function setVaultUtils(IVaultUtils _vaultUtils) external;
     function setError(uint256 _errorCode, string calldata _error) external;
 
     function router() external view returns (address);
@@ -82,9 +79,6 @@ interface IVault {
     function buyUSDX(address _token, address _receiver) external returns (uint256);
     function sellUSDX(address _token, address _receiver) external returns (uint256);
     function swap(address _tokenIn, address _tokenOut, address _receiver) external returns (uint256);
-    // function increasePosition(address _account, address _collateralToken, address _indexToken, uint256 _sizeDelta, bool _isLong) external;
-    // function decreasePosition(address _account, address _collateralToken, address _indexToken, uint256 _collateralDelta, uint256 _sizeDelta, bool _isLong, address _receiver) external returns (uint256);
-    // function liquidatePosition(address _account, address _collateralToken, address _indexToken, bool _isLong, address _feeReceiver) external;
     function tokenToUsdMin(address _token, uint256 _tokenAmount) external view returns (uint256);
     function usdToTokenMax(address _token, uint256 _usdAmount) external view returns (uint256);
     function usdToTokenMin(address _token, uint256 _usdAmount) external view returns (uint256);
@@ -130,14 +124,9 @@ interface IVault {
     function getRedemptionAmount(address _token, uint256 _usdxAmount, bool _validatePrice) external view returns (uint256);
     function getMaxPrice(address _token, bool _validate) external view returns (uint256);
     function getMinPrice(address _token, bool _validate) external view returns (uint256);
-
-    // function getDelta(address _indexToken, uint256 _size, uint256 _averagePrice, bool _isLong, uint256 _lastIncreasedTime) external view returns (bool, uint256);
-    // function getPosition(address _account, address _collateralToken, address _indexToken, bool _isLong) external view returns (uint256, uint256, uint256, uint256, uint256, uint256, bool, uint256);
     
     function adjustForDecimals(uint256 _amount, address _tokenDiv, address _tokenMul) external view returns (uint256);
     function updateCumulativeFundingRate(address _collateralToken, address _indexToken) external;
-
-    //function validateRouter(address _account) external view;
 
     function collectSwapFees(address _token, uint256 _amount, uint256 _feeBasisPoints) external returns (uint256);
     function collectMarginFees(address _account, address _collateralToken, address _indexToken, bool _isLong, uint256 _sizeDelta, uint256 _size, uint256 _entryFundingRate) external returns (uint256);
@@ -158,6 +147,5 @@ interface IVault {
     function decreaseGlobalShortSize(address _token, uint256 _amount) external;
 
     function setIncludeAmmPrice(bool _includeAmmPrice) external;
-    // function setUseSwapPricing(bool _useSwapPricing) external;
     function setGlobalShortAveragePrices(address _indexToken, uint256 _price) external;
 }

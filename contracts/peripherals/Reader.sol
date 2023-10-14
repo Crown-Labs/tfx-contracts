@@ -4,13 +4,11 @@ pragma solidity ^0.8.18;
 
 import "../libraries/token/IERC20.sol";
 import "../libraries/math/SafeMath.sol";
-
 import "../core/interfaces/IVault.sol";
 import "../core/interfaces/IVaultPositionController.sol";
 import "../core/interfaces/IVaultPriceFeed.sol";
 import "../tokens/interfaces/IYieldTracker.sol";
 import "../tokens/interfaces/IYieldToken.sol";
-
 import "../access/Governable.sol";
 
 contract Reader is Governable {
@@ -232,8 +230,8 @@ contract Reader is Governable {
             amounts[i * propsLength + 1] = _priceFeed.getPrice(token, false, false);
             amounts[i * propsLength + 2] = _priceFeed.getPrimaryPrice(token, true, false);
             amounts[i * propsLength + 3] = _priceFeed.getPrimaryPrice(token, false, false);
-            amounts[i * propsLength + 4] = 0; // _priceFeed.isAdjustmentAdditive(token) ? 1 : 0;
-            amounts[i * propsLength + 5] = 0; // _priceFeed.adjustmentBasisPoints(token);
+            amounts[i * propsLength + 4] = 0; 
+            amounts[i * propsLength + 5] = 0; 
         }
 
         return amounts;
