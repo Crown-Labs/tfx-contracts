@@ -8,7 +8,6 @@ const tmpAddressesFilepath = path.join(
   __dirname,
   "..",
   "..",
-  "..",
   `.tmp-addresses-${process.env.HARDHAT_NETWORK}.json`
 );
 const deployedAddress = readTmpAddresses();

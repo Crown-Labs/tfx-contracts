@@ -14,7 +14,7 @@ contract USDX is YieldToken, IUSDX {
         _;
     }
 
-    constructor(address _vault) YieldToken("USD Gambit", "USDX", 0) {
+    constructor(address _vault) YieldToken("TFX USD", "USDX", 0) {
         vaults[_vault] = true;
     }
 

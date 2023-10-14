@@ -1,6 +1,6 @@
 const { deployContract, contractAt, sendTxn, getContractAddress, getFrameSigner, sleep, expandDecimals } = require("../../shared/helpers")
 const network = (process.env.HARDHAT_NETWORK || 'mainnet');
-const tokens = require('../shared/tokens')[network];
+const tokens = require('../../shared/tokens')[network];
 
 async function main() {
   const { btc, eth, bnb, usdt, usdc, matic, op, arb, nativeToken } = tokens

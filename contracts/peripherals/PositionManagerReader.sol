@@ -4,23 +4,8 @@ pragma experimental ABIEncoderV2;
 
 import "../libraries/math/SafeMath.sol";
 import "../libraries/utils/IterableMapping.sol";
-
-interface IVault {
-    function usdx() external view returns (address);
-    function adjustForDecimals(uint256 _amount, address _tokenDiv, address _tokenMul) external view returns (uint256);
-    function tokenDecimals(address _token) external view returns (uint256);
-    function minProfitTime() external view returns (uint256);
-    function minProfitBasisPoints(address _token) external view returns (uint256);
-    function getFundingFee(address _account, address _collateralToken, address _indexToken, bool _isLong, uint256 _size, uint256 _entryFundingRate) external view returns (uint256);
-    function getPositionFee(address _account, address _collateralToken, address _indexToken, bool _isLong, uint256 _sizeDelta) external view returns (uint256);
-    function liquidationFeeUsd() external view returns (uint256);
-    function maxLeverage() external view returns (uint256);
-    function vaultPositionController() external view returns (address);
-}
-
-interface IVaultPositionController {
-    function getPosition(address _account, address _collateralToken, address _indexToken, bool _isLong) external view returns (uint256, uint256, uint256, uint256, uint256, uint256, bool, uint256);
-}
+import "../core/interfaces/IVault.sol";
+import "../core/interfaces/IVaultPositionController.sol";
 
 interface IOrderBookOpenOrder {
     function orderList() external view returns (bytes memory);

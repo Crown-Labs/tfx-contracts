@@ -1,6 +1,6 @@
-const { deployContract, contractAt, sendTxn, getContractAddress, getFrameSigner, sleep, expandDecimals } = require("../tfx_deploy/shared/helpers")
+const { deployContract, contractAt, sendTxn, getContractAddress, getFrameSigner, sleep, expandDecimals } = require("../shared/helpers")
 const network = (process.env.HARDHAT_NETWORK || 'mainnet');
-const tokens = require('../tfx_deploy/shared/tokens')[network];
+const tokens = require('../shared/tokens')[network];
 
 async function main() {
   const signer = await getFrameSigner()

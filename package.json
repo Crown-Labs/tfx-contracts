@@ -9,9 +9,9 @@
     "test": "npx hardhat test",
     "compile": "hardhat compile",
     "typechain": "hardhat typechain",
-    "deploy": "npx hardhat run --network hardhat",
+    "deploy": "npx hardhat run --network develop",
     "verify": "npx hardhat verify --network develop",
-    "verifyAll": "npx hardhat run scripts/tfx_deploy/verifyAll.js --network develop"
+    "verifyAll": "npx hardhat run scripts/deploy/verifyAll.js --network develop"
   },
   "author": "",
   "license": "ISC",

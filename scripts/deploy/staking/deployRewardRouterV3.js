@@ -1,7 +1,7 @@
 const { deployContract, contractAt, sendTxn, writeTmpAddresses, getFrameSigner, getContractAddress } = require("../../shared/helpers")
 
 const network = (process.env.HARDHAT_NETWORK || 'mainnet');
-const tokens = require('../shared/tokens')[network];
+const tokens = require('../../shared/tokens')[network];
 
 async function main() {
   const { nativeToken } = tokens

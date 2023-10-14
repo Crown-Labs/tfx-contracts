@@ -2,7 +2,7 @@
 
 Contracts for TFX.
 
-Docs at https://gmxio.gitbook.io/gmx/contracts.
+Docs at https://tfx-market.gitbook.io/tfx/transparency/contracts
 
 ## Install Dependencies
 

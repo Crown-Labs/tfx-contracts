@@ -1,8 +1,5 @@
 const { contractAt, sendTxn, getFrameSigner, getContractAddress } = require("../../shared/helpers")
 
-const network = (process.env.HARDHAT_NETWORK || 'mainnet');
-const tokens = require('./tokens')[network];
-
 async function getValues() {
   const signer = await getFrameSigner()
   const referralStorage = await contractAt("ReferralStorage", getContractAddress("referralStorage"), signer)
