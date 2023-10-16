@@ -342,7 +342,7 @@ describe("XlpManager", function () {
       "1000000",
       expandDecimals(598, 18),
       expandDecimals(399, 18)
-    )).to.be.revertedWith("XlpManager: insufficient GLP output")
+    )).to.be.revertedWith("XlpManager: insufficient XLP output")
 
     await xlpManager.setFulfillController(fulfillController.address)
 

@@ -10,7 +10,7 @@ const { sleep } = require("../../scripts/shared/helpers")
 
 use(solidity)
 
-describe("BuyGLP", function () {
+describe("BuyXLP", function () {
     const provider = waffle.provider
     const [wallet, user0, user1, user2, tokenManager] = provider.getWallets()
 
@@ -117,7 +117,7 @@ describe("BuyGLP", function () {
         // await feeGmxTracker.initialize([bonusGmxTracker.address, bnGmx.address], feeGmxDistributor.address)
         // await feeGmxDistributor.updateLastDistributionTime()
 
-        // GLP
+        // XLP
         feeXlpTracker = await deployContract("RewardTracker", ["Fee XLP", "fXLP"])
         feeXlpDistributor = await deployContract("RewardDistributor", [eth.address, feeXlpTracker.address])
         await feeXlpTracker.initialize([xlp.address], feeXlpDistributor.address)
@@ -250,7 +250,7 @@ describe("BuyGLP", function () {
         await rewardManager.enableRewardRouter() 
 
     }) 
-    it("BuyGLP by rewardRouterV3", async () => {
+    it("BuyXLP by rewardRouterV3", async () => {
         for (let i = 0; i < 10; i++){
             await eth.mint(feeXlpDistributor.address, expandDecimals(100, 18))
             await feeXlpDistributor.setTokensPerInterval("41335970000000") // 0.00004133597 ETH per second

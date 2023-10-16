@@ -201,7 +201,7 @@ contract XlpManager is ReentrancyGuard, Governable, IXlpManager {
         require(usdxAmount >= _minUsdx, "XlpManager: insufficient USDX output");
 
         uint256 mintAmount = aumInUsdx == 0 ? usdxAmount : usdxAmount.mul(xlpSupply).div(aumInUsdx);
-        require(mintAmount >= _minXlp, "XlpManager: insufficient GLP output");
+        require(mintAmount >= _minXlp, "XlpManager: insufficient XLP output");
 
         IMintable(xlp).mint(_account, mintAmount);
 

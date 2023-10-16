@@ -23,38 +23,8 @@ async function main() {
 
   console.log(`signerArr: ${signerArr}`)
 
-  // const provider = signer.provider
-  // const balance = await provider.getBalance(signerArr)
-  
-  // console.log(`\n ======= BNB / WBNB Balance =======`);
-  // console.log("BNB balanceBefore",+balance / 10 ** 18)
-
   const tokenDecimals = 18;
   const distributorArr = [
-    // {
-    //   name: "StakedGmxDistributor",
-    //   address: getContractAddress("stakedGmxDistributor"),
-    //   transferAmount: "0", // 1000
-    //   rewardCName: "EsGMX",  // EsGMX
-    //   isRewardsPerInterval: true,
-    //   isRewardNativeToken: false,
-    // },
-    // {
-    //   name: "BonusDistributor",
-    //   address: getContractAddress("bonusDistributor"),
-    //   transferAmount: "0", // 1000
-    //   rewardCName: "MintableBaseToken",  // bnGMX
-    //   isRewardsPerInterval: false,
-    //   isRewardNativeToken: false,
-    // },
-    // {
-    //   name: "FeeGmxDistributor",
-    //   address: getContractAddress("feeGmxDistributor"),
-    //   transferAmount: "0.1", // 20
-    //   rewardCName: "MintableBaseToken",  // WETH
-    //   isRewardsPerInterval: true,
-    //   isRewardNativeToken: true,
-    // },
     {
       name: "FeeXlpDistributor",
       address: getContractAddress("feeXlpDistributor"),
@@ -63,14 +33,6 @@ async function main() {
       isRewardsPerInterval: true,
       isRewardNativeToken: true,
     },
-    // {
-    //   name: "StakedXlpDistributor",
-    //   address: getContractAddress("stakedXlpDistributor"),
-    //   transferAmount: "0", // 1000
-    //   rewardCName: "MintableBaseToken",  // EsGMX
-    //   isRewardsPerInterval: true,
-    //   isRewardNativeToken: false,
-    // },
   ];
 
   // let sumOfShouldWrap = 0;
@@ -83,7 +45,7 @@ async function main() {
 
   const wbnb = await contractAt(
     "Token",
-    "0x2C1b868d6596a18e32E61B901E4060C872647b6C", //wETH lineaTestnet
+    "0x078c04b8cfC949101905fdd5912D31Aad0a244Cb", //wETH develop
     signer
   );
 
@@ -123,7 +85,7 @@ async function main() {
     const reward = await contractAt(distributorItem.rewardCName, rewardArr, signer);
     const convertedTransferAmount = ethers.utils.parseUnits(
       // distributorItem.transferAmount,
-      "3", // Adjust APR of GLP ~ 20%
+      "3", // Adjust APR of XLP ~ 20%
       tokenDecimals
     );
 

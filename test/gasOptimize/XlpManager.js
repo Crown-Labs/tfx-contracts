@@ -10,7 +10,7 @@ const { deployXOracle, getPriceFeed } = require("../shared/xOracle")
 
 use(solidity)
 
-describe("BuyGLP", function () {
+describe("BuyXLP", function () {
     const provider = waffle.provider
     const [deployer, wallet, user0, user1, user2] = provider.getWallets()
   
@@ -81,7 +81,7 @@ describe("BuyGLP", function () {
         await vault.setInManagerMode(true)
     })
 
-    it("BuyGLP by xlpManager", async () => {
+    it("BuyXLP by xlpManager", async () => {
 
         await vault.setManager(xlpManager.address, true)
 
