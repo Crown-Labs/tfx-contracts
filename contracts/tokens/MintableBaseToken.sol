@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity ^0.8.18;
 
 import "./BaseToken.sol";
 import "./interfaces/IMintable.sol";
@@ -9,7 +9,7 @@ contract MintableBaseToken is BaseToken, IMintable {
 
     mapping (address => bool) public override isMinter;
 
-    constructor(string memory _name, string memory _symbol, uint256 _initialSupply) public BaseToken(_name, _symbol, _initialSupply) {
+    constructor(string memory _name, string memory _symbol, uint256 _initialSupply) BaseToken(_name, _symbol, _initialSupply) {
     }
 
     modifier onlyMinter() {

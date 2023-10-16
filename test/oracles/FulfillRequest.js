@@ -18,7 +18,7 @@ describe("\n📌 ### Test fulfillRequest ###\n", function () {
     let vault
     let vaultPriceFeed
     let positionManager
-    let usdg
+    let usdx
     let router
     let xOracle
     let fulfillController
@@ -37,15 +37,15 @@ describe("\n📌 ### Test fulfillRequest ###\n", function () {
         vault = await deployContract("Vault", [])
         vaultPositionController = await deployContract("VaultPositionController", [])
         await vault.setIsLeverageEnabled(false)
-        usdg = await deployContract("USDG", [vault.address])
-        router = await deployContract("Router", [vault.address, vaultPositionController.address, usdg.address, bnb.address])
+        usdx = await deployContract("USDX", [vault.address])
+        router = await deployContract("Router", [vault.address, vaultPositionController.address, usdx.address, bnb.address])
         vaultPriceFeed = await deployContract("VaultPriceFeed", [])
-        glp = await deployContract("GLP", [])
+        xlp = await deployContract("XLP", [])
         positionRouter = await deployContract("PositionRouter", [vault.address, vaultPositionController.address, router.address, bnb.address, depositFee, minExecutionFeeforPositionRouter])
-        rewardRouter = await deployContract("RewardRouterV2", [])
+        rewardRouter = await deployContract("RewardRouterV3", [])
 
-        await initVault(vault, vaultPositionController, router, usdg, vaultPriceFeed)
-        glpManager = await deployContract("GlpManager", [vault.address, usdg.address, glp.address, 24 * 60 * 60])
+        await initVault(vault, vaultPositionController, router, usdx, vaultPriceFeed)
+        xlpManager = await deployContract("XlpManager", [vault.address, usdx.address, xlp.address, 24 * 60 * 60])
         
         // deploy xOracle
         xOracle = await deployXOracle(bnb);
@@ -78,7 +78,7 @@ describe("\n📌 ### Test fulfillRequest ###\n", function () {
             vaultPositionController.address,
             orderBookOpenOrder.address,
             bnb.address,
-            usdg.address,
+            usdx.address,
             minExecutionFee,
             expandDecimals(5, 30) // minPurchseTokenAmountUsd
         );
@@ -96,7 +96,7 @@ describe("\n📌 ### Test fulfillRequest ###\n", function () {
         await fulfillController.setHandler(router.address, true);
         await fulfillController.setHandler(positionManager.address, true);
         await fulfillController.setHandler(positionRouter.address, true);
-        await fulfillController.setHandler(glpManager.address, true);
+        await fulfillController.setHandler(xlpManager.address, true);
         await fulfillController.setHandler(rewardRouter.address, true);
 
         await testSwap.setToken(btc.address, 0, true)
@@ -111,7 +111,7 @@ describe("\n📌 ### Test fulfillRequest ###\n", function () {
         await expect(positionManager.connect(account).setFulfillController(fulfillController.address)).to.be.revertedWith("BasePositionManager: forbidden"); 
         await expect(router.connect(account).setFulfillController(fulfillController.address)).to.be.revertedWith("Router: forbidden");
         await expect(positionRouter.connect(account).setFulfillController(fulfillController.address, deployer.address)).to.be.revertedWith("BasePositionManager: forbidden");
-        await expect(glpManager.connect(account).setFulfillController(fulfillController.address)).to.be.revertedWith("Governable: forbidden");
+        await expect(xlpManager.connect(account).setFulfillController(fulfillController.address)).to.be.revertedWith("Governable: forbidden");
         await expect(rewardRouter.connect(account).setFulfillController(fulfillController.address)).to.be.revertedWith("Governable: forbidden");
         await expect(orderBook.connect(account).setFulfillController(fulfillController.address)).to.be.revertedWith("OrderBook: forbidden");
 
@@ -119,7 +119,7 @@ describe("\n📌 ### Test fulfillRequest ###\n", function () {
         await positionManager.connect(deployer).setFulfillController(fulfillController.address)
         await router.connect(deployer).setFulfillController(fulfillController.address)
         await positionRouter.connect(deployer).setFulfillController(fulfillController.address, deployer.address)
-        await glpManager.connect(deployer).setFulfillController(fulfillController.address)
+        await xlpManager.connect(deployer).setFulfillController(fulfillController.address)
         await rewardRouter.connect(deployer).setFulfillController(fulfillController.address)
         await orderBook.connect(deployer).setFulfillController(fulfillController.address)
     });
@@ -165,33 +165,33 @@ describe("\n📌 ### Test fulfillRequest ###\n", function () {
     });
 
     it("Test fulfill Router", async function () {
-        await expect(router.connect(user0).fulfillSwap(user0.address,[busd.address, usdg.address], expandDecimals(200, 18), expandDecimals(201, 18), user0.address)).to.be.revertedWith("FulfillController: forbidden"); 
+        await expect(router.connect(user0).fulfillSwap(user0.address,[busd.address, usdx.address], expandDecimals(200, 18), expandDecimals(201, 18), user0.address)).to.be.revertedWith("FulfillController: forbidden"); 
     
         // fulfillSwapTokensToETH(address,address[],uint256,uint256,address)", owner, _path, _amountIn, _minOut, _receiver
-        await expect(router.connect(user0).fulfillSwapTokensToETH(user0.address,[busd.address, usdg.address], expandDecimals(200, 18), expandDecimals(201, 18), user0.address)).to.be.revertedWith("FulfillController: forbidden"); 
+        await expect(router.connect(user0).fulfillSwapTokensToETH(user0.address,[busd.address, usdx.address], expandDecimals(200, 18), expandDecimals(201, 18), user0.address)).to.be.revertedWith("FulfillController: forbidden"); 
 
         await router.connect(deployer).setFulfillController(user0.address);
 
-        await expect(router.connect(user0).fulfillSwap(user0.address,[busd.address, usdg.address], expandDecimals(200, 18), expandDecimals(201, 18), user0.address)).to.be.revertedWith("ERC20: transfer amount exceeds balance"); 
-        await expect(router.connect(user0).fulfillSwapTokensToETH(user0.address,[busd.address, usdg.address], expandDecimals(200, 18), expandDecimals(201, 18), user0.address)).to.be.revertedWith("ERC20: transfer amount exceeds balance");
+        await expect(router.connect(user0).fulfillSwap(user0.address,[busd.address, usdx.address], expandDecimals(200, 18), expandDecimals(201, 18), user0.address)).to.be.revertedWith("ERC20: transfer amount exceeds balance"); 
+        await expect(router.connect(user0).fulfillSwapTokensToETH(user0.address,[busd.address, usdx.address], expandDecimals(200, 18), expandDecimals(201, 18), user0.address)).to.be.revertedWith("ERC20: transfer amount exceeds balance");
     });
 
-    it("Test RewardRouterV2", async function () {
-        // function fulfillMintAndStakeGlp(address _account, address _token, uint256 _amount, uint256 _minUsdg, uint256 _minGlp) external onlyFulfillController
-        await expect(rewardRouter.connect(user0).fulfillMintAndStakeGlp(user0.address, bnb.address,expandDecimals(1, 18),expandDecimals(299, 18),expandDecimals(299, 18))).to.be.revertedWith("FulfillController: forbidden");
-        // await expect(rewardRouter.connect(user0).fulfillMintAndStakeGlp(user0.address,[busd.address, usdg.address], expandDecimals(200, 18), expandDecimals(201, 18), user0.address)).to.be.revertedWith("FulfillController: forbidden"); 
+    it("Test RewardRouterV3", async function () {
+        // function fulfillMintAndStakeXlp(address _account, address _token, uint256 _amount, uint256 _minUsdx, uint256 _minXlp) external onlyFulfillController
+        await expect(rewardRouter.connect(user0).fulfillMintAndStakeXlp(user0.address, bnb.address,expandDecimals(1, 18),expandDecimals(299, 18),expandDecimals(299, 18))).to.be.revertedWith("FulfillController: forbidden");
+        // await expect(rewardRouter.connect(user0).fulfillMintAndStakeXlp(user0.address,[busd.address, usdx.address], expandDecimals(200, 18), expandDecimals(201, 18), user0.address)).to.be.revertedWith("FulfillController: forbidden"); 
        
-        // function fulfillUnstakeAndRedeemGlp(address _account, address _tokenOut, uint256 _glpAmount, uint256 _minOut, address _receiver) external onlyFulfillController
-        await expect(rewardRouter.connect(user0).fulfillUnstakeAndRedeemGlp(user0.address, bnb.address,expandDecimals(299, 18),"990000000000000000",user2.address)).to.be.revertedWith("FulfillController: forbidden");
+        // function fulfillUnstakeAndRedeemXlp(address _account, address _tokenOut, uint256 _xlpAmount, uint256 _minOut, address _receiver) external onlyFulfillController
+        await expect(rewardRouter.connect(user0).fulfillUnstakeAndRedeemXlp(user0.address, bnb.address,expandDecimals(299, 18),"990000000000000000",user2.address)).to.be.revertedWith("FulfillController: forbidden");
         
-        // function fulfillUnstakeAndRedeemGlpETH(address _account, uint256 _glpAmount, uint256 _minOut, address payable _receiver) external onlyFulfillController
-        await expect(rewardRouter.connect(user0).fulfillUnstakeAndRedeemGlpETH(user0.address, expandDecimals(299, 18),"990000000000000000",user2.address)).to.be.revertedWith("FulfillController: forbidden");
+        // function fulfillUnstakeAndRedeemXlpETH(address _account, uint256 _xlpAmount, uint256 _minOut, address payable _receiver) external onlyFulfillController
+        await expect(rewardRouter.connect(user0).fulfillUnstakeAndRedeemXlpETH(user0.address, expandDecimals(299, 18),"990000000000000000",user2.address)).to.be.revertedWith("FulfillController: forbidden");
 
         await rewardRouter.connect(deployer).setFulfillController(user0.address);
 
-        await expect(rewardRouter.connect(user0).fulfillMintAndStakeGlp(user0.address, bnb.address,expandDecimals(1, 18),expandDecimals(299, 18),expandDecimals(299, 18))).to.be.revertedWith("ERC20: transfer amount exceeds balance");
-        await expect(rewardRouter.connect(user0).fulfillUnstakeAndRedeemGlp(user0.address, bnb.address,expandDecimals(299, 18),"990000000000000000",user2.address)).to.be.revertedWith("function call to a non-contract account");
-        await expect(rewardRouter.connect(user0).fulfillUnstakeAndRedeemGlpETH(user0.address, expandDecimals(299, 18),"990000000000000000",user2.address)).to.be.revertedWith("function call to a non-contract account");
+        await expect(rewardRouter.connect(user0).fulfillMintAndStakeXlp(user0.address, bnb.address,expandDecimals(1, 18),expandDecimals(299, 18),expandDecimals(299, 18))).to.be.revertedWith("ERC20: transfer amount exceeds balance");
+        await expect(rewardRouter.connect(user0).fulfillUnstakeAndRedeemXlp(user0.address, bnb.address,expandDecimals(299, 18),"990000000000000000",user2.address)).to.be.revertedWith("function call to a non-contract account");
+        await expect(rewardRouter.connect(user0).fulfillUnstakeAndRedeemXlpETH(user0.address, expandDecimals(299, 18),"990000000000000000",user2.address)).to.be.revertedWith("function call to a non-contract account");
     });
     
 })

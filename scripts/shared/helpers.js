@@ -1,3 +1,4 @@
+require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
 const parse = require("csv-parse");
@@ -11,41 +12,81 @@ const tmpAddressesFilepath = path.join(
 );
 const deployedAddress = readTmpAddresses();
 
-const contactAddress = {
-  // address signer
-  deployer: "0x11114D88d288c48Ea5dEC180bA5DCC2D137398dF", // signer1
-  signer2: "0xceE8B143eBE02dFa69c508aaE715B5C06e976684", // account2
-  signer3: "0x8d83aC8D2cd20bCB74a376aBcc20ffaE4Cab89D9", // account3
-
-  // bot
-  updater: "0x5eD93987704b42f297d80ae784AfF17e19646d67",
-  keeper: "0x5eD93987704b42f297d80ae784AfF17e19646d67",
-  liquidator: "0x5eD93987704b42f297d80ae784AfF17e19646d67",
-
-  // fees
-  feeReceiver: "0xceE8B143eBE02dFa69c508aaE715B5C06e976684", // execute fee
-  mintReceiver: "0xceE8B143eBE02dFa69c508aaE715B5C06e976684",
-
-  // deployed contract
-  tokenManager: deployedAddress["TokenManager"],
-  vault: deployedAddress["Vault"],
-  vaultPositionController: deployedAddress["VaultPositionController"],
-  vaultPriceFeed: deployedAddress["VaultPriceFeed"],
-  router: deployedAddress["Router"],
-  usdg: deployedAddress["USDG"],
-  glp: deployedAddress["GLP"],
-  glpManager: deployedAddress["GlpManager"],
-  referralStorage: deployedAddress["ReferralStorage"],
-  positionRouter: deployedAddress["PositionRouter"],
-  orderBook: deployedAddress["OrderBook"],
-  positionManager: deployedAddress["PositionManager"],
-  fastPriceFeed: deployedAddress["FastPriceFeed"],
-  timelock: deployedAddress["Timelock"],
+const tokenIndexs = {
+  BTC: 0,
+  ETH: 1,
+  BNB: 2,
+  USDT: 3,
+  USDC: 5,
+  MATIC: 21,
+  OP: 28,
+  ARB: 29,
 };
 
-function getContractAddress(name) {
+  const contactAddress = {
+    // address signer
+    deployer: "0x11114D88d288c48Ea5dEC180bA5DCC2D137398dF", // signer1
+    signer2: "0x666634e72c4948c7CB3F7206D2f731A34e076469", // account2
+    signer3: "0x9103c4B112ec249a34aB7AdD9D5589Ca4DF36Aaa", // account3
+  
+    // bot
+    // updater: "0x5eD93987704b42f297d80ae784AfF17e19646d67",
+    keeper: "0x6C56eddb37a8d38f1bDeB33360A7f875eAB75c20",
+    liquidator: "0x6C56eddb37a8d38f1bDeB33360A7f875eAB75c20",
+  
+    // fees
+    feeReceiver: "0x9103c4B112ec249a34aB7AdD9D5589Ca4DF36Aaa", // execute fee
+    mintReceiver: "0x9103c4B112ec249a34aB7AdD9D5589Ca4DF36Aaa",
+  
+    // token address
+    btc: deployedAddress["BTC"],
+    weth: "0x078c04b8cfC949101905fdd5912D31Aad0a244Cb",
+    bnb: deployedAddress["BNB"],
+    usdt: deployedAddress["USDT"],
+    usdc: deployedAddress["USDC"],
+    matic: deployedAddress["MATIC"],
+    op: deployedAddress["OP"],
+    arb: deployedAddress["ARB"],
+  
+    // xOracle price feed
+    btcPriceFeed: "0x382799dc4Fc3d8c9Eb89c236552Ca1b7bA3369C8",
+    ethPriceFeed: "0xC9BbBB15657eCAbAD46a440230e761dFC9cfeE35",
+    bnbPriceFeed: "0x4e9223B617C00EcF67aBA43E9a4Bd641E194056F",
+    usdtPriceFeed: "0xb27915032DE3285A3e785bD49091781D2C2e4a11",
+    usdcPriceFeed: "0xA3E25fa12881c78FB70Bb8bF8DAb39EA1ecE637b",
+    maticPriceFeed: "0x117cb3f6Ec0C8A9e39Ee234d49D09BEd532CDf14",
+    opPriceFeed: "0x99475a0A04D601FBC94D26893A150d0bA9f2f7ae",
+    arbPriceFeed: "0x1F608722A909F396A2626150FbA1C151fa55d56b",
+  
+    // deployed contract
+    xOracle: "0xCaa766A36Ea93c581299719934404D099E65478f", // update 2023-10-13
+    fulfillController: deployedAddress["FulfillController"],
+    tokenManager: deployedAddress["TokenManager"],
+    vault: deployedAddress["Vault"],
+    vaultPositionController: deployedAddress["VaultPositionController"],
+    vaultPriceFeed: deployedAddress["VaultPriceFeed"],
+    router: deployedAddress["Router"],
+    usdx: deployedAddress["USDX"],
+    xlp: deployedAddress["XLP"],
+    xlpManager: deployedAddress["XlpManager"],
+    referralStorage: deployedAddress["ReferralStorage"],
+    positionRouter: deployedAddress["PositionRouter"],
+    orderBook: deployedAddress["OrderBook"],
+    positionManager: deployedAddress["PositionManager"],
+    rewardRouterV3: deployedAddress["RewardRouterV3"],
+    timelock: deployedAddress["Timelock"],
+    fXLP: deployedAddress["fXLP (Fee XLP)"],
+    feeXlpDistributor: deployedAddress["feeXlpDistributor"],
+  };
+
+
+function getContractAddress(name, allowEmpty = false) {
   const addr = contactAddress[name];
   if (!addr) {
+    if (allowEmpty) {
+      return "";
+    }
+    
     throw new Error("not found " + name + " address");
   }
 
@@ -67,40 +108,52 @@ const readCsv = async (file) => {
 };
 
 function getChainId(network) {
-  if (network === "arbitrum") {
-    return 42161;
-  }
-
-  if (network === "avax") {
-    return 43114;
-  }
-
-  if (network === "testnet") {
-    return 97;
-  }
-
   if (network === "lineaTestnet") {
     return 59140;
+  }
+
+  if (network === "develop") {
+    return 1112;
   }
 
   throw new Error("Unsupported network");
 }
 
 async function getFrameSigner() {
-  try {
-    const frame = new ethers.providers.JsonRpcProvider("http://127.0.0.1:1248");
-    const signer = frame.getSigner();
-    if (getChainId(network) !== (await signer.getChainId())) {
-      throw new Error("Incorrect frame network");
+  if (process.env.USE_FRAME_SIGNER == "true") {
+    try {
+      const frame = new ethers.providers.JsonRpcProvider("http://127.0.0.1:1248");
+      const signer = frame.getSigner();
+
+      if (getChainId(network) !== (await signer.getChainId())) {
+        throw new Error("Incorrect frame network");
+      }
+
+      console.log("🖼️ FrameSigner ChainId:", await signer.getChainId());
+      console.log(`signer: ${signer.address}`);
+
+      return signer;
+    } catch (e) {
+      throw new Error(`getFrameSigner error: ${e.toString()}`);
     }
-
-    console.log("FrameSigner ChainId:", await signer.getChainId());
-
+  } else {
+    const [ signer ] = await hre.ethers.getSigners();
+    console.log(`📝 use deployer from PRIVATE_KEY in .env`);
+    console.log(`signer: ${signer.address}`);
     return signer;
-  } catch (e) {
-    throw new Error(`getFrameSigner error: ${e.toString()}`);
   }
 }
+
+const impersonateAddress = async (address) => {
+  const hre = require('hardhat');
+  await hre.network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: [address],
+  });
+  const signer = await ethers.provider.getSigner(address);
+  signer.address = signer._address;
+  return signer;
+};  
 
 async function sendTxn(txnPromise, label) {
   const txn = await txnPromise;
@@ -213,6 +266,23 @@ async function processBatch(batchLists, batchSize, handler) {
   }
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function bigNumberify(n) {
+  return ethers.BigNumber.from(n)
+}
+
+function expandDecimals(n, decimals) {
+  return bigNumberify(n).mul(bigNumberify(10).pow(decimals))
+}
+
+function toUsd(value) {
+  const normalizedValue = parseInt(value * Math.pow(10, 10))
+  return ethers.BigNumber.from(normalizedValue).mul(ethers.BigNumber.from(10).pow(20))
+}
+
 module.exports = {
   getContractAddress,
   readCsv,
@@ -224,4 +294,8 @@ module.exports = {
   readTmpAddresses,
   callWithRetries,
   processBatch,
+  tokenIndexs,
+  sleep,
+  expandDecimals,
+  toUsd,
 };

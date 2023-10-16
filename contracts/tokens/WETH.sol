@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity ^0.8.18;
 
 import "../libraries/token/IERC20.sol";
 import "../libraries/math/SafeMath.sol";
@@ -51,13 +51,13 @@ contract WETH is IERC20 {
      * construction.
      */
     constructor(
-        string memory name,
-        string memory symbol,
-        uint8 decimals
-    ) public {
-        _name = name;
-        _symbol = symbol;
-        _decimals = decimals;
+        string memory name_,
+        string memory symbol_,
+        uint8 decimals_
+    ) {
+        _name = name_;
+        _symbol = symbol_;
+        _decimals = decimals_;
     }
 
     function deposit() public payable {
@@ -67,7 +67,7 @@ contract WETH is IERC20 {
     function withdraw(uint256 amount) public {
         require(_balances[msg.sender] >= amount);
         _balances[msg.sender] = _balances[msg.sender].sub(amount);
-        msg.sender.transfer(amount);
+        payable(msg.sender).transfer(amount);
     }
 
     /**
@@ -316,7 +316,7 @@ contract WETH is IERC20 {
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { }
 
-    function _msgSender() internal view virtual returns (address payable) {
+    function _msgSender() internal view virtual returns (address) {
         return msg.sender;
     }
 }

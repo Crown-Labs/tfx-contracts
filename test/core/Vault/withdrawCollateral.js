@@ -14,7 +14,7 @@ describe("Vault.withdrawCollateral", function () {
   const [wallet, user0, user1, user2, user3] = provider.getWallets()
   let vault
   let vaultPriceFeed
-  let usdg
+  let usdx
   let router
   let bnb
   let btc
@@ -23,8 +23,8 @@ describe("Vault.withdrawCollateral", function () {
   let yieldTracker0
   let fulfillController
 
-  let glpManager
-  let glp
+  let xlpManager
+  let xlp
 
   beforeEach(async () => {
     bnb = await deployContract("Token", [])
@@ -33,20 +33,20 @@ describe("Vault.withdrawCollateral", function () {
 
     vault = await deployContract("Vault", [])
     vaultPositionController = await deployContract("VaultPositionController", [])
-    usdg = await deployContract("USDG", [vault.address])
-    router = await deployContract("Router", [vault.address, vaultPositionController.address, usdg.address, bnb.address])
+    usdx = await deployContract("USDX", [vault.address])
+    router = await deployContract("Router", [vault.address, vaultPositionController.address, usdx.address, bnb.address])
     vaultPriceFeed = await deployContract("VaultPriceFeed", [])
 
-    const _ = await initVault(vault, vaultPositionController, router, usdg, vaultPriceFeed)
+    const _ = await initVault(vault, vaultPositionController, router, usdx, vaultPriceFeed)
 
     distributor0 = await deployContract("TimeDistributor", [])
-    yieldTracker0 = await deployContract("YieldTracker", [usdg.address])
+    yieldTracker0 = await deployContract("YieldTracker", [usdx.address])
 
     await yieldTracker0.setDistributor(distributor0.address)
     await distributor0.setDistribution([yieldTracker0.address], [1000], [bnb.address])
 
     await bnb.mint(distributor0.address, 5000)
-    await usdg.setYieldTrackers([yieldTracker0.address])
+    await usdx.setYieldTrackers([yieldTracker0.address])
 
      // deploy xOracle
      xOracle = await deployXOracle(bnb);
@@ -64,8 +64,8 @@ describe("Vault.withdrawCollateral", function () {
      await vaultPriceFeed.setTokenConfig(bnb.address, bnbPriceFeed.address, 8, false)
      await vaultPriceFeed.setTokenConfig(dai.address, usdtPriceFeed.address, 8, false) // instead DAI with USDT
 
-    glp = await deployContract("GLP", [])
-    glpManager = await deployContract("GlpManager", [vault.address, usdg.address, glp.address, 24 * 60 * 60])
+    xlp = await deployContract("XLP", [])
+    xlpManager = await deployContract("XlpManager", [vault.address, usdx.address, xlp.address, 24 * 60 * 60])
   })
 
   it("withdraw collateral", async () => {
@@ -97,7 +97,7 @@ describe("Vault.withdrawCollateral", function () {
 
     await btc.mint(user1.address, expandDecimals(1, 8))
     await btc.connect(user1).transfer(vault.address, 250000) // 0.0025 BTC => 100 USD
-    await vault.buyUSDG(btc.address, user1.address)
+    await vault.buyUSDX(btc.address, user1.address)
 
     await btc.mint(user0.address, expandDecimals(1, 8))
     await btc.connect(user1).transfer(vault.address, 25000) // 0.00025 BTC => 10 USD
@@ -212,7 +212,7 @@ describe("Vault.withdrawCollateral", function () {
 
     await btc.mint(user1.address, expandDecimals(1, 8))
     await btc.connect(user1).transfer(vault.address, 250000) // 0.0025 BTC => 100 USD
-    await vault.buyUSDG(btc.address, user1.address)
+    await vault.buyUSDX(btc.address, user1.address)
 
     await btc.mint(user0.address, expandDecimals(1, 8))
     await btc.connect(user1).transfer(vault.address, 25000) // 0.00025 BTC => 10 USD
@@ -278,16 +278,16 @@ describe("Vault.withdrawCollateral", function () {
     ], 0)
 
     await bnb.mint(vault.address, expandDecimals(10, 18))
-    await vault.buyUSDG(bnb.address, user1.address)
+    await vault.buyUSDX(bnb.address, user1.address)
 
-    expect(await glpManager.getAumInUsdg(false)).eq("4985000000000000000000") // 4985
-    expect(await glpManager.getAumInUsdg(true)).eq("4985000000000000000000") // 4985
+    expect(await xlpManager.getAumInUsdx(false)).eq("4985000000000000000000") // 4985
+    expect(await xlpManager.getAumInUsdx(true)).eq("4985000000000000000000") // 4985
 
     await bnb.mint(vault.address, expandDecimals(1, 18))
     await vaultPositionController.connect(user0).increasePosition(user0.address, bnb.address, bnb.address, toUsd(2000), true)
 
-    expect(await glpManager.getAumInUsdg(false)).eq("4985000000000000000000") // 4985
-    expect(await glpManager.getAumInUsdg(true)).eq("4985000000000000000000") // 4985
+    expect(await xlpManager.getAumInUsdx(false)).eq("4985000000000000000000") // 4985
+    expect(await xlpManager.getAumInUsdx(true)).eq("4985000000000000000000") // 4985
 
     await increaseBlocktime(provider, 10)
     await fulfillController.requestUpdatePrices()
@@ -307,19 +307,19 @@ describe("Vault.withdrawCollateral", function () {
         { tokenIndex: tokenIndexs.BNB, price: toXOraclePrice(750), lastUpdate: 0 } 
     ], 0)
 
-    expect(await glpManager.getAumInUsdg(false)).eq("6726500000000000000000") // 6726.5
-    expect(await glpManager.getAumInUsdg(true)).eq("6726500000000000000000") // 6726.5
+    expect(await xlpManager.getAumInUsdx(false)).eq("6726500000000000000000") // 6726.5
+    expect(await xlpManager.getAumInUsdx(true)).eq("6726500000000000000000") // 6726.5
 
     await bnb.mint(vault.address, expandDecimals(1, 18))
     await vaultPositionController.connect(user0).increasePosition(user0.address, bnb.address, bnb.address, toUsd(0), true)
 
-    expect(await glpManager.getAumInUsdg(false)).eq("6726500000000000000000") // 6726.5
-    expect(await glpManager.getAumInUsdg(true)).eq("6726500000000000000000") // 6726.5
+    expect(await xlpManager.getAumInUsdx(false)).eq("6726500000000000000000") // 6726.5
+    expect(await xlpManager.getAumInUsdx(true)).eq("6726500000000000000000") // 6726.5
 
     await vaultPositionController.connect(user0).decreasePosition(user0.address, bnb.address, bnb.address, toUsd(500), toUsd(0), true, user2.address)
 
-    expect(await glpManager.getAumInUsdg(false)).eq("6726500000000000000500") // 6726.5000000000000005
-    expect(await glpManager.getAumInUsdg(true)).eq("6726500000000000000500") // 6726.5000000000000005
+    expect(await xlpManager.getAumInUsdx(false)).eq("6726500000000000000500") // 6726.5000000000000005
+    expect(await xlpManager.getAumInUsdx(true)).eq("6726500000000000000500") // 6726.5000000000000005
 
     await increaseBlocktime(provider, 10)
     await fulfillController.requestUpdatePrices()
@@ -339,18 +339,18 @@ describe("Vault.withdrawCollateral", function () {
         { tokenIndex: tokenIndexs.BNB, price: toXOraclePrice(400), lastUpdate: 0 } 
     ], 0)
 
-    expect(await glpManager.getAumInUsdg(false)).eq("4171733333333333333600") // 4171.7333333333333336
-    expect(await glpManager.getAumInUsdg(true)).eq("4171733333333333333600") // 4171.7333333333333336
+    expect(await xlpManager.getAumInUsdx(false)).eq("4171733333333333333600") // 4171.7333333333333336
+    expect(await xlpManager.getAumInUsdx(true)).eq("4171733333333333333600") // 4171.7333333333333336
 
     await vaultPositionController.connect(user0).decreasePosition(user0.address, bnb.address, bnb.address, toUsd(250), toUsd(0), true, user2.address)
 
-    expect(await glpManager.getAumInUsdg(false)).eq("4171733333333333333600") // 4171.7333333333333336
-    expect(await glpManager.getAumInUsdg(true)).eq("4171733333333333333600") // 4171.7333333333333336
+    expect(await xlpManager.getAumInUsdx(false)).eq("4171733333333333333600") // 4171.7333333333333336
+    expect(await xlpManager.getAumInUsdx(true)).eq("4171733333333333333600") // 4171.7333333333333336
 
     await vaultPositionController.connect(user0).decreasePosition(user0.address, bnb.address, bnb.address, toUsd(0), toUsd(250), true, user2.address)
 
-    expect(await glpManager.getAumInUsdg(false)).eq("4171733333333333333600") // 4171.7333333333333336
-    expect(await glpManager.getAumInUsdg(true)).eq("4171733333333333333600") // 4171.7333333333333336
+    expect(await xlpManager.getAumInUsdx(false)).eq("4171733333333333333600") // 4171.7333333333333336
+    expect(await xlpManager.getAumInUsdx(true)).eq("4171733333333333333600") // 4171.7333333333333336
   })
 
   it("withdraw collateral short", async () => {
@@ -381,16 +381,16 @@ describe("Vault.withdrawCollateral", function () {
     ], 0)
 
     await dai.mint(vault.address, expandDecimals(8000, 18))
-    await vault.buyUSDG(dai.address, user1.address)
+    await vault.buyUSDX(dai.address, user1.address)
 
-    expect(await glpManager.getAumInUsdg(false)).eq("7976000000000000000000") // 7976
-    expect(await glpManager.getAumInUsdg(true)).eq("7976000000000000000000") // 7976
+    expect(await xlpManager.getAumInUsdx(false)).eq("7976000000000000000000") // 7976
+    expect(await xlpManager.getAumInUsdx(true)).eq("7976000000000000000000") // 7976
 
     await dai.mint(vault.address, expandDecimals(500, 18))
     await vaultPositionController.connect(user0).increasePosition(user0.address, dai.address, bnb.address, toUsd(2000), false)
 
-    expect(await glpManager.getAumInUsdg(false)).eq("7976000000000000000000") // 7976
-    expect(await glpManager.getAumInUsdg(true)).eq("7976000000000000000000") // 7976
+    expect(await xlpManager.getAumInUsdx(false)).eq("7976000000000000000000") // 7976
+    expect(await xlpManager.getAumInUsdx(true)).eq("7976000000000000000000") // 7976
 
     await increaseBlocktime(provider, 10)
     await fulfillController.requestUpdatePrices()
@@ -410,19 +410,19 @@ describe("Vault.withdrawCollateral", function () {
         { tokenIndex: tokenIndexs.BNB, price: toXOraclePrice(525), lastUpdate: 0 } 
     ], 0)
 
-    expect(await glpManager.getAumInUsdg(false)).eq("8076000000000000000000") // 8076
-    expect(await glpManager.getAumInUsdg(true)).eq("8076000000000000000000") // 8076
+    expect(await xlpManager.getAumInUsdx(false)).eq("8076000000000000000000") // 8076
+    expect(await xlpManager.getAumInUsdx(true)).eq("8076000000000000000000") // 8076
 
     await dai.mint(vault.address, expandDecimals(500, 18))
     await vaultPositionController.connect(user0).increasePosition(user0.address, dai.address, bnb.address, toUsd(0), false)
 
-    expect(await glpManager.getAumInUsdg(false)).eq("8076000000000000000000") // 8076
-    expect(await glpManager.getAumInUsdg(true)).eq("8076000000000000000000") // 8076
+    expect(await xlpManager.getAumInUsdx(false)).eq("8076000000000000000000") // 8076
+    expect(await xlpManager.getAumInUsdx(true)).eq("8076000000000000000000") // 8076
 
     await vaultPositionController.connect(user0).decreasePosition(user0.address, dai.address, bnb.address, toUsd(500), toUsd(0), false, user2.address)
 
-    expect(await glpManager.getAumInUsdg(false)).eq("8076000000000000000000") // 8076
-    expect(await glpManager.getAumInUsdg(true)).eq("8076000000000000000000") // 8076
+    expect(await xlpManager.getAumInUsdx(false)).eq("8076000000000000000000") // 8076
+    expect(await xlpManager.getAumInUsdx(true)).eq("8076000000000000000000") // 8076
 
     await increaseBlocktime(provider, 10)
     await fulfillController.requestUpdatePrices()
@@ -442,12 +442,12 @@ describe("Vault.withdrawCollateral", function () {
         { tokenIndex: tokenIndexs.BNB, price: toXOraclePrice(475), lastUpdate: 0 } 
     ], 0)
     
-    expect(await glpManager.getAumInUsdg(false)).eq("7876000000000000000000") // 7876
-    expect(await glpManager.getAumInUsdg(true)).eq("7876000000000000000000") // 7876
+    expect(await xlpManager.getAumInUsdx(false)).eq("7876000000000000000000") // 7876
+    expect(await xlpManager.getAumInUsdx(true)).eq("7876000000000000000000") // 7876
 
     await vaultPositionController.connect(user0).decreasePosition(user0.address, dai.address, bnb.address, toUsd(0), toUsd(500), false, user2.address)
 
-    expect(await glpManager.getAumInUsdg(false)).eq("7891000000000000000000") // 7876
-    expect(await glpManager.getAumInUsdg(true)).eq("7891000000000000000000") // 7876
+    expect(await xlpManager.getAumInUsdx(false)).eq("7891000000000000000000") // 7876
+    expect(await xlpManager.getAumInUsdx(true)).eq("7891000000000000000000") // 7876
   })
 })

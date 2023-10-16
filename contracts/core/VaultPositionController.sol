@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity ^0.8.18;
 
 import "../libraries/math/SafeMath.sol";
 import "../libraries/token/IERC20.sol";
 import "../libraries/token/SafeERC20.sol";
 import "../libraries/utils/ReentrancyGuard.sol";
-
 import "./interfaces/IVault.sol";
 import "./interfaces/IVaultPositionController.sol";
 
@@ -94,7 +93,7 @@ contract VaultPositionController is ReentrancyGuard, IVaultPositionController {
 
     // once the parameters are verified to be working correctly,
     // gov should be set to a timelock contract or a governance contract
-    constructor() public {
+    constructor() {
         gov = msg.sender;
     }
 

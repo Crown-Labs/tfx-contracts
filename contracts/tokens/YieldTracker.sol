@@ -1,12 +1,11 @@
 //SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity ^0.8.18;
 
 import "../libraries/math/SafeMath.sol";
 import "../libraries/token/IERC20.sol";
 import "../libraries/token/SafeERC20.sol";
 import "../libraries/utils/ReentrancyGuard.sol";
-
 import "./interfaces/IDistributor.sol";
 import "./interfaces/IYieldTracker.sol";
 import "./interfaces/IYieldToken.sol";
@@ -33,7 +32,7 @@ contract YieldTracker is IYieldTracker, ReentrancyGuard {
         _;
     }
 
-    constructor(address _yieldToken) public {
+    constructor(address _yieldToken) {
         gov = msg.sender;
         yieldToken = _yieldToken;
     }

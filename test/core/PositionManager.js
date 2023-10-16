@@ -6,6 +6,8 @@ const { toXOraclePrice } = require("../shared/chainlink")
 const { toUsd, toNormalizedPrice } = require("../shared/units")
 const { initVault, getBnbConfig, getBtcConfig, getDaiConfig, validateVaultBalance, tokenIndexs } = require("./Vault/helpers")
 const { deployXOracle, getPriceFeed } = require("../shared/xOracle")
+// const  fs = require("fs")
+// const { ethers } = require("hardhat")
 
 use(solidity)
 
@@ -18,7 +20,7 @@ describe("PositionManager", function () {
   let vaultUtils
   let vaultPriceFeed
   let positionManager
-  let usdg
+  let usdx
   let router
   let bnb
   let btc
@@ -31,8 +33,8 @@ describe("PositionManager", function () {
   let xOracle
   let fulfillController
 
-  let glpManager
-  let glp
+  let xlpManager
+  let xlp
 
   beforeEach(async () => {
     bnb = await deployContract("Token", [])
@@ -42,21 +44,21 @@ describe("PositionManager", function () {
     vault = await deployContract("Vault", [])
     vaultPositionController = await deployContract("VaultPositionController", [])
     await vault.setIsLeverageEnabled(false)
-    usdg = await deployContract("USDG", [vault.address])
-    router = await deployContract("Router", [vault.address, vaultPositionController.address, usdg.address, bnb.address])
+    usdx = await deployContract("USDX", [vault.address])
+    router = await deployContract("Router", [vault.address, vaultPositionController.address, usdx.address, bnb.address])
     vaultPriceFeed = await deployContract("VaultPriceFeed", [])
 
-    const initVaultResult = await initVault(vault, vaultPositionController, router, usdg, vaultPriceFeed)
+    const initVaultResult = await initVault(vault, vaultPositionController, router, usdx, vaultPriceFeed)
     vaultUtils = initVaultResult.vaultUtils
 
     distributor0 = await deployContract("TimeDistributor", [])
-    yieldTracker0 = await deployContract("YieldTracker", [usdg.address])
+    yieldTracker0 = await deployContract("YieldTracker", [usdx.address])
 
     await yieldTracker0.setDistributor(distributor0.address)
     await distributor0.setDistribution([yieldTracker0.address], [1000], [bnb.address])
 
     await bnb.mint(distributor0.address, 5000)
-    await usdg.setYieldTrackers([yieldTracker0.address])
+    await usdx.setYieldTrackers([yieldTracker0.address])
 
     // deploy xOracle
     xOracle = await deployXOracle(bnb);
@@ -83,15 +85,15 @@ describe("PositionManager", function () {
       vaultPositionController.address,
       orderBookOpenOrder.address,
       bnb.address,
-      usdg.address,
+      usdx.address,
       minExecutionFee,
       expandDecimals(5, 30) // minPurchseTokenAmountUsd
     );
     await router.addPlugin(orderBook.address)
     await router.connect(user0).approvePlugin(orderBook.address)
 
-    glp = await deployContract("GLP", [])
-    glpManager = await deployContract("GlpManager", [vault.address, usdg.address, glp.address, 24 * 60 * 60])
+    xlp = await deployContract("XLP", [])
+    xlpManager = await deployContract("XlpManager", [vault.address, usdx.address, xlp.address, 24 * 60 * 60])
 
     positionManager = await deployContract("PositionManager", [vault.address, vaultPositionController.address, router.address, bnb.address, 50, orderBook.address])
 
@@ -121,7 +123,7 @@ describe("PositionManager", function () {
 
     await bnb.mint(user1.address, expandDecimals(1000, 18))
     await bnb.connect(user1).approve(router.address, expandDecimals(1000, 18))
-    await router.connect(user1).swap([bnb.address, usdg.address], expandDecimals(1000, 18), expandDecimals(29000, 18), user1.address)
+    await router.connect(user1).swap([bnb.address, usdx.address], expandDecimals(1000, 18), expandDecimals(29000, 18), user1.address)
     await xOracle.fulfillRequest([
       { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
       { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
@@ -130,7 +132,7 @@ describe("PositionManager", function () {
 
     await dai.mint(user1.address, expandDecimals(30000, 18))
     await dai.connect(user1).approve(router.address, expandDecimals(30000, 18))
-    await router.connect(user1).swap([dai.address, usdg.address], expandDecimals(30000, 18), expandDecimals(29000, 18), user1.address)
+    await router.connect(user1).swap([dai.address, usdx.address], expandDecimals(30000, 18), expandDecimals(29000, 18), user1.address)
     await xOracle.fulfillRequest([
       { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
       { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
@@ -139,7 +141,7 @@ describe("PositionManager", function () {
 
     await btc.mint(user1.address, expandDecimals(10, 8))
     await btc.connect(user1).approve(router.address, expandDecimals(10, 8))
-    await router.connect(user1).swap([btc.address, usdg.address], expandDecimals(10, 8), expandDecimals(59000, 18), user1.address)
+    await router.connect(user1).swap([btc.address, usdx.address], expandDecimals(10, 8), expandDecimals(59000, 18), user1.address)
     await xOracle.fulfillRequest([
       { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
       { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
@@ -671,7 +673,7 @@ describe("PositionManager", function () {
       )
 
       // fulfillRequest for createIncreaseOrderWithSwap
-      await xOracle.fulfillRequest([
+      const tx = await xOracle.fulfillRequest([
         { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
         { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
         { tokenIndex: tokenIndexs.BNB, price: toXOraclePrice(300), lastUpdate: 0 }

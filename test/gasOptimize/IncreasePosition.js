@@ -5,7 +5,7 @@ const { expandDecimals, getBlockTime, increaseTime, mineBlock, increaseBlocktime
 const { toXOraclePrice } = require("../shared/chainlink")
 const { toUsd, toNormalizedPrice } = require("../shared/units")
 const { initVault, getBnbConfig, getEthConfig, getBtcConfig, getDaiConfig, validateVaultBalance, tokenIndexs } = require("../core/Vault/helpers")
-const { sleep } = require("../../scripts/tfx_deploy/shared/helpers")
+const { sleep } = require("../../scripts/shared/helpers")
 const { deployXOracle, getPriceFeed } = require("../shared/xOracle")
 
 use(solidity)
@@ -27,20 +27,20 @@ describe("Test Gas Optimize", function () {
     
         vault = await deployContract("Vault", [])
         vaultPositionController = await deployContract("VaultPositionController", [])
-        usdg = await deployContract("USDG", [vault.address])
-        router = await deployContract("Router", [vault.address, vaultPositionController.address, usdg.address, bnb.address])
+        usdx = await deployContract("USDX", [vault.address])
+        router = await deployContract("Router", [vault.address, vaultPositionController.address, usdx.address, bnb.address])
         vaultPriceFeed = await deployContract("VaultPriceFeed", [])
 
-        await initVault(vault, vaultPositionController, router, usdg, vaultPriceFeed)
+        await initVault(vault, vaultPositionController, router, usdx, vaultPriceFeed)
 
         distributor0 = await deployContract("TimeDistributor", [])
-        yieldTracker0 = await deployContract("YieldTracker", [usdg.address])
+        yieldTracker0 = await deployContract("YieldTracker", [usdx.address])
 
         await yieldTracker0.setDistributor(distributor0.address)
         await distributor0.setDistribution([yieldTracker0.address], [1000], [bnb.address])
 
         await bnb.mint(distributor0.address, 5000)
-        await usdg.setYieldTrackers([yieldTracker0.address])
+        await usdx.setYieldTrackers([yieldTracker0.address])
         
         // deploy xOracle
         xOracle = await deployXOracle(bnb);
@@ -96,7 +96,7 @@ describe("Test Gas Optimize", function () {
             await btc.mint(user1.address, expandDecimals(1, 8))
 
             await btc.connect(user1).transfer(vault.address, 250000) // 0.0025 BTC => 100 USD
-            await vault.buyUSDG(btc.address, user1.address)
+            await vault.buyUSDX(btc.address, user1.address)
 
             await btc.mint(user0.address, expandDecimals(1, 8))
             await btc.connect(user1).transfer(vault.address, 25000) // 0.00025 BTC => 10 USD

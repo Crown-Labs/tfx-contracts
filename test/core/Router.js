@@ -13,7 +13,7 @@ describe("Router", function () {
   const provider = waffle.provider
   const [wallet, user0, user1, user2, user3] = provider.getWallets()
   let vault
-  let usdg
+  let usdx
   let router
   let vaultPriceFeed
   let bnb
@@ -37,20 +37,20 @@ describe("Router", function () {
 
     vault = await deployContract("Vault", [])
     vaultPositionController = await deployContract("VaultPositionController", [])
-    usdg = await deployContract("USDG", [vault.address])
-    router = await deployContract("Router", [vault.address, vaultPositionController.address, usdg.address, bnb.address])
+    usdx = await deployContract("USDX", [vault.address])
+    router = await deployContract("Router", [vault.address, vaultPositionController.address, usdx.address, bnb.address])
     vaultPriceFeed = await deployContract("VaultPriceFeed", [])
 
-    await initVault(vault, vaultPositionController, router, usdg, vaultPriceFeed)
+    await initVault(vault, vaultPositionController, router, usdx, vaultPriceFeed)
 
     distributor0 = await deployContract("TimeDistributor", [])
-    yieldTracker0 = await deployContract("YieldTracker", [usdg.address])
+    yieldTracker0 = await deployContract("YieldTracker", [usdx.address])
 
     await yieldTracker0.setDistributor(distributor0.address)
     await distributor0.setDistribution([yieldTracker0.address], [1000], [bnb.address])
 
     await bnb.mint(distributor0.address, 5000)
-    await usdg.setYieldTrackers([yieldTracker0.address])
+    await usdx.setYieldTrackers([yieldTracker0.address])
 
     reader = await deployContract("Reader", [])
 
@@ -188,12 +188,12 @@ describe("Router", function () {
       .to.be.revertedWith("Router: plugin not approved")
   })
 
-  it("swap, buy USDG", async () => {
+  it("swap, buy USDX", async () => {
     await vaultPriceFeed.getPrice(dai.address, true, true)
     await dai.mint(user0.address, expandDecimals(200, 18))
     await dai.connect(user0).approve(router.address, expandDecimals(200, 18))
 
-    await router.connect(user0).swap([dai.address, usdg.address], expandDecimals(200, 18), expandDecimals(201, 18), user0.address)
+    await router.connect(user0).swap([dai.address, usdx.address], expandDecimals(200, 18), expandDecimals(201, 18), user0.address)
     // revertedWith("Router: insufficient amountOut")
     await xOracle.fulfillRequest([
       { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
@@ -202,26 +202,26 @@ describe("Router", function () {
     ], 0)
 
     expect(await dai.balanceOf(user0.address)).eq(expandDecimals(200, 18))
-    expect(await usdg.balanceOf(user0.address)).eq(0)
+    expect(await usdx.balanceOf(user0.address)).eq(0)
     await dai.connect(user0).approve(router.address, expandDecimals(200, 18))
 
-    const tx = await router.connect(user0).swap([dai.address, usdg.address], expandDecimals(200, 18), expandDecimals(199, 18), user0.address)
+    const tx = await router.connect(user0).swap([dai.address, usdx.address], expandDecimals(200, 18), expandDecimals(199, 18), user0.address)
     await xOracle.fulfillRequest([
       { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
       { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
       { tokenIndex: tokenIndexs.BNB, price: toXOraclePrice(300), lastUpdate: 0 }
     ], 0)
 
-    await reportGasUsed(provider, tx, "buyUSDG gas used")
+    await reportGasUsed(provider, tx, "buyUSDX gas used")
     expect(await dai.balanceOf(user0.address)).eq(0)
-    expect(await usdg.balanceOf(user0.address)).eq("199400000000000000000") // 199.4
+    expect(await usdx.balanceOf(user0.address)).eq("199400000000000000000") // 199.4
   })
 
-  it("swap, sell USDG", async () => {
+  it("swap, sell USDX", async () => {
     await dai.mint(user0.address, expandDecimals(200, 18))
     await dai.connect(user0).approve(router.address, expandDecimals(200, 18))
 
-    await router.connect(user0).swap([dai.address, usdg.address], expandDecimals(200, 18), expandDecimals(201, 18), user0.address)
+    await router.connect(user0).swap([dai.address, usdx.address], expandDecimals(200, 18), expandDecimals(201, 18), user0.address)
     // revertedWith("Router: insufficient amountOut")
     await xOracle.fulfillRequest([
       { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
@@ -230,23 +230,23 @@ describe("Router", function () {
     ], 0)
 
     expect(await dai.balanceOf(user0.address)).eq(expandDecimals(200, 18))
-    expect(await usdg.balanceOf(user0.address)).eq(0)
+    expect(await usdx.balanceOf(user0.address)).eq(0)
 
     await dai.connect(user0).approve(router.address, expandDecimals(200, 18))
     
-    const tx = await router.connect(user0).swap([dai.address, usdg.address], expandDecimals(200, 18), expandDecimals(199, 18), user0.address)
+    const tx = await router.connect(user0).swap([dai.address, usdx.address], expandDecimals(200, 18), expandDecimals(199, 18), user0.address)
     await xOracle.fulfillRequest([
       { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
       { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
       { tokenIndex: tokenIndexs.BNB, price: toXOraclePrice(300), lastUpdate: 0 }
     ], 0)
 
-    await reportGasUsed(provider, tx, "sellUSDG gas used")
+    await reportGasUsed(provider, tx, "sellUSDX gas used")
     expect(await dai.balanceOf(user0.address)).eq(0)
-    expect(await usdg.balanceOf(user0.address)).eq("199400000000000000000") // 199.4
+    expect(await usdx.balanceOf(user0.address)).eq("199400000000000000000") // 199.4
 
-    await usdg.connect(user0).approve(router.address, expandDecimals(100, 18))
-    await router.connect(user0).swap([usdg.address, dai.address], expandDecimals(100, 18), expandDecimals(100, 18), user0.address)
+    await usdx.connect(user0).approve(router.address, expandDecimals(100, 18))
+    await router.connect(user0).swap([usdx.address, dai.address], expandDecimals(100, 18), expandDecimals(100, 18), user0.address)
     // revertedWith("Router: insufficient amountOut")
     await xOracle.fulfillRequest([
       { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
@@ -254,8 +254,8 @@ describe("Router", function () {
       { tokenIndex: tokenIndexs.BNB, price: toXOraclePrice(300), lastUpdate: 0 }
     ], 0)
 
-    await usdg.connect(user0).approve(router.address, expandDecimals(100, 18))
-    await router.connect(user0).swap([usdg.address, dai.address], expandDecimals(100, 18), expandDecimals(99, 18), user0.address)
+    await usdx.connect(user0).approve(router.address, expandDecimals(100, 18))
+    await router.connect(user0).swap([usdx.address, dai.address], expandDecimals(100, 18), expandDecimals(99, 18), user0.address)
     await xOracle.fulfillRequest([
       { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
       { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
@@ -263,14 +263,14 @@ describe("Router", function () {
     ], 0)
 
     expect(await dai.balanceOf(user0.address)).eq("99700000000000000000") // 99.7
-    expect(await usdg.balanceOf(user0.address)).eq("99400000000000000000") // 99.4
+    expect(await usdx.balanceOf(user0.address)).eq("99400000000000000000") // 99.4
   })
   
   it("swap, path.length == 2", async () => {
     await btc.mint(user0.address, expandDecimals(1, 8))
     await btc.connect(user0).approve(router.address, expandDecimals(1, 8))
     
-    await router.connect(user0).swap([btc.address, usdg.address], expandDecimals(1, 8), expandDecimals(60000, 18), user0.address)
+    await router.connect(user0).swap([btc.address, usdx.address], expandDecimals(1, 8), expandDecimals(60000, 18), user0.address)
     // revertedWith("Router: insufficient amountOut")
     await xOracle.fulfillRequest([
       { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
@@ -279,7 +279,7 @@ describe("Router", function () {
     ], 0)
 
     await btc.connect(user0).approve(router.address, expandDecimals(1, 8))
-    await router.connect(user0).swap([btc.address, usdg.address], expandDecimals(1, 8), expandDecimals(59000, 18), user0.address)
+    await router.connect(user0).swap([btc.address, usdx.address], expandDecimals(1, 8), expandDecimals(59000, 18), user0.address)
     await xOracle.fulfillRequest([
       { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
       { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
@@ -316,7 +316,7 @@ describe("Router", function () {
   it("swap, path.length == 3", async () => {
     await btc.mint(user0.address, expandDecimals(1, 8))
     await btc.connect(user0).approve(router.address, expandDecimals(1, 8))
-    await router.connect(user0).swap([btc.address, usdg.address], expandDecimals(1, 8), expandDecimals(59000, 18), user0.address)
+    await router.connect(user0).swap([btc.address, usdx.address], expandDecimals(1, 8), expandDecimals(59000, 18), user0.address)
     await xOracle.fulfillRequest([
       { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
       { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
@@ -325,19 +325,19 @@ describe("Router", function () {
 
     await dai.mint(user0.address, expandDecimals(30000, 18))
     await dai.connect(user0).approve(router.address, expandDecimals(30000, 18))
-    await router.connect(user0).swap([dai.address, usdg.address], expandDecimals(30000, 18), expandDecimals(29000, 18), user0.address)
+    await router.connect(user0).swap([dai.address, usdx.address], expandDecimals(30000, 18), expandDecimals(29000, 18), user0.address)
     await xOracle.fulfillRequest([
       { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
       { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
       { tokenIndex: tokenIndexs.BNB, price: toXOraclePrice(300), lastUpdate: 0 }
     ], 0)
 
-    await usdg.connect(user0).approve(router.address, expandDecimals(20000, 18))
+    await usdx.connect(user0).approve(router.address, expandDecimals(20000, 18))
 
     expect(await dai.balanceOf(user0.address)).eq(0)
-    expect(await usdg.balanceOf(user0.address)).eq(expandDecimals(89730, 18))
+    expect(await usdx.balanceOf(user0.address)).eq(expandDecimals(89730, 18))
 
-    await router.connect(user0).swap([usdg.address, dai.address, usdg.address], expandDecimals(20000, 18), expandDecimals(20000, 18), user0.address)
+    await router.connect(user0).swap([usdx.address, dai.address, usdx.address], expandDecimals(20000, 18), expandDecimals(20000, 18), user0.address)
     // revertedWith("Router: insufficient amountOut")
     await xOracle.fulfillRequest([
       { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
@@ -345,8 +345,8 @@ describe("Router", function () {
       { tokenIndex: tokenIndexs.BNB, price: toXOraclePrice(300), lastUpdate: 0 }
     ], 0)
 
-    await usdg.connect(user0).approve(router.address, expandDecimals(20000, 18))
-    await router.connect(user0).swap([usdg.address, dai.address, usdg.address], expandDecimals(20000, 18), expandDecimals(19000, 18), user0.address)
+    await usdx.connect(user0).approve(router.address, expandDecimals(20000, 18))
+    await router.connect(user0).swap([usdx.address, dai.address, usdx.address], expandDecimals(20000, 18), expandDecimals(19000, 18), user0.address)
     await xOracle.fulfillRequest([
       { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
       { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
@@ -354,11 +354,11 @@ describe("Router", function () {
     ], 0)
 
     expect(await dai.balanceOf(user0.address)).eq(0)
-    expect(await usdg.balanceOf(user0.address)).eq("89610180000000000000000") // 89610.18
+    expect(await usdx.balanceOf(user0.address)).eq("89610180000000000000000") // 89610.18
 
-    await usdg.connect(user0).approve(router.address, expandDecimals(40000, 18))
+    await usdx.connect(user0).approve(router.address, expandDecimals(40000, 18))
     // this reverts as some DAI has been transferred from the pool to the fee reserve
-    await router.connect(user0).swap([usdg.address, dai.address, btc.address], expandDecimals(30000, 18), expandDecimals(39000, 18), user0.address)
+    await router.connect(user0).swap([usdx.address, dai.address, btc.address], expandDecimals(30000, 18), expandDecimals(39000, 18), user0.address)
     // revertedWith("Vault: poolAmount exceeded")
     await xOracle.fulfillRequest([
       { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
@@ -369,8 +369,8 @@ describe("Router", function () {
     expect(await vault.poolAmounts(dai.address)).eq("29790180000000000000000") // 29790.18
     expect(await vault.feeReserves(dai.address)).eq("209820000000000000000") // 209.82
 
-    await usdg.connect(user0).approve(router.address, expandDecimals(40000, 18))
-    await router.connect(user0).swap([usdg.address, dai.address, btc.address], expandDecimals(20000, 18), "34000000", user0.address)
+    await usdx.connect(user0).approve(router.address, expandDecimals(40000, 18))
+    await router.connect(user0).swap([usdx.address, dai.address, btc.address], expandDecimals(20000, 18), "34000000", user0.address)
     // revertedWith("Router: insufficient amountOut")
     await xOracle.fulfillRequest([
       { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
@@ -378,8 +378,8 @@ describe("Router", function () {
       { tokenIndex: tokenIndexs.BNB, price: toXOraclePrice(300), lastUpdate: 0 }
     ], 0)
 
-    await usdg.connect(user0).approve(router.address, expandDecimals(40000, 18))
-    const tx = await router.connect(user0).swap([usdg.address, dai.address, btc.address], expandDecimals(20000, 18), "33000000", user0.address)
+    await usdx.connect(user0).approve(router.address, expandDecimals(40000, 18))
+    const tx = await router.connect(user0).swap([usdx.address, dai.address, btc.address], expandDecimals(20000, 18), "33000000", user0.address)
     await xOracle.fulfillRequest([
       { tokenIndex: tokenIndexs.USDT, price: toXOraclePrice(1), lastUpdate: 0 },
       { tokenIndex: tokenIndexs.BTC, price: toXOraclePrice(60000), lastUpdate: 0 },
@@ -387,7 +387,7 @@ describe("Router", function () {
     ], 0)
 
     await reportGasUsed(provider, tx, "swap gas used")
-    expect(await usdg.balanceOf(user0.address)).eq("69610180000000000000000") // 69610.18
+    expect(await usdx.balanceOf(user0.address)).eq("69610180000000000000000") // 69610.18
     expect(await btc.balanceOf(user0.address)).eq("33133633") // 0.33133633 BTC
   })
 })

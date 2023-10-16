@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity ^0.8.18;
 
 import "../libraries/token/IERC20.sol";
 import "../libraries/math/SafeMath.sol";
-
 import "../access/Governable.sol";
 
 contract BatchSender is Governable {
@@ -24,7 +23,7 @@ contract BatchSender is Governable {
         _;
     }
 
-    constructor() public {
+    constructor() {
         isHandler[msg.sender] = true;
     }
 

@@ -1,65 +1,7 @@
 const { expandDecimals } = require("../../shared/utilities")
 const { toUsd } = require("../../shared/units")
 const { deployContract } = require("../../shared/fixtures")
-
-const errors = [
-  "Vault: zero error",
-  "Vault: already initialized",
-  "Vault: invalid _maxLeverage",
-  "Vault: invalid _taxBasisPoints",
-  "Vault: invalid _stableTaxBasisPoints",
-  "Vault: invalid _mintBurnFeeBasisPoints",
-  "Vault: invalid _swapFeeBasisPoints",
-  "Vault: invalid _stableSwapFeeBasisPoints",
-  "Vault: invalid _marginFeeBasisPoints",
-  "Vault: invalid _liquidationFeeUsd",
-  "Vault: invalid _fundingInterval",
-  "Vault: invalid _fundingRateFactor",
-  "Vault: invalid _stableFundingRateFactor",
-  "Vault: token not whitelisted",
-  "Vault: _token not whitelisted",
-  "Vault: invalid tokenAmount",
-  "Vault: _token not whitelisted",
-  "Vault: invalid tokenAmount",
-  "Vault: invalid usdgAmount",
-  "Vault: _token not whitelisted",
-  "Vault: invalid usdgAmount",
-  "Vault: invalid redemptionAmount",
-  "Vault: invalid amountOut",
-  "Vault: swaps not enabled",
-  "Vault: _tokenIn not whitelisted",
-  "Vault: _tokenOut not whitelisted",
-  "Vault: invalid tokens",
-  "Vault: invalid amountIn",
-  "Vault: leverage not enabled",
-  "Vault: insufficient collateral for fees",
-  "Vault: invalid position.size",
-  "Vault: empty position",
-  "Vault: position size exceeded",
-  "Vault: position collateral exceeded",
-  "Vault: invalid liquidator",
-  "Vault: empty position",
-  "Vault: position cannot be liquidated",
-  "Vault: invalid position",
-  "Vault: invalid _averagePrice",
-  "Vault: collateral should be withdrawn",
-  "Vault: _size must be more than _collateral",
-  "Vault: invalid msg.sender",
-  "Vault: mismatched tokens",
-  "Vault: _collateralToken not whitelisted",
-  "Vault: _collateralToken must not be a stableToken",
-  "Vault: _collateralToken not whitelisted",
-  "Vault: _collateralToken must be a stableToken",
-  "Vault: _indexToken must not be a stableToken",
-  "Vault: _indexToken not shortable",
-  "Vault: invalid increase",
-  "Vault: reserve exceeds pool",
-  "Vault: max USDG exceeded",
-  "Vault: reserve exceeds pool",
-  "Vault: forbidden",
-  "Vault: forbidden",
-  "Vault: maxGasPrice exceeded"
-]
+const { errors } = require("../../../scripts/shared/errorCodes")
 
 const tokenIndexs = {
   BTC: 0,
@@ -78,11 +20,11 @@ async function initVaultErrors(vault) {
   return vaultErrorController
 }
 
-async function initVault(vault, vaultPositionController, router, usdg, priceFeed) {
+async function initVault(vault, vaultPositionController, router, usdx, priceFeed) {
   await vault.initialize(
     vaultPositionController.address, // vaultPositionController
     router.address, // router
-    usdg.address, // usdg
+    usdx.address, // usdx
     priceFeed.address, // priceFeed
     toUsd(5), // liquidationFeeUsd
     600, // fundingRateFactor
@@ -112,7 +54,7 @@ function getBnbConfig(bnb) {
     18, // _tokenDecimals
     10000, // _tokenWeight
     75, // _minProfitBps,
-    0, // _maxUsdgAmount
+    0, // _maxUsdxAmount
     false, // _isStable
     true // _isShortable
   ]
@@ -124,7 +66,7 @@ function getEthConfig(eth) {
     18, // _tokenDecimals
     10000, // _tokenWeight
     75, // _minProfitBps
-    0, // _maxUsdgAmount
+    0, // _maxUsdxAmount
     false, // _isStable
     true // _isShortable
   ]
@@ -136,7 +78,7 @@ function getBtcConfig(btc) {
     8, // _tokenDecimals
     10000, // _tokenWeight
     75, // _minProfitBps
-    0, // _maxUsdgAmount
+    0, // _maxUsdxAmount
     false, // _isStable
     true // _isShortable
   ]
@@ -148,7 +90,7 @@ function getDaiConfig(dai) {
     18, // _tokenDecimals
     10000, // _tokenWeight
     75, // _minProfitBps
-    0, // _maxUsdgAmount
+    0, // _maxUsdxAmount
     true, // _isStable
     false // _isShortable
   ]

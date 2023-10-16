@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity ^0.8.18;
 
 import "./interfaces/IRouter.sol";
 import "./interfaces/IPositionRouter.sol";
@@ -11,6 +11,8 @@ interface IFulfillController {
 }
 
 contract PositionRouter is BasePositionManager, IPositionRouter {
+    using SafeMath for uint256;
+    using SafeERC20 for IERC20;
 
     struct IncreasePositionRequest {
         address account;
@@ -170,7 +172,7 @@ contract PositionRouter is BasePositionManager, IPositionRouter {
         address _weth,
         uint256 _depositFee,
         uint256 _minExecutionFee
-    ) public BasePositionManager(_vault, _positionController, _router, _weth, _depositFee) {
+    ) BasePositionManager(_vault, _positionController, _router, _weth, _depositFee) {
         minExecutionFee = _minExecutionFee;
     }
 

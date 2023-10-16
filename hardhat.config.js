@@ -22,65 +22,52 @@ task("accounts", "Prints the list of accounts", async () => {
  */
 module.exports = {
   networks: {
-    /* hardhat: {
-      allowUnlimitedContractSize: true,
+    hardhat: {
+      /* allowUnlimitedContractSize: true, 
       forking: {
-        url: ""
-      }
-    }, */
-    /*bsc: {
-      url: BSC_URL,
-      chainId: 56,
-      gasPrice: 10000000000,
-      accounts: [`0x${process.env.PRIVATE_KEY}`],
-    },*/
-    bscTestnet: {
-      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
-      chainId: 97,
-      gasPrice: 10000000000,
-      accounts: [`0x${process.env.PRIVATE_KEY}`],
-    },
-    opbnbTestnet: {
-      url: "https://opbnb-testnet-rpc.bnbchain.org/",
-      chainId: 5611,
-      gasPrice: 1000000000,
-      accounts: [`0x${process.env.PRIVATE_KEY}`],
+        url: "", 
+      } */
     },
     lineaTestnet: {
       url: "https://rpc.goerli.linea.build",
       chainId: 59140,
       gasPrice: 3 * 10**9,
       accounts: [`0x${process.env.PRIVATE_KEY}`],
-    }
+    },
+    develop: {
+      url: `https://develop-chain.0xnode.cloud/`,
+      chainId: 1112,
+      gasPrice: 1 * 10**9,
+      accounts: [`0x${process.env.PRIVATE_KEY}`],
+    },
   },
   etherscan: {
     apiKey: {
+      lineaTestnet: `${process.env.LINEA_TESTNET_APIKEY}`,
+      develop: `e11547e6-738d-48c3-9cbb-2f918c24689f`,
     },
-    customChains: [
-    ],
+    customChains: [{
+        network: "lineaTestnet",
+        chainId: parseInt(`${process.env.LINEA_TESTNET_CHAIN_ID}`),
+        urls: {
+          apiURL: "https://api-testnet.lineascan.build/api",
+          browserURL: "https://goerli.lineascan.build/"
+        }
+      },
+      {
+        network: "develop",
+        chainId: 1112,
+        urls: {
+          apiURL: "https://develop-chain-explorer.0xnode.cloud/api",
+          browserURL: "https://develop-chain-explorer.0xnode.cloud/"
+        }
+      }
+    ], 
   },
   solidity: {
     compilers: [
       {
-        version: "0.8.17",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 1,
-          },
-        },
-      },
-      {
-        version: "0.8.7",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 1,
-          },
-        },
-      },
-      {
-        version: "0.6.12",
+        version: "0.8.18",
         settings: {
           optimizer: {
             enabled: true,

@@ -8,7 +8,7 @@ interface IPriceFeedStore {
     function latestRound() external view returns (uint256);
 }
 
-pragma solidity 0.6.12;
+pragma solidity ^0.8.18;
 
 contract VaultPriceFeed is IVaultPriceFeed {
     using SafeMath for uint256;
@@ -38,7 +38,7 @@ contract VaultPriceFeed is IVaultPriceFeed {
         _;
     }
 
-    constructor() public {
+    constructor() {
         gov = msg.sender;
     }
 

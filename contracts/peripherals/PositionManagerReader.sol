@@ -1,26 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.12;
+pragma solidity ^0.8.18;
 pragma experimental ABIEncoderV2;
 
 import "../libraries/math/SafeMath.sol";
 import "../libraries/utils/IterableMapping.sol";
-
-interface IVault {
-    function usdg() external view returns (address);
-    function adjustForDecimals(uint256 _amount, address _tokenDiv, address _tokenMul) external view returns (uint256);
-    function tokenDecimals(address _token) external view returns (uint256);
-    function minProfitTime() external view returns (uint256);
-    function minProfitBasisPoints(address _token) external view returns (uint256);
-    function getFundingFee(address _account, address _collateralToken, address _indexToken, bool _isLong, uint256 _size, uint256 _entryFundingRate) external view returns (uint256);
-    function getPositionFee(address _account, address _collateralToken, address _indexToken, bool _isLong, uint256 _sizeDelta) external view returns (uint256);
-    function liquidationFeeUsd() external view returns (uint256);
-    function maxLeverage() external view returns (uint256);
-    function vaultPositionController() external view returns (address);
-}
-
-interface IVaultPositionController {
-    function getPosition(address _account, address _collateralToken, address _indexToken, bool _isLong) external view returns (uint256, uint256, uint256, uint256, uint256, uint256, bool, uint256);
-}
+import "../core/interfaces/IVault.sol";
+import "../core/interfaces/IVaultPositionController.sol";
 
 interface IOrderBookOpenOrder {
     function orderList() external view returns (bytes memory);
@@ -78,7 +63,7 @@ contract PositionManagerReader {
     using IterableMapping for itmap;
 
     uint256 public constant PRICE_PRECISION = 1e30;
-    uint256 public constant USDG_PRECISION = 1e18;
+    uint256 public constant USDX_PRECISION = 1e18;
     uint256 public constant BASIS_POINTS_DIVISOR = 10000;
 
     struct LastPrice {
@@ -99,14 +84,13 @@ contract PositionManagerReader {
     function validateLiquidation(address account, address collateralToken, address indexToken, bool isLong, /* bool _raise, */ address vault, LastPrice[] memory lastPrice) external view returns (uint256, uint256) {
         Position memory position = getPosition(account, collateralToken, indexToken, isLong, vault);
         if (position.size == 0) {
-            // position is colsed
+            // position is closed
             return (3, 0);
         }
 
         (bool hasProfit, uint256 delta, uint256 marginFees) = getPositionDelta(position, account, collateralToken, indexToken, isLong, vault, lastPrice);
 
         if (!hasProfit && position.collateral < delta) {
-            // if (_raise) { revert("Vault: losses exceed collateral"); }
             return (1, marginFees);
         }
 
@@ -116,18 +100,14 @@ contract PositionManagerReader {
         }
 
         if (remainingCollateral < marginFees) {
-            // if (_raise) { revert("Vault: fees exceed collateral"); }
-            // cap the fees to the remainingCollateral
             return (1, remainingCollateral);
         }
 
         if (remainingCollateral < marginFees.add(IVault(vault).liquidationFeeUsd())) {
-            // if (_raise) { revert("Vault: liquidation fees exceed collateral"); }
             return (1, marginFees);
         }
 
         if (remainingCollateral.mul(IVault(vault).maxLeverage()) < position.size.mul(BASIS_POINTS_DIVISOR)) {
-            // if (_raise) { revert("Vault: maxLeverage exceeded"); }
             return (2, marginFees);
         }
 
@@ -136,8 +116,16 @@ contract PositionManagerReader {
 
     function getPosition(address account, address collateralToken, address indexToken, bool isLong, address vault) private view returns(Position memory position) {
         address vaultPositionController = IVault(vault).vaultPositionController();
-        (uint256 size, uint256 collateral, uint256 averagePrice, uint256 entryFundingRate, /* reserveAmount */, /* realisedPnl */, /* hasProfit */, uint256 lastIncreasedTime) = 
-        IVaultPositionController(vaultPositionController).getPosition(account, collateralToken, indexToken, isLong);
+        (
+            uint256 size, 
+            uint256 collateral, 
+            uint256 averagePrice, 
+            uint256 entryFundingRate, 
+            /* reserveAmount */, 
+            /* realisedPnl */,
+            /* hasProfit */, 
+            uint256 lastIncreasedTime
+        ) = IVaultPositionController(vaultPositionController).getPosition(account, collateralToken, indexToken, isLong);
         position.size = size;
         position.collateral = collateral;
         position.averagePrice = averagePrice;
@@ -157,8 +145,7 @@ contract PositionManagerReader {
     }
 
     function getDelta(address _indexToken, uint256 _size, uint256 _averagePrice, bool _isLong, uint256 _lastIncreasedTime, /* bool _validatePrice, */ address vault, LastPrice[] memory lastPrice) private view returns (bool, uint256) {
-        // _validate(_averagePrice > 0, 38);
-        uint256 price = getPrice(lastPrice, _indexToken); // _isLong ? vault.getMinPrice(_indexToken, _validatePrice) : vault.getMaxPrice(_indexToken, _validatePrice);
+        uint256 price = getPrice(lastPrice, _indexToken); 
         uint256 priceDelta = _averagePrice > price ? _averagePrice.sub(price) : price.sub(_averagePrice);
         uint256 delta = _size.mul(priceDelta).div(_averagePrice);
 
@@ -332,19 +319,19 @@ contract PositionManagerReader {
         uint256 tokenAPrice;
         uint256 tokenBPrice;
 
-        // 1. USDG doesn't have a price feed so we need to calculate it based on redepmtion amount of a specific token
-        // That's why USDG price in USD can vary depending on the redepmtion token
-        // 2. In complex scenarios with path=[USDG, BNB, BTC] we need to know how much BNB we'll get for provided USDG
+        // 1. USDX doesn't have a price feed so we need to calculate it based on redepmtion amount of a specific token
+        // That's why USDX price in USD can vary depending on the redepmtion token
+        // 2. In complex scenarios with path=[USDX, BNB, BTC] we need to know how much BNB we'll get for provided USDX
         // to know how much BTC will be received
-        // That's why in such scenario BNB should be used to determine price of USDG
-        if (tokenA == IVault(vault).usdg()) {
-            // with both _path.length == 2 or 3 we need usdg price against _path[1]
-            tokenAPrice = getUsdgMinPrice(_path[1], vault, lastPrice);
+        // That's why in such scenario BNB should be used to determine price of USDX
+        if (tokenA == IVault(vault).usdx()) {
+            // with both _path.length == 2 or 3 we need usdx price against _path[1]
+            tokenAPrice = getUsdxMinPrice(_path[1], vault, lastPrice);
         } else {
             tokenAPrice = getPrice(lastPrice, tokenA);
         }
 
-        if (tokenB == IVault(vault).usdg()) {
+        if (tokenB == IVault(vault).usdx()) {
             tokenBPrice = PRICE_PRECISION;
         } else {
             tokenBPrice = getPrice(lastPrice, tokenB);
@@ -367,22 +354,19 @@ contract PositionManagerReader {
     ) private pure returns (uint256, bool) {
         uint256 currentPrice = getPrice(lastPrice, _indexToken);
         bool isPriceValid = _triggerAboveThreshold ? currentPrice > _triggerPrice : currentPrice < _triggerPrice;
-        // if (_raise) {
-        //     require(isPriceValid, "OrderBook: invalid price for execution");
-        // }
         return (currentPrice, isPriceValid);
     }
 
-    function getUsdgMinPrice(address _otherToken, address vault, LastPrice[] memory lastPrice) private view returns (uint256) {
+    function getUsdxMinPrice(address _otherToken, address vault, LastPrice[] memory lastPrice) private view returns (uint256) {
         uint256 otherTokenPrice = getPrice(lastPrice, _otherToken); 
-        uint256 redemptionAmount = getRedemptionAmount(_otherToken, USDG_PRECISION, vault, otherTokenPrice);
+        uint256 redemptionAmount = getRedemptionAmount(_otherToken, USDX_PRECISION, vault, otherTokenPrice);
         uint256 otherTokenDecimals = IVault(vault).tokenDecimals(_otherToken);
         return redemptionAmount.mul(otherTokenPrice).div(10**otherTokenDecimals);
     }
 
-    function getRedemptionAmount(address _token, uint256 _usdgAmount, address vault, uint256 price) private view returns (uint256) {
-        uint256 redemptionAmount = _usdgAmount.mul(PRICE_PRECISION).div(price);
-        return IVault(vault).adjustForDecimals(redemptionAmount, IVault(vault).usdg(), _token);
+    function getRedemptionAmount(address _token, uint256 _usdxAmount, address vault, uint256 price) private view returns (uint256) {
+        uint256 redemptionAmount = _usdxAmount.mul(PRICE_PRECISION).div(price);
+        return IVault(vault).adjustForDecimals(redemptionAmount, IVault(vault).usdx(), _token);
     }
 
     function getPrice(LastPrice[] memory lastPrice, address token) private pure returns(uint256) {

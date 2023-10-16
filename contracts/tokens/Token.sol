@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity 0.8.18;
 
 import "../libraries/token/IERC20.sol";
 import "../libraries/math/SafeMath.sol";
@@ -51,7 +51,7 @@ contract Token is IERC20 {
      * All three of these values are immutable: they can only be set once during
      * construction.
      */
-    constructor() public {
+    constructor() {
         _name = "Token";
         _symbol = "TOKEN";
         _decimals = 18;
@@ -72,7 +72,7 @@ contract Token is IERC20 {
     function withdraw(uint256 amount) public {
         require(_balances[msg.sender] >= amount, "Token: insufficient balance");
         _burn(msg.sender, amount);
-        msg.sender.transfer(amount);
+        payable(msg.sender).transfer(amount);
     }
 
     /**
@@ -321,7 +321,7 @@ contract Token is IERC20 {
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { }
 
-    function _msgSender() internal view virtual returns (address payable) {
+    function _msgSender() internal view virtual returns (address) {
         return msg.sender;
     }
 }

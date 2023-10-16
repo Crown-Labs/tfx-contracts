@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.12;
+pragma solidity ^0.8.18;
 pragma experimental ABIEncoderV2;
 
 import "../libraries/utils/IterableMapping.sol";
@@ -24,7 +24,7 @@ contract OrderBookOpenOrder is IOrderBookOpenOrder {
         _;
     }
 
-    constructor(address _orderBook, address _vaultPositionController) public {
+    constructor(address _orderBook, address _vaultPositionController) {
         orderBook = _orderBook;
         vaultPositionController = _vaultPositionController;
     }

@@ -15,7 +15,7 @@ describe("Vault.settings", function () {
   let vault
   let vaultUtils
   let vaultPriceFeed
-  let usdg
+  let usdx
   let router
   let bnb
   let btc
@@ -30,21 +30,21 @@ describe("Vault.settings", function () {
 
     vault = await deployContract("Vault", [])
     vaultPositionController = await deployContract("VaultPositionController", [])
-    usdg = await deployContract("USDG", [vault.address])
-    router = await deployContract("Router", [vault.address, vaultPositionController.address, usdg.address, bnb.address])
+    usdx = await deployContract("USDX", [vault.address])
+    router = await deployContract("Router", [vault.address, vaultPositionController.address, usdx.address, bnb.address])
     vaultPriceFeed = await deployContract("VaultPriceFeed", [])
 
-    const contracts = await initVault(vault, vaultPositionController, router, usdg, vaultPriceFeed)
+    const contracts = await initVault(vault, vaultPositionController, router, usdx, vaultPriceFeed)
     vaultUtils = contracts.vaultUtils
 
     distributor0 = await deployContract("TimeDistributor", [])
-    yieldTracker0 = await deployContract("YieldTracker", [usdg.address])
+    yieldTracker0 = await deployContract("YieldTracker", [usdx.address])
 
     await yieldTracker0.setDistributor(distributor0.address)
     await distributor0.setDistribution([yieldTracker0.address], [1000], [bnb.address])
 
     await bnb.mint(distributor0.address, 5000)
-    await usdg.setYieldTrackers([yieldTracker0.address])
+    await usdx.setYieldTrackers([yieldTracker0.address])
 
     // deploy xOracle
     xOracle = await deployXOracle(bnb);
@@ -64,14 +64,14 @@ describe("Vault.settings", function () {
   })
 
   it("inits", async () => {
-    expect(await usdg.gov()).eq(wallet.address)
-    expect(await usdg.vaults(vault.address)).eq(true)
-    expect(await usdg.vaults(user0.address)).eq(false)
+    expect(await usdx.gov()).eq(wallet.address)
+    expect(await usdx.vaults(vault.address)).eq(true)
+    expect(await usdx.vaults(user0.address)).eq(false)
 
     expect(await vault.gov()).eq(wallet.address)
     expect(await vault.isInitialized()).eq(true)
     expect(await vault.router()).eq(router.address)
-    expect(await vault.usdg()).eq(usdg.address)
+    expect(await vault.usdx()).eq(usdx.address)
     expect(await vault.priceFeed()).eq(vaultPriceFeed.address)
     expect(await vault.liquidationFeeUsd()).eq(toUsd(5))
     expect(await vault.fundingRateFactor()).eq(600)
@@ -288,7 +288,7 @@ describe("Vault.settings", function () {
       18, // _tokenDecimals
       10000, // _tokenWeight
       75, // _minProfitBps
-      0, // _maxUsdgAmount
+      0, // _maxUsdxAmount
       true, // _isStable
       true // _isShortable
     ]
@@ -308,7 +308,7 @@ describe("Vault.settings", function () {
     expect(await vault.tokenWeights(bnb.address)).eq(0)
     expect(await vault.totalTokenWeights()).eq(0)
     expect(await vault.minProfitBasisPoints(bnb.address)).eq(0)
-    expect(await vault.maxUsdgAmounts(bnb.address)).eq(0)
+    expect(await vault.maxUsdxAmounts(bnb.address)).eq(0)
     expect(await vault.stableTokens(bnb.address)).eq(false)
     expect(await vault.shortableTokens(bnb.address)).eq(false)
     expect(await vault.allWhitelistedTokensLength()).eq(0)
@@ -321,7 +321,7 @@ describe("Vault.settings", function () {
     expect(await vault.tokenWeights(bnb.address)).eq(10000)
     expect(await vault.totalTokenWeights()).eq(10000)
     expect(await vault.minProfitBasisPoints(bnb.address)).eq(75)
-    expect(await vault.maxUsdgAmounts(bnb.address)).eq(0)
+    expect(await vault.maxUsdxAmounts(bnb.address)).eq(0)
     expect(await vault.stableTokens(bnb.address)).eq(true)
     expect(await vault.shortableTokens(bnb.address)).eq(true)
     expect(await vault.allWhitelistedTokensLength()).eq(1)
@@ -337,7 +337,7 @@ describe("Vault.settings", function () {
       2, // _tokenDecimals
       5000, // _tokenWeight
       50, // _minProfitBps
-      1000, // _maxUsdgAmount
+      1000, // _maxUsdxAmount
       false, // _isStable
       false // _isShortable
     )
@@ -348,7 +348,7 @@ describe("Vault.settings", function () {
     expect(await vault.tokenWeights(dai.address)).eq(5000)
     expect(await vault.totalTokenWeights()).eq(15000)
     expect(await vault.minProfitBasisPoints(dai.address)).eq(50)
-    expect(await vault.maxUsdgAmounts(dai.address)).eq(1000)
+    expect(await vault.maxUsdxAmounts(dai.address)).eq(1000)
     expect(await vault.stableTokens(dai.address)).eq(false)
     expect(await vault.shortableTokens(dai.address)).eq(false)
     expect(await vault.allWhitelistedTokensLength()).eq(2)
@@ -358,7 +358,7 @@ describe("Vault.settings", function () {
       20, // _tokenDecimals
       7000, // _tokenWeight
       10, // _minProfitBps
-      500, // _maxUsdgAmount
+      500, // _maxUsdxAmount
       true, // _isStable
       false // _isShortable
     )
@@ -369,7 +369,7 @@ describe("Vault.settings", function () {
     expect(await vault.tokenWeights(dai.address)).eq(7000)
     expect(await vault.totalTokenWeights()).eq(17000)
     expect(await vault.minProfitBasisPoints(dai.address)).eq(10)
-    expect(await vault.maxUsdgAmounts(dai.address)).eq(500)
+    expect(await vault.maxUsdxAmounts(dai.address)).eq(500)
     expect(await vault.stableTokens(dai.address)).eq(true)
     expect(await vault.shortableTokens(dai.address)).eq(false)
     expect(await vault.allWhitelistedTokensLength()).eq(2)
@@ -381,7 +381,7 @@ describe("Vault.settings", function () {
       18, // _tokenDecimals
       7000, // _tokenWeight
       75, // _minProfitBps
-      500, // _maxUsdgAmount
+      500, // _maxUsdxAmount
       true, // _isStable
       true // _isShortable
     ]
@@ -398,7 +398,7 @@ describe("Vault.settings", function () {
     expect(await vault.tokenWeights(bnb.address)).eq(0)
     expect(await vault.totalTokenWeights()).eq(0)
     expect(await vault.minProfitBasisPoints(bnb.address)).eq(0)
-    expect(await vault.maxUsdgAmounts(bnb.address)).eq(0)
+    expect(await vault.maxUsdxAmounts(bnb.address)).eq(0)
     expect(await vault.stableTokens(bnb.address)).eq(false)
     expect(await vault.shortableTokens(bnb.address)).eq(false)
 
@@ -410,7 +410,7 @@ describe("Vault.settings", function () {
     expect(await vault.tokenWeights(bnb.address)).eq(7000)
     expect(await vault.totalTokenWeights()).eq(7000)
     expect(await vault.minProfitBasisPoints(bnb.address)).eq(75)
-    expect(await vault.maxUsdgAmounts(bnb.address)).eq(500)
+    expect(await vault.maxUsdxAmounts(bnb.address)).eq(500)
     expect(await vault.stableTokens(bnb.address)).eq(true)
     expect(await vault.shortableTokens(bnb.address)).eq(true)
 
@@ -424,7 +424,7 @@ describe("Vault.settings", function () {
       20, // _tokenDecimals
       5000, // _tokenWeight
       10, // _minProfitBps
-      500, // _maxUsdgAmount
+      500, // _maxUsdxAmount
       true, // _isStable
       false // _isShortable
     )
@@ -435,7 +435,7 @@ describe("Vault.settings", function () {
     expect(await vault.tokenWeights(bnb.address)).eq(7000)
     expect(await vault.totalTokenWeights()).eq(12000)
     expect(await vault.minProfitBasisPoints(bnb.address)).eq(75)
-    expect(await vault.maxUsdgAmounts(bnb.address)).eq(500)
+    expect(await vault.maxUsdxAmounts(bnb.address)).eq(500)
     expect(await vault.stableTokens(bnb.address)).eq(true)
     expect(await vault.shortableTokens(bnb.address)).eq(true)
 
@@ -450,7 +450,7 @@ describe("Vault.settings", function () {
     expect(await vault.tokenWeights(bnb.address)).eq(0)
     expect(await vault.totalTokenWeights()).eq(5000)
     expect(await vault.minProfitBasisPoints(bnb.address)).eq(0)
-    expect(await vault.maxUsdgAmounts(bnb.address)).eq(0)
+    expect(await vault.maxUsdxAmounts(bnb.address)).eq(0)
     expect(await vault.stableTokens(bnb.address)).eq(false)
     expect(await vault.shortableTokens(bnb.address)).eq(false)
 
@@ -472,7 +472,7 @@ describe("Vault.settings", function () {
     expect(await vault.approvedRouters(user0.address, user1.address)).eq(false)
   })
 
-  it("setUsdgAmount", async () => {
+  it("setUsdxAmount", async () => {
     await increaseBlocktime(provider, 10)
     await fulfillController.requestUpdatePrices()
     await xOracle.fulfillRequest([
@@ -482,21 +482,21 @@ describe("Vault.settings", function () {
     
     await bnb.mint(user0.address, 100)
     await bnb.connect(user0).transfer(vault.address, 100)
-    await vault.connect(user0).buyUSDG(bnb.address, user1.address)
+    await vault.connect(user0).buyUSDX(bnb.address, user1.address)
 
-    expect(await vault.usdgAmounts(bnb.address)).eq(29700)
+    expect(await vault.usdxAmounts(bnb.address)).eq(29700)
 
-    await expect(vault.connect(user0).setUsdgAmount(bnb.address, 50000))
+    await expect(vault.connect(user0).setUsdxAmount(bnb.address, 50000))
       .to.be.revertedWith("Vault: forbidden")
 
     await vault.setGov(user0.address)
 
-    expect(await vault.usdgAmounts(bnb.address)).eq(29700)
-    await vault.connect(user0).setUsdgAmount(bnb.address, 50000)
-    expect(await vault.usdgAmounts(bnb.address)).eq(50000)
+    expect(await vault.usdxAmounts(bnb.address)).eq(29700)
+    await vault.connect(user0).setUsdxAmount(bnb.address, 50000)
+    expect(await vault.usdxAmounts(bnb.address)).eq(50000)
 
-    await vault.connect(user0).setUsdgAmount(bnb.address, 10000)
-    expect(await vault.usdgAmounts(bnb.address)).eq(10000)
+    await vault.connect(user0).setUsdxAmount(bnb.address, 10000)
+    expect(await vault.usdxAmounts(bnb.address)).eq(10000)
   })
 
   it("upgradeVault", async () => {

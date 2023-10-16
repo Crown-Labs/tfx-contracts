@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.12;
+pragma solidity ^0.8.18;
 
 import "../libraries/math/SafeMath.sol";
 import "../libraries/token/IERC20.sol";
@@ -23,7 +23,7 @@ contract OrderBook is ReentrancyGuard, IOrderBook {
     using Address for address payable;
 
     uint256 public constant PRICE_PRECISION = 1e30;
-    uint256 public constant USDG_PRECISION = 1e18;
+    uint256 public constant USDX_PRECISION = 1e18;
 
     struct IncreaseOrder {
         address account;
@@ -68,7 +68,7 @@ contract OrderBook is ReentrancyGuard, IOrderBook {
 
     address public gov;
     address public weth;
-    address public usdg;
+    address public usdx;
     address public router;
     address public vault;
     address public vaultPositionController;
@@ -229,12 +229,12 @@ contract OrderBook is ReentrancyGuard, IOrderBook {
         uint256 executionFee
     );
 
-    event Initialize(address router, address vault, address weth, address usdg, uint256 minExecutionFee, uint256 minPurchaseTokenAmountUsd);
+    event Initialize(address router, address vault, address weth, address usdx, uint256 minExecutionFee, uint256 minPurchaseTokenAmountUsd);
     event UpdateMinExecutionFee(uint256 minExecutionFee);
     event UpdateMinPurchaseTokenAmountUsd(uint256 minPurchaseTokenAmountUsd);
     event UpdateGov(address gov);
 
-    constructor() public {
+    constructor() {
         gov = msg.sender;
     }
 
@@ -252,7 +252,7 @@ contract OrderBook is ReentrancyGuard, IOrderBook {
         address _vaultPositionController,
         address _orderBookOpenOrder,
         address _weth,
-        address _usdg,
+        address _usdx,
         uint256 _minExecutionFee,
         uint256 _minPurchaseTokenAmountUsd
     ) external {
@@ -265,11 +265,11 @@ contract OrderBook is ReentrancyGuard, IOrderBook {
         vaultPositionController = _vaultPositionController;
         orderBookOpenOrder = _orderBookOpenOrder;
         weth = _weth;
-        usdg = _usdg;
+        usdx = _usdx;
         minExecutionFee = _minExecutionFee;
         minPurchaseTokenAmountUsd = _minPurchaseTokenAmountUsd;
 
-        emit Initialize(_router, _vault, _weth, _usdg, _minExecutionFee, _minPurchaseTokenAmountUsd);
+        emit Initialize(_router, _vault, _weth, _usdx, _minExecutionFee, _minPurchaseTokenAmountUsd);
     }
 
     receive() external payable {
@@ -412,10 +412,10 @@ contract OrderBook is ReentrancyGuard, IOrderBook {
         IOrderBookOpenOrder(orderBookOpenOrder).removeFromOpenOrders(msg.sender, _orderIndex, 0); // SWAP
 
         if (order.path[0] == weth) {
-            _transferOutETH(order.executionFee.add(order.amountIn), msg.sender);
+            _transferOutETH(order.executionFee.add(order.amountIn), payable(msg.sender));
         } else {
             IERC20(order.path[0]).safeTransfer(msg.sender, order.amountIn);
-            _transferOutETH(order.executionFee, msg.sender);
+            _transferOutETH(order.executionFee, payable(msg.sender));
         }
 
         emit CancelSwapOrder(
@@ -431,9 +431,9 @@ contract OrderBook is ReentrancyGuard, IOrderBook {
         );
     }
 
-    function getUsdgMinPrice(address _otherToken) public view returns (uint256) {
-        // USDG_PRECISION is the same as 1 USDG
-        uint256 redemptionAmount = IVault(vault).getRedemptionAmount(_otherToken, USDG_PRECISION, true);
+    function getUsdxMinPrice(address _otherToken) public view returns (uint256) {
+        // USDX_PRECISION is the same as 1 USDX
+        uint256 redemptionAmount = IVault(vault).getRedemptionAmount(_otherToken, USDX_PRECISION, true);
         uint256 otherTokenPrice = IVault(vault).getMinPrice(_otherToken, true);
 
         uint256 otherTokenDecimals = IVault(vault).tokenDecimals(_otherToken);
@@ -451,19 +451,19 @@ contract OrderBook is ReentrancyGuard, IOrderBook {
         uint256 tokenAPrice;
         uint256 tokenBPrice;
 
-        // 1. USDG doesn't have a price feed so we need to calculate it based on redepmtion amount of a specific token
-        // That's why USDG price in USD can vary depending on the redepmtion token
-        // 2. In complex scenarios with path=[USDG, BNB, BTC] we need to know how much BNB we'll get for provided USDG
+        // 1. USDX doesn't have a price feed so we need to calculate it based on redepmtion amount of a specific token
+        // That's why USDX price in USD can vary depending on the redepmtion token
+        // 2. In complex scenarios with path=[USDX, BNB, BTC] we need to know how much BNB we'll get for provided USDX
         // to know how much BTC will be received
-        // That's why in such scenario BNB should be used to determine price of USDG
-        if (tokenA == usdg) {
-            // with both _path.length == 2 or 3 we need usdg price against _path[1]
-            tokenAPrice = getUsdgMinPrice(_path[1]);
+        // That's why in such scenario BNB should be used to determine price of USDX
+        if (tokenA == usdx) {
+            // with both _path.length == 2 or 3 we need usdx price against _path[1]
+            tokenAPrice = getUsdxMinPrice(_path[1]);
         } else {
             tokenAPrice = IVault(vault).getMinPrice(tokenA, true);
         }
 
-        if (tokenB == usdg) {
+        if (tokenB == usdx) {
             tokenBPrice = PRICE_PRECISION;
         } else {
             tokenBPrice = IVault(vault).getMaxPrice(tokenB, true);
@@ -758,10 +758,10 @@ contract OrderBook is ReentrancyGuard, IOrderBook {
         IOrderBookOpenOrder(orderBookOpenOrder).removeFromOpenOrders(msg.sender, _orderIndex, 1); // INCREASE
 
         if (order.purchaseToken == weth) {
-            _transferOutETH(order.executionFee.add(order.purchaseTokenAmount), msg.sender);
+            _transferOutETH(order.executionFee.add(order.purchaseTokenAmount), payable(msg.sender));
         } else {
             IERC20(order.purchaseToken).safeTransfer(msg.sender, order.purchaseTokenAmount);
-            _transferOutETH(order.executionFee, msg.sender);
+            _transferOutETH(order.executionFee, payable(msg.sender));
         }
 
         emit CancelIncreaseOrder(
@@ -929,7 +929,7 @@ contract OrderBook is ReentrancyGuard, IOrderBook {
 
         delete decreaseOrders[msg.sender][_orderIndex];
         IOrderBookOpenOrder(orderBookOpenOrder).removeFromOpenOrders(msg.sender, _orderIndex, 2); // DECREASE
-        _transferOutETH(order.executionFee, msg.sender);
+        _transferOutETH(order.executionFee, payable(msg.sender));
 
         emit CancelDecreaseOrder(
             order.account,
@@ -1009,12 +1009,12 @@ contract OrderBook is ReentrancyGuard, IOrderBook {
     ) private returns (uint256) {
         uint256 amountOut;
 
-        if (_tokenOut == usdg) {
-            // buyUSDG
-            amountOut = IVault(vault).buyUSDG(_tokenIn, _receiver);
-        } else if (_tokenIn == usdg) {
-            // sellUSDG
-            amountOut = IVault(vault).sellUSDG(_tokenOut, _receiver);
+        if (_tokenOut == usdx) {
+            // buyUSDX
+            amountOut = IVault(vault).buyUSDX(_tokenIn, _receiver);
+        } else if (_tokenIn == usdx) {
+            // sellUSDX
+            amountOut = IVault(vault).sellUSDX(_tokenOut, _receiver);
         } else {
             // swap
             amountOut = IVault(vault).swap(_tokenIn, _tokenOut, _receiver);

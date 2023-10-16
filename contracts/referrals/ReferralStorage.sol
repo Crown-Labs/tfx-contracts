@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity ^0.8.18;
 
 import "../libraries/math/SafeMath.sol";
-
 import "../access/Governable.sol";
 import "../peripherals/interfaces/ITimelock.sol";
-
 import "./interfaces/IReferralStorage.sol";
 
 contract ReferralStorage is Governable, IReferralStorage {

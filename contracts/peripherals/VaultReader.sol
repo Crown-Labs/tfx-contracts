@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity ^0.8.18;
 
 import "../core/interfaces/IVault.sol";
 import "../core/interfaces/IVaultPriceFeed.sol";
 import "../core/interfaces/IBasePositionManager.sol";
 
 contract VaultReader {
-    function getVaultTokenInfoV3(address _vault, address _positionManager, address _weth, uint256 _usdgAmount, address[] memory _tokens) public view returns (uint256[] memory) {
+    function getVaultTokenInfoV3(address _vault, address _positionManager, address _weth, uint256 _usdxAmount, address[] memory _tokens) public view returns (uint256[] memory) {
         uint256 propsLength = 14;
 
         IVault vault = IVault(_vault);
@@ -23,11 +23,11 @@ contract VaultReader {
 
             amounts[i * propsLength] = vault.poolAmounts(token);
             amounts[i * propsLength + 1] = vault.reservedAmounts(token);
-            amounts[i * propsLength + 2] = vault.usdgAmounts(token);
-            amounts[i * propsLength + 3] = vault.getRedemptionAmount(token, _usdgAmount, false);
+            amounts[i * propsLength + 2] = vault.usdxAmounts(token);
+            amounts[i * propsLength + 3] = vault.getRedemptionAmount(token, _usdxAmount, false);
             amounts[i * propsLength + 4] = vault.tokenWeights(token);
             amounts[i * propsLength + 5] = vault.bufferAmounts(token);
-            amounts[i * propsLength + 6] = vault.maxUsdgAmounts(token);
+            amounts[i * propsLength + 6] = vault.maxUsdxAmounts(token);
             amounts[i * propsLength + 7] = vault.globalShortSizes(token);
             amounts[i * propsLength + 8] = positionManager.maxGlobalShortSizes(token);
             amounts[i * propsLength + 9] = vault.getMinPrice(token, false);
@@ -40,7 +40,7 @@ contract VaultReader {
         return amounts;
     }
 
-    function getVaultTokenInfoV4(address _vault, address _positionManager, address _weth, uint256 _usdgAmount, address[] memory _tokens) public view returns (uint256[] memory) {
+    function getVaultTokenInfoV4(address _vault, address _positionManager, address _weth, uint256 _usdxAmount, address[] memory _tokens) public view returns (uint256[] memory) {
         uint256 propsLength = 15;
 
         IVault vault = IVault(_vault);
@@ -56,11 +56,11 @@ contract VaultReader {
 
             amounts[i * propsLength] = vault.poolAmounts(token);
             amounts[i * propsLength + 1] = vault.reservedAmounts(token);
-            amounts[i * propsLength + 2] = vault.usdgAmounts(token);
-            amounts[i * propsLength + 3] = vault.getRedemptionAmount(token, _usdgAmount, false);
+            amounts[i * propsLength + 2] = vault.usdxAmounts(token);
+            amounts[i * propsLength + 3] = vault.getRedemptionAmount(token, _usdxAmount, false);
             amounts[i * propsLength + 4] = vault.tokenWeights(token);
             amounts[i * propsLength + 5] = vault.bufferAmounts(token);
-            amounts[i * propsLength + 6] = vault.maxUsdgAmounts(token);
+            amounts[i * propsLength + 6] = vault.maxUsdxAmounts(token);
             amounts[i * propsLength + 7] = vault.globalShortSizes(token);
             amounts[i * propsLength + 8] = positionManager.maxGlobalShortSizes(token);
             amounts[i * propsLength + 9] = positionManager.maxGlobalLongSizes(token);
