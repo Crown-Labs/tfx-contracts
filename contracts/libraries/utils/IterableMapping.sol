@@ -54,7 +54,13 @@ library IterableMapping {
     }
 
     function iterate_next(itmap storage self, uint256 keyIndex) internal view returns (uint256 r_keyIndex) {
-        keyIndex++;
+        // fixed uint256 overflow
+        if (keyIndex == type(uint256).max) {
+            keyIndex = 0;
+        } else {
+            keyIndex++; 
+        }
+        
         while (keyIndex < self.keys.length && self.keys[keyIndex].deleted)
             keyIndex++;
         return keyIndex;
