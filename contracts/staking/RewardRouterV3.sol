@@ -163,7 +163,7 @@ contract RewardRouterV3 is ReentrancyGuard, Governable {
 
     function _compound(address _account) private {
         uint256 rewardAmount = IRewardTracker(feeXlpTracker).claimable(_account);
-        require(rewardAmount > 0, "RewardRouter: reward to compound too small");
+        require(rewardAmount > minRewardCompound, "RewardRouter: reward to compound too small");
 
         // request oracle
         bytes memory data = abi.encodeWithSignature("fulfillCompound(address)", _account);
