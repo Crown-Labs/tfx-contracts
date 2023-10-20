@@ -42,7 +42,7 @@ async function main() {
   // ------------------------------
   await sendTxn(xlpManager.setHandler(rewardRouter.address, true), "xlpManager.setHandler(rewardRouter)")
   await sendTxn(feeXlpTracker.setHandler(rewardRouter.address, true), "feeXlpTracker.setHandler(rewardRouter)")
-  await sendTxn(fulfillController.setHandler(positionRouter.address, true), `fulfillController.setHandler(positionRouter)`);
+  await sendTxn(fulfillController.setHandler(rewardRouter.address, true), `fulfillController.setHandler(positionRouter)`);
 }
 
 main()
