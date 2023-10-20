@@ -335,6 +335,12 @@ contract Timelock is ITimelock {
         IVault(_vault).withdrawFees(_token, _receiver);
     }
 
+    function batchWithdrawFees(address _vault, address[] memory _tokens, address _receiver) external onlyAdmin {
+        for (uint256 i = 0; i < _tokens.length; i++) {
+            IVault(_vault).withdrawFees(_tokens[i], _receiver);
+        }
+    }
+
     function setInPrivateLiquidationMode(address _vault, bool _inPrivateLiquidationMode) external onlyAdmin {
         IVault(_vault).setInPrivateLiquidationMode(_inPrivateLiquidationMode);
     }
