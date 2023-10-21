@@ -76,7 +76,7 @@ contract RewardRouterV3 is ReentrancyGuard, Governable {
         IERC20(_token).safeTransfer(_account, _amount);
     }
 
-    function mintAndStakeXlp(address _token, uint256 _amount, uint256 _minUsdx, uint256 _minXlp) external nonReentrant /* returns (uint256) */ {
+    function mintAndStakeXlp(address _token, uint256 _amount, uint256 _minUsdx, uint256 _minXlp) external nonReentrant {
         require(_amount > 0, "RewardRouter: invalid _amount");
         IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount); 
         IERC20(_token).approve(fulfillController, _amount);
@@ -86,7 +86,7 @@ contract RewardRouterV3 is ReentrancyGuard, Governable {
         IFulfillController(fulfillController).requestOracleWithToken(data, msg.sender, _token, _amount, false, "");
     }
 
-    function mintAndStakeXlpETH(uint256 _minUsdx, uint256 _minXlp) external payable nonReentrant /* returns (uint256) */ {
+    function mintAndStakeXlpETH(uint256 _minUsdx, uint256 _minXlp) external payable nonReentrant {
         require(msg.value > 0, "RewardRouter: invalid msg.value");
         uint256 amount = msg.value;
         IWETH(weth).deposit{value: amount}();
@@ -97,7 +97,7 @@ contract RewardRouterV3 is ReentrancyGuard, Governable {
         IFulfillController(fulfillController).requestOracleWithToken(data, msg.sender, weth, amount, true, "");
     }
 
-    function unstakeAndRedeemXlp(address _tokenOut, uint256 _xlpAmount, uint256 _minOut, address _receiver) external nonReentrant /* returns (uint256) */ {
+    function unstakeAndRedeemXlp(address _tokenOut, uint256 _xlpAmount, uint256 _minOut, address _receiver) external nonReentrant {
         require(_xlpAmount > 0, "RewardRouter: invalid _xlpAmount");
 
         // request oracle
@@ -105,7 +105,7 @@ contract RewardRouterV3 is ReentrancyGuard, Governable {
         IFulfillController(fulfillController).requestOracle(data, msg.sender, "");
     }
 
-    function unstakeAndRedeemXlpETH(uint256 _xlpAmount, uint256 _minOut, address _receiver) external nonReentrant /* returns (uint256) */ {
+    function unstakeAndRedeemXlpETH(uint256 _xlpAmount, uint256 _minOut, address _receiver) external nonReentrant {
         require(_xlpAmount > 0, "RewardRouter: invalid _xlpAmount");
 
         // request oracle

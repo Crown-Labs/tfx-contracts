@@ -55,12 +55,12 @@ module.exports = {
       isShortable: true,
       maxGlobalShortSize: 30 * 1000 * 1000,
     },
-    busd: {
-      name: "busd",
-      address: getContractAddress("busd", true),
-      priceFeed: getContractAddress("busdPriceFeed", true),
+    usdt: {
+      name: "usdt",
+      address: getContractAddress("usdt", true),
+      priceFeed: getContractAddress("usdtPriceFeed", true),
       decimals: 18,
-      tokenIndex: 4,
+      tokenIndex: 3,
       priceDecimals: 8,
       isStrictStable: true,
       tokenWeight: 35000, // 35%
