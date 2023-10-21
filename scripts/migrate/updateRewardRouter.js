@@ -37,6 +37,9 @@ async function main() {
     minRewardCompound
   ), "rewardRouter.initialize")
 
+  // set fulfill controller
+  await sendTxn(rewardRouter.setFulfillController(fulfillController.address), `rewardRouterV3.setFulfillController`);
+
   // ------------------------------
   // migrate
   // ------------------------------

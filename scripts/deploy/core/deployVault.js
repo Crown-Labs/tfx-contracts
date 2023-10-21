@@ -11,7 +11,7 @@ async function main() {
   const vault = await deployContract("Vault", [], "", signer)
 
   const vaultPositionController = await deployContract("VaultPositionController", [], "", signer)
-  await vaultPositionController.initialize(vault.address)
+  await sendTxn(vaultPositionController.initialize(vault.address), "vaultPositionController.initialize")
 
   const usdx = await deployContract("USDX", [vault.address], "", signer)
   const router = await deployContract("Router", [vault.address, vaultPositionController.address, usdx.address, nativeToken.address], "", signer)

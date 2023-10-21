@@ -9,7 +9,7 @@ async function main() {
   const vault = await contractAt("Vault", getContractAddress("vault"), signer)
   const vaultPositionController = await contractAt("VaultPositionController", getContractAddress("vaultPositionController"), signer)
   const router = await contractAt("Router", getContractAddress("router"), signer)
-  const weth = await contractAt("WETH", tokens.nativeToken.address) // WBNB
+  const weth = await contractAt("WETH", tokens.nativeToken.address) 
   const referralStorage = await contractAt("ReferralStorage", getContractAddress("referralStorage"), signer)
   const depositFee = "30" // 0.3%
   const minExecutionFee = "300000000000000" // 0.0003 ETH
