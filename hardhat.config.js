@@ -34,34 +34,19 @@ module.exports = {
       gasPrice: 3 * 10**9,
       accounts: [`0x${process.env.PRIVATE_KEY}`],
     },
-    develop: {
-      url: `https://develop-chain.0xnode.cloud/`,
-      chainId: 1112,
-      gasPrice: 1 * 10**9,
-      accounts: [`0x${process.env.PRIVATE_KEY}`],
-    },
   },
   etherscan: {
     apiKey: {
       lineaTestnet: `${process.env.LINEA_TESTNET_APIKEY}`,
-      develop: `e11547e6-738d-48c3-9cbb-2f918c24689f`,
     },
     customChains: [{
         network: "lineaTestnet",
-        chainId: parseInt(`${process.env.LINEA_TESTNET_CHAIN_ID}`),
+        chainId: 59140,
         urls: {
           apiURL: "https://api-testnet.lineascan.build/api",
           browserURL: "https://goerli.lineascan.build/"
         }
       },
-      {
-        network: "develop",
-        chainId: 1112,
-        urls: {
-          apiURL: "https://develop-chain-explorer.0xnode.cloud/api",
-          browserURL: "https://develop-chain-explorer.0xnode.cloud/"
-        }
-      }
     ], 
   },
   solidity: {
