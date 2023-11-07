@@ -79,7 +79,7 @@ contract FulfillController is Ownable {
     uint256 public lastTaskId;
 
     uint256 public expireTime = 60; // secs
-    uint256 public maxGasPrice = 1e9; // 1 gwei
+    uint256 public maxGasPrice = 10e9; // 10 gwei
     uint256 public callbackGasLimit = 3000000; // 3M
 
     // access control

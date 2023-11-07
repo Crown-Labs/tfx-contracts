@@ -20,6 +20,8 @@ async function main() {
   let timelock;
 
   const lastTaskId = 0;
+  const maxGasPrice = 20 * 1e19; // 20 gwei
+  const callbackGasLimit = 4000000; // 4M
   const depositWETH = "0.1";
   
   // deploy FulfillController
@@ -95,6 +97,10 @@ async function main() {
 
   // setController deployer and Calll requestUpdatePrices
   await sendTxn(fulfillController.setController(signer.address, true), `fulfillController.setController(${signer.address})`);
+
+  // set maxGasPrice and callbackGasLimit
+  await sendTxn(fulfillController.setMaxGasPrice(maxGasPrice), `fulfillController.setMaxGasPrice(${maxGasPrice})`);
+  await sendTxn(fulfillController.setCallbackGasLimit(callbackGasLimit), `fulfillController.setCallbackGasLimit(${callbackGasLimit})`);
 
   // wrap ETH and deposit fund
   await sendTxn(weth.deposit({ value: ethers.utils.parseEther(depositWETH) }), `weth.deposit(${depositWETH})`);
