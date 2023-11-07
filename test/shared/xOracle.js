@@ -9,7 +9,7 @@ let usdtPriceFeed;
 let busdPriceFeed;
 let usdcPriceFeed;
 const fulfillFee = 3000; // 30%
-const minFeeBalance = 0.02 * 10**9;
+const minGasPrice = 0.5 * 10 ** 9
 
 async function deployXOracle(weth) {
     xOracle = await deployContract("XOracleMock", [weth.address])
@@ -29,7 +29,7 @@ async function deployXOracle(weth) {
     
     // set reqFee
     await xOracle.setFulfillFee(fulfillFee);
-    await xOracle.setMinFeeBalance(minFeeBalance);
+    await xOracle.setMinGasPrice(minGasPrice)
 
     return xOracle;
 }
