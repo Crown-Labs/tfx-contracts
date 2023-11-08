@@ -20,9 +20,9 @@ async function main() {
   let timelock;
 
   const lastTaskId = 0;
-  const maxGasPrice = 20 * 1e19; // 20 gwei
-  const callbackGasLimit = 4000000; // 4M
-  const depositWETH = "0.1";
+  const maxGasPrice = 20 * 1e9; // 20 gwei
+  const callbackGasLimit = 5000000; // 5M
+  const depositWETH = "0.3"; // 0.3 ETH
   
   // deploy FulfillController
   const fulfillController = await deployContract("FulfillController", [getContractAddress("xOracle"), nativeToken.address, lastTaskId], "", signer)
