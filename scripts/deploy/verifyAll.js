@@ -168,11 +168,25 @@ function verify(i, contractName, contractAddress) {
 }
 
 async function main() {
+  const findContractName = "";
+  // const findContractName = "FulfillController";
+
   const contractName = Object.keys(deployedAddress);
   const contractAddress = Object.values(deployedAddress);
-  // recursive verify
-  const start = 0;
-  verify(start, contractName, contractAddress);
+
+  if (findContractName == "") {
+    // recursive verify
+    const start = 0;
+    verify(start, contractName, contractAddress);
+  } else {
+    // find contract
+    for (let i = 0; i < contractName.length; i++) {
+      if (contractName[i] == findContractName) {
+        verify(0, [ contractName[i] ], [ contractAddress[i] ]);
+        break;
+      }
+    }
+  }
 
   // wait for all done
   while (!isDone) {
