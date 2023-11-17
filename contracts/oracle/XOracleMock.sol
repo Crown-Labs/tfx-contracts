@@ -33,7 +33,7 @@ contract XOracleMock {
     // request fee
     IERC20 public weth; // payment with WETH
     uint256 public fulfillFee;
-    uint256 public minFeeBalance;
+    uint256 public minGasPrice;
 
     struct Data {
         uint256 price;
@@ -48,10 +48,7 @@ contract XOracleMock {
         weth = IERC20(_weth);
     }
 
-    function requestPrices(bytes memory _payload, uint256 _expiration) external returns (uint256) {
-        // check request fee balance
-        require(paymentAvailable(msg.sender), "insufficient request fee");
-        
+    function requestPrices(bytes memory _payload, uint256 _expiration, uint256 /* _maxGasPrice */, uint256 /* _callbackGasLimit */) external returns (uint256) {       
         reqId++;
 
         // add request
@@ -116,8 +113,8 @@ contract XOracleMock {
         fulfillFee = _fulfillFee;
     }
 
-    function setMinFeeBalance(uint256 _minFeeBalance) external {
-        minFeeBalance = _minFeeBalance;
+    function setMinGasPrice(uint256 _minGasPrice) external {
+        minGasPrice = _minGasPrice;
     }
 
     // ------------------------------
@@ -141,12 +138,5 @@ contract XOracleMock {
 
     function getPriceFeed(uint256 _tokenIndex) external view returns (address) {
         return priceFeedStores[_tokenIndex];
-    }
-
-    function paymentAvailable(address _owner) private view returns (bool) {
-        return ( 
-            weth.allowance(_owner, address(this)) > minFeeBalance && 
-            weth.balanceOf(_owner) > minFeeBalance
-        );
     }
 }

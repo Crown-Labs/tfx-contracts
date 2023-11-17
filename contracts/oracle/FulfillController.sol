@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface IXOracle {
-    function requestPrices(bytes memory payload, uint256 expiration) external payable returns (uint256);
+    function requestPrices(bytes memory payload, uint256 expiration, uint256 _maxGasPrice, uint256 _callbackGasLimit) external payable returns (uint256);
     function cancelRequestPrice(uint256 _reqId) external;
     function xOracleCall(uint256 reqId, bool priceUpdate, bytes memory payload) external;
     function getLastPrice(uint256 tokenIndex) external view returns (uint256, uint256, uint256);
@@ -79,6 +79,8 @@ contract FulfillController is Ownable {
     uint256 public lastTaskId;
 
     uint256 public expireTime = 60; // secs
+    uint256 public maxGasPrice = 10e9; // 10 gwei
+    uint256 public callbackGasLimit = 3000000; // 3M
 
     // access control
     mapping (address => bool) public handlers;
@@ -86,6 +88,8 @@ contract FulfillController is Ownable {
 
     // events
     event SetExpireTime(uint256 expireTime);
+    event SetMaxGasPrice(uint256 maxGasPrice);
+    event SetCallbackGasLimit(uint256 callbackGasLimit);
     event SetHandler(address handler, bool flag);
     event SetController(address controller, bool flag);
     event RequestTask(uint256 indexed taskId, address indexed account, bytes data);
@@ -145,7 +149,7 @@ contract FulfillController is Ownable {
 
         // make payload and call
         bytes memory payload = abi.encode(true, lastTaskId);
-        IXOracle(xOracle).requestPrices(payload, tasks[lastTaskId].expire); 
+        IXOracle(xOracle).requestPrices(payload, tasks[lastTaskId].expire, maxGasPrice, callbackGasLimit);
 
         emit RequestTask(lastTaskId, _account, _data);
     }
@@ -181,7 +185,7 @@ contract FulfillController is Ownable {
 
         // make payload and call
         bytes memory payload = abi.encode(true, lastTaskId);
-        IXOracle(xOracle).requestPrices(payload, tasks[lastTaskId].expire); 
+        IXOracle(xOracle).requestPrices(payload, tasks[lastTaskId].expire, maxGasPrice, callbackGasLimit);
 
         emit RequestTask(lastTaskId, _account, _data);
     }
@@ -193,9 +197,9 @@ contract FulfillController is Ownable {
         // allowance req fee
         IERC20(weth).approve(xOracle, type(uint256).max);
 
-         // make payload and call
+        // make payload and call
         bytes memory payload = abi.encode(false, 0);
-        IXOracle(xOracle).requestPrices(payload, 0); // with no expiration
+        IXOracle(xOracle).requestPrices(payload, 0, maxGasPrice, callbackGasLimit); // with no expiration
     }
 
     function refundTask(uint256 _taskId) external onlyController { 
@@ -394,6 +398,16 @@ contract FulfillController is Ownable {
         require(_expireTime <= 300, "max expireTime 5 minutes");
         expireTime = _expireTime;
         emit SetExpireTime(_expireTime);
+    }
+
+    function setMaxGasPrice(uint256 _maxGasPrice) external onlyOwner {
+        maxGasPrice = _maxGasPrice;
+        emit SetMaxGasPrice(_maxGasPrice);
+    }
+
+    function setCallbackGasLimit(uint256 _callbackGasLimit) external onlyOwner {
+        callbackGasLimit = _callbackGasLimit;
+        emit SetCallbackGasLimit(_callbackGasLimit);
     }
 
     function setHandler(address _handler, bool _flag) external onlyOwner {

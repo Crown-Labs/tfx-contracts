@@ -4,63 +4,66 @@ const fs = require('fs')
 const path = require('path')
 const parse = require('csv-parse')
 
-const network = process.env.HARDHAT_NETWORK || 'mainnet'
+const network = process.env.HARDHAT_NETWORK
 const tmpAddressesFilepath = path.join(__dirname, '..', '..', `.tmp-addresses-${process.env.HARDHAT_NETWORK}.json`)
 const deployedAddress = readTmpAddresses()
 
-const contactAddress = {
-  // address signer
-  deployer: config[getChainId(network)].deployer, // signer1
-  signer2: config[getChainId(network)].signer2,
-  signer3: config[getChainId(network)].signer3,
+let contactAddress = {}
+if (network) {
+  contactAddress = {
+    // address signer
+    deployer: config[getChainId(network)].deployer, // signer1
+    signer2: config[getChainId(network)].signer2,
+    signer3: config[getChainId(network)].signer3,
 
-  // bot
-  keeper: config[getChainId(network)].keeper,
-  liquidator: config[getChainId(network)].liquidator,
+    // bot
+    keeper: config[getChainId(network)].keeper,
+    liquidator: config[getChainId(network)].liquidator,
 
-  // fees
-  feeReceiver: config[getChainId(network)].feeReceiver, // execute fee
-  mintReceiver: config[getChainId(network)].mintReceiver,
+    // fees
+    feeReceiver: config[getChainId(network)].feeReceiver, // execute fee
+    mintReceiver: config[getChainId(network)].mintReceiver,
 
-  // token address
-  btc: deployedAddress['BTC'],
-  weth: config[getChainId(network)].weth,
-  bnb: deployedAddress['BNB'],
-  usdt: deployedAddress['USDT'],
-  usdc: deployedAddress['USDC'],
-  matic: deployedAddress['MATIC'],
-  op: deployedAddress['OP'],
-  arb: deployedAddress['ARB'],
+    // token address
+    btc: deployedAddress['BTC'],
+    weth: config[getChainId(network)].weth,
+    bnb: deployedAddress['BNB'],
+    usdt: deployedAddress['USDT'],
+    usdc: deployedAddress['USDC'],
+    matic: deployedAddress['MATIC'],
+    op: deployedAddress['OP'],
+    arb: deployedAddress['ARB'],
 
-  // xOracle price feed
-  btcPriceFeed: config[getChainId(network)].btcPriceFeed,
-  ethPriceFeed: config[getChainId(network)].ethPriceFeed,
-  bnbPriceFeed: config[getChainId(network)].bnbPriceFeed,
-  usdtPriceFeed: config[getChainId(network)].usdtPriceFeed,
-  usdcPriceFeed: config[getChainId(network)].usdcPriceFeed,
-  maticPriceFeed: config[getChainId(network)].maticPriceFeed,
-  opPriceFeed: config[getChainId(network)].opPriceFeed,
-  arbPriceFeed: config[getChainId(network)].arbPriceFeed,
+    // xOracle price feed
+    btcPriceFeed: config[getChainId(network)].btcPriceFeed,
+    ethPriceFeed: config[getChainId(network)].ethPriceFeed,
+    bnbPriceFeed: config[getChainId(network)].bnbPriceFeed,
+    usdtPriceFeed: config[getChainId(network)].usdtPriceFeed,
+    usdcPriceFeed: config[getChainId(network)].usdcPriceFeed,
+    maticPriceFeed: config[getChainId(network)].maticPriceFeed,
+    opPriceFeed: config[getChainId(network)].opPriceFeed,
+    arbPriceFeed: config[getChainId(network)].arbPriceFeed,
 
-  // deployed contract
-  xOracle: config[getChainId(network)].xOracle,
-  fulfillController: deployedAddress['FulfillController'],
-  tokenManager: deployedAddress['TokenManager'],
-  vault: deployedAddress['Vault'],
-  vaultPositionController: deployedAddress['VaultPositionController'],
-  vaultPriceFeed: deployedAddress['VaultPriceFeed'],
-  router: deployedAddress['Router'],
-  usdx: deployedAddress['USDX'],
-  xlp: deployedAddress['XLP'],
-  xlpManager: deployedAddress['XlpManager'],
-  referralStorage: deployedAddress['ReferralStorage'],
-  positionRouter: deployedAddress['PositionRouter'],
-  orderBook: deployedAddress['OrderBook'],
-  positionManager: deployedAddress['PositionManager'],
-  rewardRouterV3: deployedAddress['RewardRouterV3'],
-  timelock: deployedAddress['Timelock'],
-  fXLP: deployedAddress['fXLP (Fee XLP)'],
-  feeXlpDistributor: deployedAddress['feeXlpDistributor'],
+    // deployed contract
+    xOracle: config[getChainId(network)].xOracle,
+    fulfillController: deployedAddress['FulfillController'],
+    tokenManager: deployedAddress['TokenManager'],
+    vault: deployedAddress['Vault'],
+    vaultPositionController: deployedAddress['VaultPositionController'],
+    vaultPriceFeed: deployedAddress['VaultPriceFeed'],
+    router: deployedAddress['Router'],
+    usdx: deployedAddress['USDX'],
+    xlp: deployedAddress['XLP'],
+    xlpManager: deployedAddress['XlpManager'],
+    referralStorage: deployedAddress['ReferralStorage'],
+    positionRouter: deployedAddress['PositionRouter'],
+    orderBook: deployedAddress['OrderBook'],
+    positionManager: deployedAddress['PositionManager'],
+    rewardRouterV3: deployedAddress['RewardRouterV3'],
+    timelock: deployedAddress['Timelock'],
+    fXLP: deployedAddress['fXLP (Fee XLP)'],
+    feeXlpDistributor: deployedAddress['feeXlpDistributor'],
+  }
 }
 
 function getContractAddress(name, allowEmpty = false) {

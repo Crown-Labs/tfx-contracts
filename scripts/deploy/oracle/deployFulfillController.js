@@ -20,7 +20,9 @@ async function main() {
   let timelock;
 
   const lastTaskId = 0;
-  const depositWETH = "0.1";
+  const maxGasPrice = 20 * 1e9; // 20 gwei
+  const callbackGasLimit = 5000000; // 5M
+  const depositWETH = "0.3"; // 0.3 ETH
   
   // deploy FulfillController
   const fulfillController = await deployContract("FulfillController", [getContractAddress("xOracle"), nativeToken.address, lastTaskId], "", signer)
@@ -95,6 +97,10 @@ async function main() {
 
   // setController deployer and Calll requestUpdatePrices
   await sendTxn(fulfillController.setController(signer.address, true), `fulfillController.setController(${signer.address})`);
+
+  // set maxGasPrice and callbackGasLimit
+  await sendTxn(fulfillController.setMaxGasPrice(maxGasPrice), `fulfillController.setMaxGasPrice(${maxGasPrice})`);
+  await sendTxn(fulfillController.setCallbackGasLimit(callbackGasLimit), `fulfillController.setCallbackGasLimit(${callbackGasLimit})`);
 
   // wrap ETH and deposit fund
   await sendTxn(weth.deposit({ value: ethers.utils.parseEther(depositWETH) }), `weth.deposit(${depositWETH})`);
