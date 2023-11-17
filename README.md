@@ -34,7 +34,7 @@ Local Setup Steps:
 |fXLP (Fee XLP)            |[0x9a5953a5Bff39e67710482886D7dCDa3A0b8EC67](https://goerli.lineascan.build/address/0x9a5953a5Bff39e67710482886D7dCDa3A0b8EC67)|
 |feeXlpDistributor            |[0xccEaEC4b4DBaB09E58beB4aCF6CAd6Ad7E338797](https://goerli.lineascan.build/address/0xccEaEC4b4DBaB09E58beB4aCF6CAd6Ad7E338797)|
 |RewardRouterV3            |[0x4c89F5c6E676994D22bE1EE88E2e380644455E51](https://goerli.lineascan.build/address/0x4c89F5c6E676994D22bE1EE88E2e380644455E51)|
-|FulfillController            |[0x33a0fcCC68F10D4C5f8f93AE94086c8422d73877](https://goerli.lineascan.build/address/0x33a0fcCC68F10D4C5f8f93AE94086c8422d73877)|
+|FulfillController            |[0x3c57F9C7e422e1A6174936cB63e4031576a45066](https://goerli.lineascan.build/address/0x3c57F9C7e422e1A6174936cB63e4031576a45066)|
 |Timelock            |[0xea237f67Fa61E6B8ED0B0e0b5EF4A4B3564272B9](https://goerli.lineascan.build/address/0xea237f67Fa61E6B8ED0B0e0b5EF4A4B3564272B9)|
 |OrderBookReader            |[0x0E171dea36889c2DE1d9320f6d56725c57e16716](https://goerli.lineascan.build/address/0x0E171dea36889c2DE1d9320f6d56725c57e16716)|
 |RewardReader            |[0x2588F64e3cAC218E673662552Ce4Ac719dE9d138](https://goerli.lineascan.build/address/0x2588F64e3cAC218E673662552Ce4Ac719dE9d138)|
