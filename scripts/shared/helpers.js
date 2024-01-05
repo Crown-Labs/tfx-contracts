@@ -161,7 +161,7 @@ async function sendTxn(txnPromise, label) {
   return txn
 }
 
-async function deployContract(name, args, label, provider, options, retry = 3) {
+async function deployContract(name, args, label, provider, options, retry = 20) {
   if (!label) {
     label = name
   }

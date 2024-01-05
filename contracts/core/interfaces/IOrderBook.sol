@@ -53,4 +53,5 @@ interface IOrderBook {
     ) external view returns (uint256, bool);
 
     function orderBookOpenOrder() external returns (address);
+    function vault() external view returns (address);
 }

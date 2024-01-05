@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 
 import "../libraries/utils/IterableMapping.sol";
 import "./interfaces/IVaultPositionController.sol";
+import "./interfaces/IVault.sol";
 import "./interfaces/IOrderBook.sol";
 import "./interfaces/IOrderBookOpenOrder.sol";
 import "../libraries/math/SafeMath.sol";
@@ -120,24 +121,7 @@ contract OrderBookOpenOrder is IOrderBookOpenOrder {
                     ) = IOrderBook(orderBook).getIncreaseOrder(order.account, order.orderIndex);
                     (, shouldExecute) = IOrderBook(orderBook).validatePositionOrderPrice(triggerAboveThreshold, triggerPrice, indexToken, isLong, false);
                 } else if (order.orderType == 2) { // DECREASE
-                    (
-                        address collateralToken,
-                        uint256 collateralDelta,
-                        address indexToken,
-                        uint256 sizeDelta,
-                        bool isLong,
-                        uint256 triggerPrice,
-                        bool triggerAboveThreshold,
-                        /* uint256 executionFee */
-                    ) = IOrderBook(orderBook).getDecreaseOrder(order.account, order.orderIndex);
-                    (uint256 size, uint256 collateral , , , , , , ) = IVaultPositionController(vaultPositionController).getPosition(order.account, collateralToken, indexToken, isLong);
-                    if (size > 0 && sizeDelta <= size && collateralDelta <= collateral) { 
-                        (, shouldExecute) = IOrderBook(orderBook).validatePositionOrderPrice(triggerAboveThreshold, triggerPrice, indexToken, !isLong, false);
-                        if (shouldExecute) {
-                            // Order cannot be executed as it would reduce the position's leverage below 1
-                            shouldExecute = (size == sizeDelta) || (size.sub((sizeDelta)) >= collateral.sub(collateralDelta));
-                        }
-                    }    
+                    shouldExecute = validateDecreaseOrder(order);      
                 }
                 if (shouldExecute) {
                     if(_returnFirst) {
@@ -158,5 +142,37 @@ contract OrderBookOpenOrder is IOrderBookOpenOrder {
         }
         
         return (shouldExecuteIndex > 0, returnList);
+    }
+
+    function validateDecreaseOrder(Orders memory _order) internal view returns(bool shouldExecute) {
+        address account = _order.account; // avoid stack too deep
+        (
+            address collateralToken,
+            uint256 collateralDelta,
+            address indexToken,
+            uint256 sizeDelta,
+            bool isLong,
+            uint256 triggerPrice,
+            bool triggerAboveThreshold,
+            /* uint256 executionFee */
+        ) = IOrderBook(orderBook).getDecreaseOrder(account, _order.orderIndex);
+        (uint256 size, uint256 collateral, , uint256 entryFundingRate, , , , ) = IVaultPositionController(vaultPositionController).getPosition(account, collateralToken, indexToken, isLong);
+        
+        if (size > 0 && sizeDelta <= size && collateralDelta <= collateral) { 
+            (, shouldExecute) = IOrderBook(orderBook).validatePositionOrderPrice(triggerAboveThreshold, triggerPrice, indexToken, !isLong, false);
+            if (shouldExecute) {
+                if (size == sizeDelta) { // close position
+                    shouldExecute = true;
+                } else if (size.sub((sizeDelta)) >= collateral.sub(collateralDelta)) { // Order cannot be executed as it would reduce the position's leverage below 1
+                    // check liquidation fees exceed collateral
+                    address vault = IOrderBook(orderBook).vault();
+                    uint256 remainingCollateral = collateral.sub(collateralDelta);
+                    uint256 marginFees = IVault(vault).getFundingFee(account, collateralToken, indexToken, isLong, size, entryFundingRate);
+                    marginFees = marginFees.add(IVault(vault).getPositionFee(address(0), address(0), address(0), true, size));
+
+                    shouldExecute = (remainingCollateral > marginFees.add(IVault(vault).liquidationFeeUsd()));
+                }
+            }
+        }
     }
 }

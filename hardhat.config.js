@@ -31,7 +31,7 @@ module.exports = {
     lineaTestnet: {
       url: "https://rpc.goerli.linea.build",
       chainId: 59140,
-      gasPrice: 3 * 10**9,
+      gasPrice: 2.1 * 10**9,
       accounts: [`0x${process.env.PRIVATE_KEY}`],
     },
   },

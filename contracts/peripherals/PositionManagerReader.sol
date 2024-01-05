@@ -281,12 +281,13 @@ contract PositionManagerReader {
             (, shouldExecute) = validatePositionOrderPrice(triggerAboveThreshold, triggerPrice, indexToken, /* isLong, false, */ vault, lastPrice);
             if (shouldExecute) {
                 // avoid stack too deep
-                shouldExecute = validateDecreaseOrderSize(order, orderBook);
+                shouldExecute = validateDecreaseOrderSize(order, orderBook, vault);
             }
         }  
     }
 
-    function validateDecreaseOrderSize(Orders memory order, address orderBook) private view returns(bool) {
+    function validateDecreaseOrderSize(Orders memory order, address orderBook, address vault) private view returns(bool) {
+        address account = order.account; // avoid stack too deep
         (
             address collateralToken,
             uint256 collateralDelta,
@@ -296,14 +297,22 @@ contract PositionManagerReader {
             /* uint256 triggerPrice */,
             /* bool triggerAboveThreshold */,
             /* uint256 executionFee */
-        ) = IOrderBook(orderBook).getDecreaseOrder(order.account, order.orderIndex);
+        ) = IOrderBook(orderBook).getDecreaseOrder(account, order.orderIndex);
 
         address vaultPositionController = IOrderBook(orderBook).vaultPositionController();
-        (uint256 size, uint256 collateral, , , , , , ) = IVaultPositionController(vaultPositionController).getPosition(order.account, collateralToken, indexToken, isLong);
+        (uint256 size, uint256 collateral, , uint256 entryFundingRate, , , , ) = IVaultPositionController(vaultPositionController).getPosition(account, collateralToken, indexToken, isLong);
 
         if (size > 0 && sizeDelta <= size && collateralDelta <= collateral) { 
-            // Order cannot be executed as it would reduce the position's leverage below 1
-            return (size == sizeDelta) || (size.sub((sizeDelta)) >= collateral.sub(collateralDelta));
+            if (size == sizeDelta) { // close position
+                return true;
+            } else if (size.sub((sizeDelta)) >= collateral.sub(collateralDelta)) { // Order cannot be executed as it would reduce the position's leverage below 1
+                // check liquidation fees exceed collateral
+                uint256 remainingCollateral = collateral.sub(collateralDelta);
+                uint256 marginFees = IVault(vault).getFundingFee(account, collateralToken, indexToken, isLong, size, entryFundingRate);
+                marginFees = marginFees.add(IVault(vault).getPositionFee(address(0), address(0), address(0), true, size));
+
+                return (remainingCollateral > marginFees.add(IVault(vault).liquidationFeeUsd()));
+            }
         }
         return false;
     }
