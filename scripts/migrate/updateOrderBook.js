@@ -27,7 +27,7 @@ async function main() {
   await sendTxn(timelock.signalSetGov(router.address, signer.address), `timelock.signalSetGov(router)`);
   
   console.log(`wait for timelock...`);
-  await sleep(1000 * 60 * 5.1); // wait 5.1 mins
+  await sleep(1000 * 60 * 5.5); // wait 5.5 mins
 
   await sendTxn(timelock.setGov(router.address, signer.address), `timelock.setGov(router)`);
   
