@@ -28,23 +28,23 @@ module.exports = {
         url: "", 
       } */
     },
-    lineaTestnet: {
-      url: "https://rpc.goerli.linea.build",
-      chainId: 59140,
-      gasPrice: 2.1 * 10**9,
+    arbTestnet: {
+      url: "https://sepolia-rollup.arbitrum.io/rpc",
+      chainId: 421614,
+      gasPrice: 1.5 * 10**9,
       accounts: [`0x${process.env.PRIVATE_KEY}`],
     },
   },
   etherscan: {
     apiKey: {
-      lineaTestnet: `${process.env.LINEA_TESTNET_APIKEY}`,
+      arbTestnet: `${process.env.ARB_TESTNET_APIKEY}`,
     },
     customChains: [{
-        network: "lineaTestnet",
-        chainId: 59140,
+        network: "arbTestnet",
+        chainId: 421614,
         urls: {
-          apiURL: "https://api-testnet.lineascan.build/api",
-          browserURL: "https://goerli.lineascan.build/"
+          apiURL: "https://api-sepolia.arbiscan.io/api",
+          browserURL: "https://sepolia.arbiscan.io"
         }
       },
     ], 

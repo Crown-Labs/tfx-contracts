@@ -27,20 +27,18 @@ if (network) {
     // token address
     btc: deployedAddress['BTC'],
     weth: config[getChainId(network)].weth,
-    bnb: deployedAddress['BNB'],
+    sol: deployedAddress['SOL'],
     usdt: deployedAddress['USDT'],
     usdc: deployedAddress['USDC'],
-    matic: deployedAddress['MATIC'],
     op: deployedAddress['OP'],
     arb: deployedAddress['ARB'],
 
     // xOracle price feed
     btcPriceFeed: config[getChainId(network)].btcPriceFeed,
     ethPriceFeed: config[getChainId(network)].ethPriceFeed,
-    bnbPriceFeed: config[getChainId(network)].bnbPriceFeed,
+    solPriceFeed: config[getChainId(network)].solPriceFeed,
     usdtPriceFeed: config[getChainId(network)].usdtPriceFeed,
     usdcPriceFeed: config[getChainId(network)].usdcPriceFeed,
-    maticPriceFeed: config[getChainId(network)].maticPriceFeed,
     opPriceFeed: config[getChainId(network)].opPriceFeed,
     arbPriceFeed: config[getChainId(network)].arbPriceFeed,
 

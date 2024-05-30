@@ -3,8 +3,8 @@ const network = (process.env.HARDHAT_NETWORK || 'mainnet');
 const tokens = require('../../shared/tokens')[network];
 
 async function main() {
-  const { btc, eth, bnb, usdt, usdc, matic, op, arb, nativeToken } = tokens
-  const tokenArr = [btc, eth, bnb, usdt, usdc, matic, op, arb]
+  const { btc, eth, sol, usdt, usdc, op, arb, nativeToken } = tokens
+  const tokenArr = [btc, eth, sol, usdt, usdc, op, arb]
 
   const signer = await getFrameSigner()
 
