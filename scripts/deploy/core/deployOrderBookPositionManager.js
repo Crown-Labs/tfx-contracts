@@ -11,7 +11,7 @@ async function main() {
   const vaultPositionController = await contractAt("VaultPositionController", getContractAddress("vaultPositionController"))
   const router = await contractAt("Router", getContractAddress("router"), signer)
   const weth = await contractAt("WETH", tokens.nativeToken.address)
-  const depositFee = 30 // 0.3%
+  const depositFee = 10 // 0.1%
 
   const orderKeeper = { address: getContractAddress("keeper") }
   const liquidator = { address: getContractAddress("liquidator") }

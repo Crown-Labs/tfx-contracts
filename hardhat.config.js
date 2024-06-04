@@ -31,7 +31,7 @@ module.exports = {
     arbTestnet: {
       url: "https://sepolia-rollup.arbitrum.io/rpc",
       chainId: 421614,
-      gasPrice: 1.5 * 10**9,
+      gasPrice: 3 * 10**9,
       accounts: [`0x${process.env.PRIVATE_KEY}`],
     },
   },

@@ -11,7 +11,7 @@ async function main() {
   const router = await contractAt("Router", getContractAddress("router"), signer)
   const weth = await contractAt("WETH", tokens.nativeToken.address) 
   const referralStorage = await contractAt("ReferralStorage", getContractAddress("referralStorage"), signer)
-  const depositFee = "30" // 0.3%
+  const depositFee = "10" // 0.1%
   const minExecutionFee = "300000000000000" // 0.0003 ETH
 
   const positionRouter = await deployContract("PositionRouter", [vault.address, vaultPositionController.address, router.address, weth.address, depositFee, minExecutionFee], "PositionRouter", signer)
