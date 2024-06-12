@@ -29,7 +29,7 @@ const config = {
     weth: '0x980B62Da83eFf3D4576C647993b0c1D7faf17c73',
 
     // xOracle price feed
-    xOracle: '0xb376D2fe17CAfc7Fe841E16b897Fe658f1e8De7D', // update 2024-05-30
+    xOracle: '0xa3B16ad55513d91c8650Ef7D218A5299d59265d7', // update 2024-06-12
     btcPriceFeed: '0x1296d3a1DE3f7BE8cB1F76C888e51c47915d8001',
     ethPriceFeed: '0x4c685b51bc534508a3AfBf0d8F4c0Ec73E5d3c5A',
     usdtPriceFeed: '0xC7cCDbD2cC787065A5b634A1E532430411A5849a',
