@@ -1,7 +1,7 @@
 const { contractAt, sendTxn, getContractAddress, getFrameSigner, expandDecimals } = require("../shared/helpers")
 
 async function main() {
-  
+
   const signer = await getFrameSigner()
   const wallet = "0x240EF48786F79a0EDc2C4ebcE452af23984443C3";
 
@@ -13,20 +13,20 @@ async function main() {
   const arb = await contractAt("FaucetToken", getContractAddress("arb"), signer)
 
   // Wallet
-  await sendTxn(btc.mint(wallet, expandDecimals(10000000, 18)),"Mint BTC");
-  await sendTxn(usdt.mint(wallet, expandDecimals(10000000, 18)),"Mint USDT");
-  await sendTxn(usdc.mint(wallet, expandDecimals(10000000, 18)),"Mint USDC");
-  await sendTxn(sol.mint(wallet, expandDecimals(10000000, 18)),"Mint SOL");
-  await sendTxn(op.mint(wallet, expandDecimals(10000000, 18)),"Mint OP");
-  await sendTxn(arb.mint(wallet, expandDecimals(10000000, 18)),"Mint ARB");
-  
+  await sendTxn(btc.mint(wallet, expandDecimals(10000000, 18)), "Mint BTC");
+  await sendTxn(usdt.mint(wallet, expandDecimals(10000000, 18)), "Mint USDT");
+  await sendTxn(usdc.mint(wallet, expandDecimals(10000000, 18)), "Mint USDC");
+  await sendTxn(sol.mint(wallet, expandDecimals(10000000, 18)), "Mint SOL");
+  await sendTxn(op.mint(wallet, expandDecimals(10000000, 18)), "Mint OP");
+  await sendTxn(arb.mint(wallet, expandDecimals(10000000, 18)), "Mint ARB");
+
   // Deployer
-  await sendTxn(btc.mint(signer.address, expandDecimals(10000000, 18)),"Mint BTC");
-  await sendTxn(usdt.mint(signer.address, expandDecimals(10000000, 18)),"Mint USDT");
-  await sendTxn(usdc.mint(signer.address, expandDecimals(10000000, 18)),"Mint USDC");
-  await sendTxn(sol.mint(signer.address, expandDecimals(10000000, 18)),"Mint SOL");
-  await sendTxn(op.mint(signer.address, expandDecimals(10000000, 18)),"Mint OP");
-  await sendTxn(arb.mint(signer.address, expandDecimals(10000000, 18)),"Mint ARB");
+  await sendTxn(btc.mint(signer.address, expandDecimals(10000000, 18)), "Mint BTC");
+  await sendTxn(usdt.mint(signer.address, expandDecimals(10000000, 18)), "Mint USDT");
+  await sendTxn(usdc.mint(signer.address, expandDecimals(10000000, 18)), "Mint USDC");
+  await sendTxn(sol.mint(signer.address, expandDecimals(10000000, 18)), "Mint SOL");
+  await sendTxn(op.mint(signer.address, expandDecimals(10000000, 18)), "Mint OP");
+  await sendTxn(arb.mint(signer.address, expandDecimals(10000000, 18)), "Mint ARB");
 }
 
 main()
